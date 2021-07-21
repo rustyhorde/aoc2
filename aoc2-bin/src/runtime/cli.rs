@@ -8,7 +8,7 @@
 
 //! `aoc` Command Line Interface
 
-use aoc2::constants::{get_day_about, AoCDay};
+use aoc2_sol::constants::{get_day_about, AoCDay};
 use clap::{crate_authors, crate_name, crate_version, App, Arg, SubCommand};
 
 pub(crate) const DEFAULT_YEAR: &str = "2021";

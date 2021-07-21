@@ -12,9 +12,9 @@ mod cli;
 mod config;
 mod header;
 
-use crate::runtime::constants::AoCDay;
+use self::cli::YEAR;
 use anyhow::{anyhow, Result};
-use aoc2::constants;
+use aoc2_sol::constants::{self, AoCDay, AoCYear};
 use clap::ArgMatches;
 use std::{
     convert::TryFrom,
@@ -22,8 +22,6 @@ use std::{
     io::{self, BufRead, BufReader},
     path::PathBuf,
 };
-
-use self::{cli::YEAR, constants::AoCYear};
 
 pub(crate) fn run() -> Result<()> {
     // Parse the command line
@@ -91,5 +89,5 @@ fn find_solution(matches: &ArgMatches<'_>, year: AoCYear, day: AoCDay) -> Result
     let reader = BufReader::new(File::open(filepath)?);
     let is_second_star = matches.is_present("second");
 
-    aoc2::find_solution(reader.lines(), year, day, is_second_star)
+    aoc2_sol::find_solution(reader.lines(), year, day, is_second_star)
 }

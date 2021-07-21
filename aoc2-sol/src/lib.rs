@@ -158,15 +158,7 @@ mod utils;
 mod year2015;
 
 use anyhow::{anyhow, Result};
-use clap as _;
-use console as _;
 use constants::{AoCDay, AoCYear};
-use indexmap as _;
-use lazy_static as _;
-use rand as _;
-use rayon as _;
-#[cfg(test)]
-use regex as _;
 
 ///
 ///
