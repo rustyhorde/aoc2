@@ -7,3 +7,6 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0.42"
+bitvec = "0.22.3"
+md5 = "0.7.0"
+rayon = "1.5.1"

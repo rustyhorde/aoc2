@@ -54,7 +54,7 @@
 //!
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::run_solution,
+    utils::{run_solution, valid_lines},
 };
 use anyhow::Result;
 use std::{
@@ -80,9 +80,7 @@ fn find_area_br<T>(reader: T) -> usize
 where
     T: BufRead,
 {
-    reader
-        .lines()
-        .filter_map(std::result::Result::ok)
+    valid_lines(reader)
         .scan(0, handle_line_p1)
         .last()
         .unwrap_or_default()
@@ -135,9 +133,7 @@ fn find_length_br<T>(reader: T) -> usize
 where
     T: BufRead,
 {
-    reader
-        .lines()
-        .filter_map(std::result::Result::ok)
+    valid_lines(reader)
         .scan(0, handle_line_p2)
         .last()
         .unwrap_or_default()

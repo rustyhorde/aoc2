@@ -50,7 +50,7 @@
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::run_solution,
+    utils::{run_solution, valid_lines},
 };
 use anyhow::{anyhow, Result};
 use std::{
@@ -79,7 +79,7 @@ where
 {
     let mut house_map = HashMap::new();
 
-    for line in reader.lines().filter_map(std::result::Result::ok) {
+    for line in valid_lines(reader) {
         start_delivery(&mut house_map, line.chars())?;
     }
 
@@ -137,7 +137,7 @@ where
 {
     let mut house_map = HashMap::new();
 
-    for line in reader.lines().filter_map(std::result::Result::ok) {
+    for line in valid_lines(reader) {
         let santa_iter = line.chars().step_by(2);
         let robo_iter = line.chars().skip(1).step_by(2);
 

@@ -14,7 +14,7 @@ use std::{
     convert::TryFrom,
     fmt,
     fs::File,
-    io::BufReader,
+    io::{BufRead, BufReader},
     path::PathBuf,
     time::{Duration, Instant},
 };
@@ -91,4 +91,12 @@ where
     println!("Answer:  {}", res);
     println!("Elapsed: {}.{}{}", whole, frac, units);
     Ok(res)
+}
+
+#[inline]
+pub(crate) fn valid_lines<T>(reader: T) -> impl Iterator<Item = String>
+where
+    T: BufRead,
+{
+    reader.lines().filter_map(std::result::Result::ok)
 }

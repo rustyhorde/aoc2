@@ -10,6 +10,8 @@
 //!
 //! **--- Day 1: Not Quite Lisp ---**
 //!
+//! **--- Part 1 ---**
+//!
 //! Santa was hoping for a white Christmas, but his weather machine's "snow"
 //! function is powered by stars, and he's fresh out! To save Christmas, he
 //! needs you to collect fifty stars by December 25th.
@@ -40,10 +42,23 @@
 //! * `)))` and `)())())` both result in floor -3.
 //!
 //! To what floor do the instructions take Santa?
+//!
+//! **--- Part Two ---**
+//!
+//! Now, given the same instructions, find the position of the first character
+//! that causes him to enter the basement (floor -1). The first character in
+//! the instructions has position 1, the second character has position 2, and so on.
+//!
+//! For example:
+//!
+//! * `)` causes him to enter the basement at character position 1.
+//! * `()())` causes him to enter the basement at character position 5.
+//!
+//! What is the position of the character that causes Santa to first enter the basement?
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::run_solution,
+    utils::{run_solution, valid_lines},
 };
 use anyhow::Result;
 use std::{
@@ -69,10 +84,7 @@ fn find_floor_br<T>(reader: T) -> isize
 where
     T: BufRead,
 {
-    reader
-        .lines()
-        .filter_map(std::result::Result::ok)
-        .fold(0, handle_line)
+    valid_lines(reader).fold(0, handle_line)
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -110,9 +122,7 @@ where
 {
     let mut state = (0, 0);
 
-    reader
-        .lines()
-        .filter_map(std::result::Result::ok)
+    valid_lines(reader)
         .map(|line| line.chars().scan(&mut state, handle_ch).for_each(|_| ()))
         .for_each(|_| ());
 
@@ -177,11 +187,7 @@ mod two_star {
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(
-            find_basement_br(Cursor::new(TEST_CHAIN)),
-            1,
-            "they don't match"
-        );
+        assert_eq!(find_basement_br(Cursor::new(TEST_CHAIN)), 1,);
         assert_eq!(find_basement_br(Cursor::new(TEST_CHAIN_1)), 5);
         Ok(())
     }
