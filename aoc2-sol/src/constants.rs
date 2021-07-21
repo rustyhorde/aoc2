@@ -6,12 +6,39 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! `aoc` Command Line Helper enums
+//! `aoc2` Year and Day enums
+//!
+//! # Example
+//! ```
+//! # use anyhow::Result;
+//! # use aoc2_sol::constants::{AoCDay, AoCYear};
+//! # use std::convert::TryFrom;
+//! # fn main() -> Result<()> {
+//! assert_eq!("day01", <&str>::from(AoCDay::AOCD01));
+//! let year = AoCYear::try_from("2015")?;
+//! assert_eq!("2015", <&str>::from(year));
+//! #   Ok(())
+//! # }
+//! ```
+//!
 
 use anyhow::{anyhow, Error, Result};
 use std::convert::TryFrom;
 
 /// Advent of Code Year
+///
+/// # Example
+/// ```
+/// # use anyhow::Result;
+/// # use aoc2_sol::constants::AoCYear;
+/// # use std::convert::TryFrom;
+/// # fn main() -> Result<()> {
+/// let year = AoCYear::try_from("2015")?;
+/// assert_eq!("2015", <&str>::from(year));
+/// #   Ok(())
+/// # }
+/// ```
+///
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AoCYear {
     /// Advent of Code 2015
@@ -46,6 +73,7 @@ impl From<AoCYear> for &'_ str {
 
 impl TryFrom<&'_ str> for AoCYear {
     type Error = Error;
+
     fn try_from(year: &str) -> Result<Self> {
         match year {
             "2015" => Ok(AoCYear::AOC2015),
@@ -61,6 +89,12 @@ impl TryFrom<&'_ str> for AoCYear {
 }
 
 /// Advent of Code Days
+///
+/// # Example
+/// ```
+/// # use aoc2_sol::constants::AoCDay;
+/// assert_eq!("day01", <&str>::from(AoCDay::AOCD01));
+/// ```
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AoCDay {
     /// Day 1
@@ -199,57 +233,63 @@ pub const DAY_24: &str = "day24";
 pub const DAY_25: &str = "day25";
 
 /// Advent of Code Day 1 about string
-pub const DAY_1_ABOUT: &str = "Advent of Code - Day 01";
+const DAY_1_ABOUT: &str = "Advent of Code - Day 01";
 /// Advent of Code Day 2 about string
-pub const DAY_2_ABOUT: &str = "Advent of Code - Day 02";
+const DAY_2_ABOUT: &str = "Advent of Code - Day 02";
 /// Advent of Code Day 3 about string
-pub const DAY_3_ABOUT: &str = "Advent of Code - Day 03";
+const DAY_3_ABOUT: &str = "Advent of Code - Day 03";
 /// Advent of Code Day 4 about string
-pub const DAY_4_ABOUT: &str = "Advent of Code - Day 04";
+const DAY_4_ABOUT: &str = "Advent of Code - Day 04";
 /// Advent of Code Day 5 about string
-pub const DAY_5_ABOUT: &str = "Advent of Code - Day 05";
+const DAY_5_ABOUT: &str = "Advent of Code - Day 05";
 /// Advent of Code Day 6 about string
-pub const DAY_6_ABOUT: &str = "Advent of Code - Day 06";
+const DAY_6_ABOUT: &str = "Advent of Code - Day 06";
 /// Advent of Code Day 7 about string
-pub const DAY_7_ABOUT: &str = "Advent of Code - Day 07";
+const DAY_7_ABOUT: &str = "Advent of Code - Day 07";
 /// Advent of Code Day 8 about string
-pub const DAY_8_ABOUT: &str = "Advent of Code - Day 08";
+const DAY_8_ABOUT: &str = "Advent of Code - Day 08";
 /// Advent of Code Day 9 about string
-pub const DAY_9_ABOUT: &str = "Advent of Code - Day 09";
+const DAY_9_ABOUT: &str = "Advent of Code - Day 09";
 /// Advent of Code Day 10 about string
-pub const DAY_10_ABOUT: &str = "Advent of Code - Day 10";
+const DAY_10_ABOUT: &str = "Advent of Code - Day 10";
 /// Advent of Code Day 11 about string
-pub const DAY_11_ABOUT: &str = "Advent of Code - Day 11";
+const DAY_11_ABOUT: &str = "Advent of Code - Day 11";
 /// Advent of Code Day 12 about string
-pub const DAY_12_ABOUT: &str = "Advent of Code - Day 12";
+const DAY_12_ABOUT: &str = "Advent of Code - Day 12";
 /// Advent of Code Day 13 about string
-pub const DAY_13_ABOUT: &str = "Advent of Code - Day 13";
+const DAY_13_ABOUT: &str = "Advent of Code - Day 13";
 /// Advent of Code Day 14 about string
-pub const DAY_14_ABOUT: &str = "Advent of Code - Day 14";
+const DAY_14_ABOUT: &str = "Advent of Code - Day 14";
 /// Advent of Code Day 15 about string
-pub const DAY_15_ABOUT: &str = "Advent of Code - Day 15";
+const DAY_15_ABOUT: &str = "Advent of Code - Day 15";
 /// Advent of Code Day 16 about string
-pub const DAY_16_ABOUT: &str = "Advent of Code - Day 16";
+const DAY_16_ABOUT: &str = "Advent of Code - Day 16";
 /// Advent of Code Day 17 about string
-pub const DAY_17_ABOUT: &str = "Advent of Code - Day 17";
+const DAY_17_ABOUT: &str = "Advent of Code - Day 17";
 /// Advent of Code Day 18 about string
-pub const DAY_18_ABOUT: &str = "Advent of Code - Day 18";
+const DAY_18_ABOUT: &str = "Advent of Code - Day 18";
 /// Advent of Code Day 19 about string
-pub const DAY_19_ABOUT: &str = "Advent of Code - Day 19";
+const DAY_19_ABOUT: &str = "Advent of Code - Day 19";
 /// Advent of Code Day 20 about string
-pub const DAY_20_ABOUT: &str = "Advent of Code - Day 20";
+const DAY_20_ABOUT: &str = "Advent of Code - Day 20";
 /// Advent of Code Day 21 about string
-pub const DAY_21_ABOUT: &str = "Advent of Code - Day 21";
+const DAY_21_ABOUT: &str = "Advent of Code - Day 21";
 /// Advent of Code Day 22 about string
-pub const DAY_22_ABOUT: &str = "Advent of Code - Day 22";
+const DAY_22_ABOUT: &str = "Advent of Code - Day 22";
 /// Advent of Code Day 23 about string
-pub const DAY_23_ABOUT: &str = "Advent of Code - Day 23";
+const DAY_23_ABOUT: &str = "Advent of Code - Day 23";
 /// Advent of Code Day 24 about string
-pub const DAY_24_ABOUT: &str = "Advent of Code - Day 24";
+const DAY_24_ABOUT: &str = "Advent of Code - Day 24";
 /// Advent of Code Day 25 about string
-pub const DAY_25_ABOUT: &str = "Advent of Code - Day 25";
+const DAY_25_ABOUT: &str = "Advent of Code - Day 25";
 
-/// Get the pub constants tuple for a given day.
+/// Get the about string for the command line for a given day
+///
+/// # Example
+/// ```
+/// # use aoc2_sol::constants::{AoCDay, get_day_about};
+/// assert_eq!("Advent of Code - Day 25", get_day_about(AoCDay::AOCD25));
+/// ```
 #[must_use]
 pub fn get_day_about<'a>(day: AoCDay) -> &'a str {
     match day {

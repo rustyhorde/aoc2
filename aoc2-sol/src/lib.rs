@@ -7,6 +7,13 @@
 // modified, or distributed except according to those terms.
 
 //! `aoc2` library
+//!
+//! # Example
+//! ```
+//! use aoc2_sol;
+//!
+//! let res = aoc2_sol::year2015::day01::part_1();
+//! ```
 
 // rustc lints
 #![deny(
@@ -148,37 +155,17 @@
     rustdoc::invalid_codeblock_attributes,
     rustdoc::invalid_html_tags,
     rustdoc::missing_crate_level_docs,
-    rustdoc::missing_doc_code_examples,
+    // rustdoc::missing_doc_code_examples,
     rustdoc::private_doc_tests,
     rustdoc::private_intra_doc_links
 )]
 
 pub mod constants;
 mod utils;
-mod year2015;
-
-use anyhow::{anyhow, Result};
-use constants::{AoCDay, AoCYear};
-
-///
-///
-/// # Errors
-///
-pub fn find_solution(
-    iter: impl Iterator<Item = std::io::Result<String>> + Send,
-    year: AoCYear,
-    day: AoCDay,
-    second_star: bool,
-) -> Result<u32> {
-    find_fn(year, day, second_star)?(iter)
-}
-
-fn find_fn<T>(year: AoCYear, day: AoCDay, second_star: bool) -> Result<fn(T) -> Result<u32>>
-where
-    T: Iterator<Item = std::io::Result<String>> + Send,
-{
-    match year {
-        AoCYear::AOC2015 => year2015::match_fn(day, second_star),
-        _ => Err(anyhow!("not implemented")),
-    }
-}
+pub mod year2015;
+pub mod year2016;
+pub mod year2017;
+pub mod year2018;
+pub mod year2019;
+pub mod year2020;
+pub mod year2021;

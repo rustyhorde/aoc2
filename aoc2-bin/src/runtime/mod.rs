@@ -14,14 +14,14 @@ mod header;
 
 use self::cli::YEAR;
 use anyhow::{anyhow, Result};
-use aoc2_sol::constants::{self, AoCDay, AoCYear};
-use clap::ArgMatches;
-use std::{
-    convert::TryFrom,
-    fs::File,
-    io::{self, BufRead, BufReader},
-    path::PathBuf,
+use aoc2_sol::constants::{
+    AoCDay, AoCYear, DAY_1, DAY_10, DAY_11, DAY_12, DAY_13, DAY_14, DAY_15, DAY_16, DAY_17, DAY_18,
+    DAY_19, DAY_2, DAY_20, DAY_21, DAY_22, DAY_23, DAY_24, DAY_25, DAY_3, DAY_4, DAY_5, DAY_6,
+    DAY_7, DAY_8, DAY_9,
 };
+use clap::ArgMatches;
+use lazy_static::lazy_static;
+use std::{collections::HashMap, convert::TryFrom, io};
 
 pub(crate) fn run() -> Result<()> {
     // Parse the command line
@@ -40,31 +40,31 @@ pub(crate) fn run() -> Result<()> {
     )?;
 
     let match_tuple = match matches.subcommand() {
-        (constants::DAY_1, Some(matches)) => (matches, AoCDay::AOCD01),
-        (constants::DAY_2, Some(matches)) => (matches, AoCDay::AOCD02),
-        (constants::DAY_3, Some(matches)) => (matches, AoCDay::AOCD03),
-        (constants::DAY_4, Some(matches)) => (matches, AoCDay::AOCD04),
-        (constants::DAY_5, Some(matches)) => (matches, AoCDay::AOCD05),
-        (constants::DAY_6, Some(matches)) => (matches, AoCDay::AOCD06),
-        (constants::DAY_7, Some(matches)) => (matches, AoCDay::AOCD07),
-        (constants::DAY_8, Some(matches)) => (matches, AoCDay::AOCD08),
-        (constants::DAY_9, Some(matches)) => (matches, AoCDay::AOCD09),
-        (constants::DAY_10, Some(matches)) => (matches, AoCDay::AOCD10),
-        (constants::DAY_11, Some(matches)) => (matches, AoCDay::AOCD11),
-        (constants::DAY_12, Some(matches)) => (matches, AoCDay::AOCD12),
-        (constants::DAY_13, Some(matches)) => (matches, AoCDay::AOCD13),
-        (constants::DAY_14, Some(matches)) => (matches, AoCDay::AOCD14),
-        (constants::DAY_15, Some(matches)) => (matches, AoCDay::AOCD15),
-        (constants::DAY_16, Some(matches)) => (matches, AoCDay::AOCD16),
-        (constants::DAY_17, Some(matches)) => (matches, AoCDay::AOCD17),
-        (constants::DAY_18, Some(matches)) => (matches, AoCDay::AOCD18),
-        (constants::DAY_19, Some(matches)) => (matches, AoCDay::AOCD19),
-        (constants::DAY_20, Some(matches)) => (matches, AoCDay::AOCD20),
-        (constants::DAY_21, Some(matches)) => (matches, AoCDay::AOCD21),
-        (constants::DAY_22, Some(matches)) => (matches, AoCDay::AOCD22),
-        (constants::DAY_23, Some(matches)) => (matches, AoCDay::AOCD23),
-        (constants::DAY_24, Some(matches)) => (matches, AoCDay::AOCD24),
-        (constants::DAY_25, Some(matches)) => (matches, AoCDay::AOCD25),
+        (DAY_1, Some(matches)) => (matches, AoCDay::AOCD01),
+        (DAY_2, Some(matches)) => (matches, AoCDay::AOCD02),
+        (DAY_3, Some(matches)) => (matches, AoCDay::AOCD03),
+        (DAY_4, Some(matches)) => (matches, AoCDay::AOCD04),
+        (DAY_5, Some(matches)) => (matches, AoCDay::AOCD05),
+        (DAY_6, Some(matches)) => (matches, AoCDay::AOCD06),
+        (DAY_7, Some(matches)) => (matches, AoCDay::AOCD07),
+        (DAY_8, Some(matches)) => (matches, AoCDay::AOCD08),
+        (DAY_9, Some(matches)) => (matches, AoCDay::AOCD09),
+        (DAY_10, Some(matches)) => (matches, AoCDay::AOCD10),
+        (DAY_11, Some(matches)) => (matches, AoCDay::AOCD11),
+        (DAY_12, Some(matches)) => (matches, AoCDay::AOCD12),
+        (DAY_13, Some(matches)) => (matches, AoCDay::AOCD13),
+        (DAY_14, Some(matches)) => (matches, AoCDay::AOCD14),
+        (DAY_15, Some(matches)) => (matches, AoCDay::AOCD15),
+        (DAY_16, Some(matches)) => (matches, AoCDay::AOCD16),
+        (DAY_17, Some(matches)) => (matches, AoCDay::AOCD17),
+        (DAY_18, Some(matches)) => (matches, AoCDay::AOCD18),
+        (DAY_19, Some(matches)) => (matches, AoCDay::AOCD19),
+        (DAY_20, Some(matches)) => (matches, AoCDay::AOCD20),
+        (DAY_21, Some(matches)) => (matches, AoCDay::AOCD21),
+        (DAY_22, Some(matches)) => (matches, AoCDay::AOCD22),
+        (DAY_23, Some(matches)) => (matches, AoCDay::AOCD23),
+        (DAY_24, Some(matches)) => (matches, AoCDay::AOCD24),
+        (DAY_25, Some(matches)) => (matches, AoCDay::AOCD25),
         _ => return Err(anyhow!("Unable to determine the day you wish to run")),
     };
 
@@ -73,21 +73,29 @@ pub(crate) fn run() -> Result<()> {
     Ok(())
 }
 
+type FnMap = HashMap<(AoCYear, AoCDay, bool), fn() -> Result<u32>>;
+
+lazy_static! {
+    static ref FN_MAP: FnMap = {
+        let mut fn_map: FnMap = HashMap::new();
+        let _ = fn_map.insert(
+            (AoCYear::AOC2015, AoCDay::AOCD01, false),
+            aoc2_sol::year2015::day01::part_1,
+        );
+        let _ = fn_map.insert(
+            (AoCYear::AOC2015, AoCDay::AOCD01, true),
+            aoc2_sol::year2015::day01::part_2,
+        );
+        fn_map
+    };
+}
+
 /// Find the solution.
 fn find_solution(matches: &ArgMatches<'_>, year: AoCYear, day: AoCDay) -> Result<u32> {
-    let year_str: &str = year.into();
-    let day_str: &str = day.into();
-    let mut filepath = PathBuf::from("data");
-    filepath.push(year_str);
-    filepath.push(day_str);
-    filepath.push(
-        matches
-            .value_of("file")
-            .ok_or_else(|| anyhow!("Invalid filename!"))?,
-    );
-
-    let reader = BufReader::new(File::open(filepath)?);
     let is_second_star = matches.is_present("second");
 
-    aoc2_sol::find_solution(reader.lines(), year, day, is_second_star)
+    (*FN_MAP)
+        .get(&(year, day, is_second_star))
+        .and_then(|f| f().ok())
+        .ok_or_else(|| anyhow!("blah"))
 }

@@ -8,8 +8,16 @@
 
 //! `aoc` utilities
 
-use anyhow::{anyhow, Result};
-use std::{convert::TryFrom, fmt, time::Duration};
+use crate::constants::{AoCDay, AoCYear};
+use anyhow::{anyhow, Context, Result};
+use std::{
+    convert::TryFrom,
+    fmt,
+    fs::File,
+    io::BufReader,
+    path::PathBuf,
+    time::{Duration, Instant},
+};
 
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum TimeUnits {
@@ -57,4 +65,30 @@ pub(crate) fn elapsed_parts(elapsed: Duration) -> Result<(usize, usize, TimeUnit
     } else {
         Err(anyhow!("Invalid duration: {:?}", elapsed))
     }
+}
+
+fn load_data(year: AoCYear, day: AoCDay) -> Result<BufReader<File>> {
+    let year_str: &str = year.into();
+    let day_str: &str = day.into();
+    let mut filepath = PathBuf::from("data");
+    filepath.push(year_str);
+    filepath.push(day_str);
+    filepath.push("data_file");
+
+    Ok(BufReader::new(
+        File::open(filepath).context("unable to open data_file")?,
+    ))
+}
+
+pub(crate) fn run_solution<T>(year: AoCYear, day: AoCDay, f: fn(BufReader<File>) -> T) -> Result<T>
+where
+    T: fmt::Display,
+{
+    let data = load_data(year, day)?;
+    let now = Instant::now();
+    let res = f(data);
+    let (whole, frac, units) = elapsed_parts(now.elapsed())?;
+    println!("Answer:  {}", res);
+    println!("Elapsed: {}.{}{}", whole, frac, units);
+    Ok(res)
 }

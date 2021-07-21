@@ -163,7 +163,6 @@ mod runtime;
 
 use anyhow::Result;
 use error::{clap_or_error, success};
-use rayon as _;
 use std::process;
 
 fn main() -> Result<()> {

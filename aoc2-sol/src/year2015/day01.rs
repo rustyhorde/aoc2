@@ -1,6 +1,15 @@
+// Copyright (c) 2021 aoc2 developers
+//
+// Licensed under the Apache License, Version 2.0
+// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT
+// license <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// option. All files in the project carrying such notice may not be copied,
+// modified, or distributed except according to those terms.
+
 //! Advent of Code - Day 1 "Not Quite Lisp" Solution
 //!
-//! --- Day 1: Not Quite Lisp ---
+//! **--- Day 1: Not Quite Lisp ---**
+//!
 //! Santa was hoping for a white Christmas, but his weather machine's "snow"
 //! function is powered by stars, and he's fresh out! To save Christmas, he
 //! needs you to collect fifty stars by December 25th.
@@ -24,30 +33,45 @@
 //!
 //! For example:
 //!
-//! * (()) and ()() both result in floor 0.
-//! * ((( and (()(()( both result in floor 3.
-//! * ))((((( also results in floor 3.
-//! * ()) and ))( both result in floor -1 (the first basement level).
-//! * ))) and )())()) both result in floor -3.
+//! * `(())` and `()()` both result in floor 0.
+//! * `(((` and `(()(()(` both result in floor 3.
+//! * `))(((((` also results in floor 3.
+//! * `())` and `))(` both result in floor -1 (the first basement level).
+//! * `)))` and `)())())` both result in floor -3.
 //!
 //! To what floor do the instructions take Santa?
 
-use crate::utils::elapsed_parts;
+use crate::{
+    constants::{AoCDay, AoCYear},
+    utils::run_solution,
+};
 use anyhow::Result;
-use std::time::Instant;
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+};
 
-#[allow(clippy::unnecessary_wraps)]
-pub(crate) fn part_1(iter: impl Iterator<Item = std::io::Result<String>> + Send) -> Result<u32> {
-    let now = Instant::now();
-    let final_floor = find_floor(iter);
-    let (whole, frac, units) = elapsed_parts(now.elapsed())?;
-    println!("Answer:  {}", final_floor);
-    println!("Elapsed: {}.{}{}", whole, frac, units);
-    Ok(0)
+/// Solution for Part 1
+///
+/// # Errors
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
+/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the elapsed [`Duration`](std::time::Duration) is invalid.
+pub fn part_1() -> Result<u32> {
+    run_solution::<isize>(AoCYear::AOC2015, AoCDay::AOCD01, find_floor).map(|_| 0)
 }
 
-fn find_floor(iter: impl Iterator<Item = std::io::Result<String>> + Send) -> isize {
-    iter.filter_map(std::result::Result::ok)
+fn find_floor(reader: BufReader<File>) -> isize {
+    find_floor_br(reader)
+}
+
+fn find_floor_br<T>(reader: T) -> isize
+where
+    T: BufRead,
+{
+    reader
+        .lines()
+        .filter_map(std::result::Result::ok)
         .fold(0, handle_line)
 }
 
@@ -66,20 +90,29 @@ fn up_or_down(acc: isize, ch: char) -> isize {
     }
 }
 
-#[allow(clippy::unnecessary_wraps)]
-pub(crate) fn part_2(iter: impl Iterator<Item = std::io::Result<String>> + Send) -> Result<u32> {
-    let now = Instant::now();
-    let found_at = find_basement(iter);
-    let (whole, frac, units) = elapsed_parts(now.elapsed())?;
-    println!("Answer:  {}", found_at);
-    println!("Elapsed: {}.{}{}", whole, frac, units);
-    Ok(0)
+/// Solution for Part 2
+///
+/// # Errors
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
+/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the elapsed [`std::time::Duration`] is invalid.
+pub fn part_2() -> Result<u32> {
+    run_solution::<i32>(AoCYear::AOC2015, AoCDay::AOCD01, find_basement).map(|_| 0)
 }
 
-fn find_basement(iter: impl Iterator<Item = std::io::Result<String>> + Send) -> i32 {
+fn find_basement(reader: BufReader<File>) -> i32 {
+    find_basement_br(reader)
+}
+
+fn find_basement_br<T>(reader: T) -> i32
+where
+    T: BufRead,
+{
     let mut state = (0, 0);
 
-    iter.filter_map(std::result::Result::ok)
+    reader
+        .lines()
+        .filter_map(std::result::Result::ok)
         .map(|line| line.chars().scan(&mut state, handle_ch).for_each(|_| ()))
         .for_each(|_| ());
 
@@ -104,9 +137,9 @@ fn handle_ch(state: &mut &mut (i32, i32), ch: char) -> Option<(i32, i32)> {
 
 #[cfg(test)]
 mod one_star {
-    use super::find_floor;
+    use super::find_floor_br;
     use anyhow::Result;
-    use std::io::{BufRead, Cursor};
+    use std::io::Cursor;
 
     const TEST_CHAIN: &str = r"(())";
     const TEST_CHAIN_1: &str = r"()()";
@@ -120,24 +153,24 @@ mod one_star {
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN).lines()), 0);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_1).lines()), 0);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_2).lines()), 3);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_3).lines()), 3);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_4).lines()), 3);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_5).lines()), -1);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_6).lines()), -1);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_7).lines()), -3);
-        assert_eq!(find_floor(Cursor::new(TEST_CHAIN_8).lines()), -3);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN)), 0);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_1)), 0);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_2)), 3);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_3)), 3);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_4)), 3);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_5)), -1);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_6)), -1);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_7)), -3);
+        assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_8)), -3);
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
-    use super::find_basement;
+    use super::find_basement_br;
     use anyhow::Result;
-    use std::io::{BufRead, Cursor};
+    use std::io::Cursor;
 
     const TEST_CHAIN: &str = r")";
     const TEST_CHAIN_1: &str = r"()())";
@@ -145,11 +178,11 @@ mod two_star {
     #[test]
     fn solution() -> Result<()> {
         assert_eq!(
-            find_basement(Cursor::new(TEST_CHAIN).lines()),
+            find_basement_br(Cursor::new(TEST_CHAIN)),
             1,
             "they don't match"
         );
-        assert_eq!(find_basement(Cursor::new(TEST_CHAIN_1).lines()), 5);
+        assert_eq!(find_basement_br(Cursor::new(TEST_CHAIN_1)), 5);
         Ok(())
     }
 }
