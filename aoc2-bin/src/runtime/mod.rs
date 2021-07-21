@@ -10,9 +10,10 @@
 
 mod cli;
 mod config;
+mod fnmap;
 mod header;
 
-use self::cli::YEAR;
+use self::{cli::YEAR, fnmap::FN_MAP};
 use anyhow::{anyhow, Result};
 use aoc2_sol::constants::{
     AoCDay, AoCYear, DAY_1, DAY_10, DAY_11, DAY_12, DAY_13, DAY_14, DAY_15, DAY_16, DAY_17, DAY_18,
@@ -20,8 +21,7 @@ use aoc2_sol::constants::{
     DAY_7, DAY_8, DAY_9,
 };
 use clap::ArgMatches;
-use lazy_static::lazy_static;
-use std::{collections::HashMap, convert::TryFrom, io};
+use std::{convert::TryFrom, io};
 
 pub(crate) fn run() -> Result<()> {
     // Parse the command line
@@ -73,29 +73,13 @@ pub(crate) fn run() -> Result<()> {
     Ok(())
 }
 
-type FnMap = HashMap<(AoCYear, AoCDay, bool), fn() -> Result<u32>>;
-
-lazy_static! {
-    static ref FN_MAP: FnMap = {
-        let mut fn_map: FnMap = HashMap::new();
-        let _ = fn_map.insert(
-            (AoCYear::AOC2015, AoCDay::AOCD01, false),
-            aoc2_sol::year2015::day01::part_1,
-        );
-        let _ = fn_map.insert(
-            (AoCYear::AOC2015, AoCDay::AOCD01, true),
-            aoc2_sol::year2015::day01::part_2,
-        );
-        fn_map
-    };
-}
-
 /// Find the solution.
 fn find_solution(matches: &ArgMatches<'_>, year: AoCYear, day: AoCDay) -> Result<u32> {
     let is_second_star = matches.is_present("second");
 
-    (*FN_MAP)
-        .get(&(year, day, is_second_star))
-        .and_then(|f| f().ok())
-        .ok_or_else(|| anyhow!("blah"))
+    if let Some(f) = (*FN_MAP).get(&(year, day, is_second_star)) {
+        f()
+    } else {
+        Err(anyhow!("Unable to find year and day to run!"))
+    }
 }
