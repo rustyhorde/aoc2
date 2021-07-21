@@ -8,18 +8,7 @@
 
 //! `aoc2` header output
 
-// Copyright (c) 2021 oad developers
-//
-// Licensed under the Apache License, Version 2.0
-// <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT
-// license <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
-// option. All files in the project carrying such notice may not be copied,
-// modified, or distributed except according to those terms.
-
-//! `oad` header for the cli
-
 use anyhow::Result;
-use clap::ArgMatches;
 use console::Style;
 use indexmap::IndexSet;
 use lazy_static::lazy_static;
@@ -87,60 +76,64 @@ fn from_u8(val: u8) -> Style {
 }
 
 /// Generate the `kca` header.
-pub(crate) fn header<T>(matches: &ArgMatches<'_>, writer: &mut T) -> Result<()>
+pub(crate) fn header<T>(writer: &mut T) -> Result<()>
 where
     T: Write,
 {
-    if get_effective_level(
-        matches.occurrences_of("quiet"),
-        matches.occurrences_of("verbose"),
-    ) >= Level::Info
-    {
-        let mut rng = rand::thread_rng();
-        let app_style = from_u8(rng.gen_range(0..7));
-        let bold_blue = Style::new().bold().blue();
-        let bold_green = Style::new().bold().green();
+    let mut rng = rand::thread_rng();
+    let app_style = from_u8(rng.gen_range(0..7));
+    let bold_blue = Style::new().bold().blue();
+    let bold_green = Style::new().bold().green();
 
-        writeln!(writer, "{}", app_style.apply_to(" \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}  \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557} \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}"))?;
-        writeln!(
-            writer,
-            "{}",
-            app_style.apply_to("\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2550}\u{2588}\u{2588}\u{2557}\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2588}\u{2588}\u{2557}\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2588}\u{2588}\u{2557}")
-        )?;
-        writeln!(
-            writer,
-            "{}",
-            app_style.apply_to("\u{2588}\u{2588}\u{2551}   \u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2551}  \u{2588}\u{2588}\u{2551}")
-        )?;
-        writeln!(
-            writer,
-            "{}",
-            app_style.apply_to("\u{2588}\u{2588}\u{2551}   \u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2551}  \u{2588}\u{2588}\u{2551}")
-        )?;
-        writeln!(
-            writer,
-            "{}",
-            app_style.apply_to("\u{255a}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2554}\u{255d}\u{2588}\u{2588}\u{2551}  \u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2554}\u{255d}")
-        )?;
-        writeln!( writer, "{}", app_style.apply_to(" \u{255a}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{255d} \u{255a}\u{2550}\u{255d}  \u{255a}\u{2550}\u{255d}\u{255a}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{255d}"))?;
-        writeln!(writer)?;
-        writeln!(writer, "{}", bold_green.apply_to("4a61736f6e204f7a696173"))?;
-        writeln!(writer)?;
-        for (prefix, kind, value) in &*VERGEN_MAP {
-            let key = format!("{:>16} ({:>7})", *prefix, *kind);
-            let blue_key = bold_blue.apply_to(key);
-            let green_val = bold_green.apply_to(*value);
-            writeln!(writer, "{}: {}", blue_key, green_val)?;
-        }
-        writeln!(writer)?;
+    writeln!(
+        writer,
+        "{}",
+        app_style.apply_to(" \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}  \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}  \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}")
+    )?;
+    writeln!(
+        writer,
+        "{}",
+        app_style.apply_to("\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2588}\u{2588}\u{2557}\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2550}\u{2588}\u{2588}\u{2557}\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2550}\u{2550}\u{255d}\u{255a}\u{2550}\u{2550}\u{2550}\u{2550}\u{2588}\u{2588}\u{2557}")
+    )?;
+    writeln!(
+        writer,
+        "{}",
+        app_style.apply_to("\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2551}   \u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2551}      \u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2554}\u{255d}")
+    )?;
+    writeln!(
+        writer,
+        "{}",
+        app_style.apply_to("\u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2551}   \u{2588}\u{2588}\u{2551}\u{2588}\u{2588}\u{2551}     \u{2588}\u{2588}\u{2554}\u{2550}\u{2550}\u{2550}\u{255d}")
+    )?;
+    writeln!(
+        writer,
+        "{}",
+        app_style.apply_to("\u{2588}\u{2588}\u{2551}  \u{2588}\u{2588}\u{2551}\u{255a}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2554}\u{255d}\u{255a}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2588}\u{2557}")
+    )?;
+    writeln!(
+        writer,
+        "{}",
+        app_style.apply_to("\u{255a}\u{2550}\u{255d}  \u{255a}\u{2550}\u{255d} \u{255a}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{255d}  \u{255a}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{255d}\u{255a}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{255d}")
+    )?;
+    writeln!(writer)?;
+
+    writeln!(writer, "{}", bold_green.apply_to("4a61736f6e204f7a696173"))?;
+    writeln!(writer)?;
+
+    for (prefix, kind, value) in &*VERGEN_MAP {
+        let key = format!("{:>16} ({:>7})", *prefix, *kind);
+        let blue_key = bold_blue.apply_to(key);
+        let green_val = bold_green.apply_to(*value);
+        writeln!(writer, "{}: {}", blue_key, green_val)?;
     }
+    writeln!(writer)?;
+
     Ok(())
 }
 
 #[cfg(test)]
 mod test {
     use super::{from_u8, header};
-    use crate::runtime::cli::app;
     use anyhow::Result;
     use console::Style;
     use lazy_static::lazy_static;
@@ -165,25 +158,9 @@ mod test {
     }
 
     #[test]
-    #[cfg(debug_assertions)]
     fn header_writes() -> Result<()> {
-        let matches = app().get_matches_from_safe(&["oad"])?;
         let mut buf = vec![];
-        assert!(header(&matches, &mut buf).is_ok());
-        assert!(!buf.is_empty());
-        let header_str = String::from_utf8_lossy(&buf);
-        assert!(BUILD_TIMESTAMP.is_match(&header_str));
-        assert!(BUILD_SEMVER.is_match(&header_str));
-        assert!(GIT_BRANCH.is_match(&header_str));
-        Ok(())
-    }
-
-    #[test]
-    #[cfg(not(debug_assertions))]
-    fn header_writes() -> Result<()> {
-        let matches = app().get_matches_from_safe(&["oad", "-vv"])?;
-        let mut buf = vec![];
-        assert!(header(&matches, &mut buf).is_ok());
+        assert!(header(&mut buf).is_ok());
         assert!(!buf.is_empty());
         let header_str = String::from_utf8_lossy(&buf);
         assert!(BUILD_TIMESTAMP.is_match(&header_str));

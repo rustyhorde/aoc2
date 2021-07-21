@@ -12,6 +12,7 @@
 //! ```
 //! ```
 //!
+
 // rustc lints
 #![deny(
     absolute_paths_not_starting_with_crate,
@@ -161,8 +162,8 @@ mod error;
 mod runtime;
 
 use anyhow::Result;
-use aoc2 as _;
 use error::{clap_or_error, success};
+use rayon as _;
 use std::process;
 
 fn main() -> Result<()> {
