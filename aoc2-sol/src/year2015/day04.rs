@@ -33,11 +33,18 @@ use crate::{
 };
 use anyhow::{anyhow, Result};
 use bitvec::{order::Msb0, view::BitView};
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::iter::{repeat, IntoParallelIterator, ParallelIterator};
 use std::{
     fs::File,
     io::{BufRead, BufReader},
+    ops::Range,
 };
+const TEN_MIL: Range<usize> = 0..10_000_000;
+const HUN_MIL: Range<usize> = 10_000_000..100_000_000;
+const BIL: Range<usize> = 100_000_000..1_000_000_000;
+const REST: Range<usize> = 1_000_000_000..usize::MAX;
+const PART_1_LZ: usize = 20;
+const PART_2_LZ: usize = 24;
 
 /// Solution for Part 1
 ///
@@ -60,35 +67,30 @@ where
     let mut result = 0;
 
     for line in valid_lines(reader) {
-        result += (0..10_000_000)
-            .into_par_iter()
-            .find_first(|x| {
-                let mashed = format!("{}{}", line, x);
-                let md5 = md5::compute(mashed.as_bytes());
-                let md5_b: [u8; 16] = md5.0;
-                let blah = md5_b.view_bits::<Msb0>();
-                let leading = blah.leading_zeros();
-                leading >= 20
-            })
-            .ok_or_else(|| anyhow!("No value found"))?;
-        if result == 0 {
-            result += (10_000_000..100_000_000)
-                .into_par_iter()
-                .find_first(|x| {
-                    let mashed = format!("{}{}", line, x);
-                    let md5 = md5::compute(mashed.as_bytes());
-                    let md5_b: [u8; 16] = md5.0;
-                    let blah = md5_b.view_bits::<Msb0>();
-                    let leading = blah.leading_zeros();
-                    leading >= 20
-                })
-                .ok_or_else(|| anyhow!("No value found"))?;
-        } else {
-            result += 0;
-        }
+        result = check_all_ranges(&line, PART_1_LZ)?.1;
     }
 
     Ok(result)
+}
+
+fn check_all_ranges(line: &str, lz: usize) -> Result<((&str, usize), usize)> {
+    check_range(line, lz, TEN_MIL)
+        .or_else(|| check_range(line, lz, HUN_MIL))
+        .or_else(|| check_range(line, lz, BIL))
+        .or_else(|| check_range(line, lz, REST))
+        .ok_or_else(|| anyhow!("Could not find match"))
+}
+
+fn check_range(line: &str, lz: usize, range: Range<usize>) -> Option<((&str, usize), usize)> {
+    repeat((line, lz))
+        .zip(range)
+        .into_par_iter()
+        .find_first(has_enough_leading_zeros)
+}
+
+fn has_enough_leading_zeros(tuple: &((&str, usize), usize)) -> bool {
+    let digest = md5::compute(format!("{}{}", (tuple.0).0, tuple.1).as_bytes());
+    digest.0.view_bits::<Msb0>().leading_zeros() >= (tuple.0).1
 }
 
 /// Solution for Part 2
@@ -112,15 +114,7 @@ where
     let mut result = 0;
 
     for line in valid_lines(reader) {
-        result += (0..usize::MAX)
-            .into_par_iter()
-            .find_first(|x| {
-                let mashed = format!("{}{}", line, x);
-                let md5 = md5::compute(mashed.as_bytes());
-                let md5_str = format!("{:x}", md5);
-                md5_str.starts_with("000000")
-            })
-            .ok_or_else(|| anyhow!("No value found"))?;
+        result = check_all_ranges(&line, PART_2_LZ)?.1;
     }
 
     Ok(result)
