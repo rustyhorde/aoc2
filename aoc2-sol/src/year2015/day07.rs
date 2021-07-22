@@ -72,10 +72,10 @@
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::{run_solution, valid_lines},
+    utils::{get_cap, get_cap_u16, run_solution, valid_lines},
 };
 use anyhow::{anyhow, Result};
-use regex::{Captures, Regex};
+use regex::Regex;
 use std::{
     collections::{HashMap, VecDeque},
     fs::File,
@@ -150,22 +150,6 @@ where
     }
 
     Ok(circuit_map)
-}
-
-fn get_cap(idx: usize, caps: &Captures<'_>) -> Result<String> {
-    Ok(caps
-        .get(idx)
-        .ok_or_else(|| anyhow!("invalid cap"))?
-        .as_str()
-        .to_owned())
-}
-
-fn get_cap_u16(idx: usize, caps: &Captures<'_>) -> Result<u16> {
-    Ok(caps
-        .get(idx)
-        .ok_or_else(|| anyhow!("invalid cap"))?
-        .as_str()
-        .parse()?)
 }
 
 fn val_on_input(

@@ -14,7 +14,8 @@
 //!
 //! let res = aoc2_sol::year2015::day01::part_1();
 //! ```
-
+// Unstable Features
+#![feature(hash_set_entry)]
 // rustc lints
 #![deny(
     absolute_paths_not_starting_with_crate,
@@ -95,7 +96,7 @@
     unreachable_pub,
     unsafe_code,
     unsafe_op_in_unsafe_fn,
-    unstable_features,
+    // unstable_features,
     unstable_name_collisions,
     unsupported_naked_functions,
     unused_allocation,

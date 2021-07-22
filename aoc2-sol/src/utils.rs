@@ -10,12 +10,15 @@
 
 use crate::constants::{AoCDay, AoCYear};
 use anyhow::{anyhow, Context, Result};
+use regex::Captures;
 use std::{
     convert::TryFrom,
+    error::Error,
     fmt,
     fs::File,
     io::{BufRead, BufReader},
     path::PathBuf,
+    str::FromStr,
     time::{Duration, Instant},
 };
 
@@ -99,4 +102,28 @@ where
     T: BufRead,
 {
     reader.lines().filter_map(std::result::Result::ok)
+}
+
+pub(crate) fn get_cap(idx: usize, caps: &Captures<'_>) -> Result<String> {
+    Ok(caps
+        .get(idx)
+        .ok_or_else(|| anyhow!("invalid cap"))?
+        .as_str()
+        .to_owned())
+}
+
+pub(crate) fn get_cap_u16(idx: usize, caps: &Captures<'_>) -> Result<u16> {
+    get_cap_x(idx, caps)
+}
+
+pub(crate) fn get_cap_x<T>(idx: usize, caps: &Captures<'_>) -> Result<T>
+where
+    T: FromStr,
+    <T as FromStr>::Err: Error + Send + Sync + 'static,
+{
+    Ok(caps
+        .get(idx)
+        .ok_or_else(|| anyhow!("invalid cap"))?
+        .as_str()
+        .parse::<T>()?)
 }
