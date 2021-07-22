@@ -79,7 +79,7 @@ use regex::{Captures, Regex};
 use std::{
     collections::{HashMap, VecDeque},
     fs::File,
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, Cursor},
 };
 
 /// Solution for Part 1
@@ -311,19 +311,113 @@ fn push_back(no_input: &mut VecDeque<(String, String)>, action: &str, wire: &str
 /// [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD08, find2).map(|_| 0)
+    run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD07, find2).map(|_| 0)
 }
 
 fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+    match find2_br(reader) {
+        Ok(map) => map
+            .get(&"a".to_string())
+            .copied()
+            .unwrap_or_default()
+            .into(),
+        Err(e) => {
+            eprintln!("{}", e);
+            1
+        }
+    }
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T) -> Result<HashMap<String, u16>>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let mut first_pass = vec![];
+    let mut second_pass = vec![];
+
+    for line in valid_lines(reader) {
+        first_pass.push(line.clone());
+        second_pass.push(line.clone());
+    }
+
+    if let Some(buf) = first_pass
+        .into_iter()
+        .reduce(|a, b| format!("{}\n{}", a, b))
+    {
+        let cursor = Cursor::new(buf);
+        let mut circuit_map = find_br(cursor)?;
+        let val_at_a = circuit_map
+            .get(&"a".to_string())
+            .copied()
+            .ok_or_else(|| anyhow!("invalid a value"))?;
+
+        circuit_map.clear();
+        *circuit_map.entry("b".to_string()).or_default() = val_at_a;
+
+        let line_re = Regex::new(r"(.*) -> (.*)")?;
+        let val_re = Regex::new(r"(^\d+$)")?;
+        let and_re = Regex::new(r"(.*) AND (.*)")?;
+        let or_re = Regex::new(r"(.*) OR (.*)")?;
+        let l_shift_re = Regex::new(r"(.*) LSHIFT (.*)")?;
+        let r_shift_re = Regex::new(r"(.*) RSHIFT (.*)")?;
+        let not_re = Regex::new(r"NOT (.*)")?;
+        let mut no_input = VecDeque::new();
+
+        if let Some(buf) = second_pass
+            .into_iter()
+            .reduce(|a, b| format!("{}\n{}", a, b))
+        {
+            let cursor = Cursor::new(buf);
+            for line in valid_lines(cursor) {
+                for cap in line_re.captures_iter(&line) {
+                    let input = get_cap(1, &cap)?;
+                    let wire = get_cap(2, &cap)?;
+                    no_input.push_back((input, wire));
+                }
+            }
+
+            while let Some((action, wire)) = no_input.pop_front() {
+                if val_re.is_match(&action) {
+                    val_on_input_p2(&mut circuit_map, &action, &wire, &val_re)?;
+                } else if and_re.is_match(&action) {
+                    process_and(&mut circuit_map, &mut no_input, &action, &wire, &and_re)?;
+                } else if or_re.is_match(&action) {
+                    process_or(&mut circuit_map, &mut no_input, &action, &wire, &or_re)?;
+                } else if l_shift_re.is_match(&action) {
+                    process_lshift(&mut circuit_map, &mut no_input, &action, &wire, &l_shift_re)?;
+                } else if r_shift_re.is_match(&action) {
+                    process_rshift(&mut circuit_map, &mut no_input, &action, &wire, &r_shift_re)?;
+                } else if not_re.is_match(&action) {
+                    process_not(&mut circuit_map, &mut no_input, &action, &wire, &not_re)?;
+                } else if let Some(val) = circuit_map.get(&action) {
+                    let val = *val;
+                    *circuit_map.entry(wire.clone()).or_insert(val) = val;
+                } else {
+                    push_back(&mut no_input, &action, &wire);
+                }
+            }
+            Ok(circuit_map)
+        } else {
+            Err(anyhow!("Bad Bad BAd"))
+        }
+    } else {
+        Err(anyhow!("Bad Bad BAd"))
+    }
+}
+
+fn val_on_input_p2(
+    circuit_map: &mut HashMap<String, u16>,
+    action: &str,
+    wire: &str,
+    re: &Regex,
+) -> Result<()> {
+    for cap in re.captures_iter(action) {
+        let val = get_cap_u16(1, &cap)?;
+        if wire != "b" {
+            *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
