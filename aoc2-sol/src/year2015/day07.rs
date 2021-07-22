@@ -64,13 +64,20 @@
 //! ```
 //!
 //! In little Bobby's kit's instructions booklet (provided as your puzzle input), what signal is ultimately provided to wire a?
+//!
+//! **--- Part Two ---**
+//!
+//! Now, take the signal you got on wire `a`, override wire `b` to that signal, and reset the
+//! other wires (including wire `a`). What new signal is ultimately provided to wire `a`?
 
 use crate::{
     constants::{AoCDay, AoCYear},
     utils::{run_solution, valid_lines},
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
+use regex::{Captures, Regex};
 use std::{
+    collections::{HashMap, VecDeque},
     fs::File,
     io::{BufRead, BufReader},
 };
@@ -82,19 +89,219 @@ use std::{
 /// [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD06, find).map(|_| 0)
+    run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD07, find).map(|_| 0)
 }
 
 fn find(reader: BufReader<File>) -> usize {
-    find_br(reader)
+    match find_br(reader) {
+        Ok(map) => map
+            .get(&"a".to_string())
+            .copied()
+            .unwrap_or_default()
+            .into(),
+        Err(e) => {
+            eprintln!("{}", e);
+            1
+        }
+    }
 }
 
-fn find_br<T>(reader: T) -> usize
+fn find_br<T>(reader: T) -> Result<HashMap<String, u16>>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let line_re = Regex::new(r"(.*) -> (.*)")?;
+    let val_re = Regex::new(r"(^\d+$)")?;
+    let and_re = Regex::new(r"(.*) AND (.*)")?;
+    let or_re = Regex::new(r"(.*) OR (.*)")?;
+    let l_shift_re = Regex::new(r"(.*) LSHIFT (.*)")?;
+    let r_shift_re = Regex::new(r"(.*) RSHIFT (.*)")?;
+    let not_re = Regex::new(r"NOT (.*)")?;
+    let mut circuit_map = HashMap::new();
+    let mut no_input = VecDeque::new();
+
+    for line in valid_lines(reader) {
+        for cap in line_re.captures_iter(&line) {
+            let input = get_cap(1, &cap)?;
+            let wire = get_cap(2, &cap)?;
+            no_input.push_back((input, wire));
+        }
+    }
+
+    while let Some((action, wire)) = no_input.pop_front() {
+        if val_re.is_match(&action) {
+            val_on_input(&mut circuit_map, &action, &wire, &val_re)?;
+        } else if and_re.is_match(&action) {
+            process_and(&mut circuit_map, &mut no_input, &action, &wire, &and_re)?;
+        } else if or_re.is_match(&action) {
+            process_or(&mut circuit_map, &mut no_input, &action, &wire, &or_re)?;
+        } else if l_shift_re.is_match(&action) {
+            process_lshift(&mut circuit_map, &mut no_input, &action, &wire, &l_shift_re)?;
+        } else if r_shift_re.is_match(&action) {
+            process_rshift(&mut circuit_map, &mut no_input, &action, &wire, &r_shift_re)?;
+        } else if not_re.is_match(&action) {
+            process_not(&mut circuit_map, &mut no_input, &action, &wire, &not_re)?;
+        } else if let Some(val) = circuit_map.get(&action) {
+            let val = *val;
+            *circuit_map.entry(wire.clone()).or_insert(val) = val;
+        } else {
+            push_back(&mut no_input, &action, &wire);
+        }
+    }
+
+    Ok(circuit_map)
+}
+
+fn get_cap(idx: usize, caps: &Captures<'_>) -> Result<String> {
+    Ok(caps
+        .get(idx)
+        .ok_or_else(|| anyhow!("invalid cap"))?
+        .as_str()
+        .to_owned())
+}
+
+fn get_cap_u16(idx: usize, caps: &Captures<'_>) -> Result<u16> {
+    Ok(caps
+        .get(idx)
+        .ok_or_else(|| anyhow!("invalid cap"))?
+        .as_str()
+        .parse()?)
+}
+
+fn val_on_input(
+    circuit_map: &mut HashMap<String, u16>,
+    action: &str,
+    wire: &str,
+    re: &Regex,
+) -> Result<()> {
+    for cap in re.captures_iter(action) {
+        let val = get_cap_u16(1, &cap)?;
+        *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+    }
+    Ok(())
+}
+
+fn process_and(
+    circuit_map: &mut HashMap<String, u16>,
+    no_input: &mut VecDeque<(String, String)>,
+    action: &str,
+    wire: &str,
+    re: &Regex,
+) -> Result<()> {
+    for cap in re.captures_iter(action) {
+        let left = get_cap(1, &cap)?;
+        let right = get_cap(2, &cap)?;
+
+        if let Some(left_val) = circuit_map.get(&left) {
+            if let Some(right_val) = circuit_map.get(&right) {
+                let val = left_val & right_val;
+                *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+            } else {
+                push_back(no_input, action, wire);
+            }
+        } else if let Ok(left_val) = left.parse::<u16>() {
+            if let Some(right_val) = circuit_map.get(&right) {
+                let val = left_val & right_val;
+                *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+            } else {
+                push_back(no_input, action, wire);
+            }
+        } else {
+            push_back(no_input, action, wire);
+        }
+    }
+    Ok(())
+}
+
+fn process_or(
+    circuit_map: &mut HashMap<String, u16>,
+    no_input: &mut VecDeque<(String, String)>,
+    action: &str,
+    wire: &str,
+    re: &Regex,
+) -> Result<()> {
+    for cap in re.captures_iter(action) {
+        let left = get_cap(1, &cap)?;
+        let right = get_cap(2, &cap)?;
+
+        if let Some(left_val) = circuit_map.get(&left) {
+            if let Some(right_val) = circuit_map.get(&right) {
+                let val = left_val | right_val;
+                *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+            } else {
+                push_back(no_input, action, wire);
+            }
+        } else {
+            push_back(no_input, action, wire);
+        }
+    }
+    Ok(())
+}
+
+fn process_lshift(
+    circuit_map: &mut HashMap<String, u16>,
+    no_input: &mut VecDeque<(String, String)>,
+    action: &str,
+    wire: &str,
+    re: &Regex,
+) -> Result<()> {
+    for cap in re.captures_iter(action) {
+        let left = get_cap(1, &cap)?;
+        let right = get_cap_u16(2, &cap)?;
+
+        if let Some(left_val) = circuit_map.get(&left) {
+            let val = left_val << right;
+            *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+        } else {
+            push_back(no_input, action, wire);
+        }
+    }
+    Ok(())
+}
+
+fn process_rshift(
+    circuit_map: &mut HashMap<String, u16>,
+    no_input: &mut VecDeque<(String, String)>,
+    action: &str,
+    wire: &str,
+    re: &Regex,
+) -> Result<()> {
+    for cap in re.captures_iter(action) {
+        let left = get_cap(1, &cap)?;
+        let right = get_cap_u16(2, &cap)?;
+
+        if let Some(left_val) = circuit_map.get(&left) {
+            let val = left_val >> right;
+            *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+        } else {
+            push_back(no_input, action, wire);
+        }
+    }
+    Ok(())
+}
+
+fn process_not(
+    circuit_map: &mut HashMap<String, u16>,
+    no_input: &mut VecDeque<(String, String)>,
+    action: &str,
+    wire: &str,
+    re: &Regex,
+) -> Result<()> {
+    for cap in re.captures_iter(action) {
+        let right = get_cap(1, &cap)?;
+
+        if let Some(right_val) = circuit_map.get(&right) {
+            let val = !right_val;
+            *circuit_map.entry(wire.to_string()).or_insert(val) = val;
+        } else {
+            push_back(no_input, action, wire);
+        }
+    }
+    Ok(())
+}
+
+fn push_back(no_input: &mut VecDeque<(String, String)>, action: &str, wire: &str) {
+    no_input.push_back((action.to_string(), wire.to_string()));
 }
 
 /// Solution for Part 2
@@ -121,19 +328,30 @@ where
 
 #[cfg(test)]
 mod one_star {
-    // use super::find_br;
+    use super::find_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"turn on 0,0 through 999,999";
-    // const TEST_2: &str = r"toggle 0,0 through 999,0";
-    // const TEST_3: &str = r"turn on 0,0 through 999,999\nturn off 499,499 through 500,500";
+    const TEST_1: &str = r"123 -> x
+456 -> y
+x AND y -> d
+x OR y -> e
+x LSHIFT 2 -> f
+y RSHIFT 2 -> g
+NOT x -> h
+NOT y -> i";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find_br(Cursor::new(TEST_1))?, 1_000_000);
-        // assert_eq!(find_br(Cursor::new(TEST_2))?, 1_000);
-        // assert_eq!(find_br(Cursor::new(TEST_3))?, 999_996);
+        let map = find_br(Cursor::new(TEST_1))?;
+        assert_eq!(Some(&72), map.get(&"d".to_string()));
+        assert_eq!(Some(&507), map.get(&"e".to_string()));
+        assert_eq!(Some(&492), map.get(&"f".to_string()));
+        assert_eq!(Some(&114), map.get(&"g".to_string()));
+        assert_eq!(Some(&65412), map.get(&"h".to_string()));
+        assert_eq!(Some(&65079), map.get(&"i".to_string()));
+        assert_eq!(Some(&123), map.get(&"x".to_string()));
+        assert_eq!(Some(&456), map.get(&"y".to_string()));
         Ok(())
     }
 }
