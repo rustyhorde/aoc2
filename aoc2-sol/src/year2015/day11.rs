@@ -6,13 +6,53 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! Advent of Code - Day 11
+//! Advent of Code - Day 11 "Corporate Policy"
+//!
+//! **--- Day 11: Corporate Policy ---**
+//!
+//! **--- Part 1 ---**
+//!
+//! Santa's previous password expired, and he needs help choosing a new one.
+//!
+//! To help him remember his new password after the old one expires,
+//! Santa has devised a method of coming up with a password based on the previous one.
+//! Corporate policy dictates that passwords must be exactly eight lowercase
+//! letters (for security reasons), so he finds his new password by
+//! incrementing his old password string repeatedly until it is valid.
+//!
+//! Incrementing is just like counting with numbers: `xx`, `xy`, `xz`, `ya`,
+//! `yb`, and so on. Increase the rightmost letter one step; if it was `z`,
+//! it wraps around to `a`, and repeat with the next letter to the left
+//! until one doesn't wrap around.
+//!
+//! Unfortunately for Santa, a new Security-Elf recently started, and
+//! he has imposed some additional password requirements:
+//!
+//! 1. Passwords must include one increasing straight of at least three letters,
+//! like `abc`, `bcd`, `cde`, and so on, up to `xyz`. They cannot skip letters;
+//! `abd` doesn't count.
+//! 2. Passwords may not contain the letters `i`, `o`, or `l`, as these letters
+//! can be mistaken for other characters and are therefore confusing.
+//! 3. Passwords must contain at least two different, non-overlapping pairs
+//! of letters, like `aa`, `bb`, or `zz`.
+//!
+//! For example:
+//!
+//! ```text
+//! hijklmmn meets the first requirement (because it contains the straight hij) but fails the second requirement requirement (because it contains i and l).
+//! abbceffg meets the third requirement (because it repeats bb and ff) but fails the first requirement.
+//! abbcegjk fails the third requirement, because it only has one double letter (bb).
+//! The next password after abcdefgh is abcdffaa.
+//! The next password after ghijklmn is ghjaabcc, because you eventually skip all the passwords that start with ghi..., since i is not allowed.
+//! ```
+//!
+//! Given Santa's current password (your puzzle input), what should his next password be?
 
 use crate::{
     constants::{AoCDay, AoCYear},
     utils::{run_solution, valid_lines},
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use std::{
     fs::File,
     io::{BufRead, BufReader},
@@ -25,19 +65,132 @@ use std::{
 /// [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD11, find).map(|_| 0)
+    run_solution::<String>(AoCYear::AOC2015, AoCDay::AOCD11, find).map(|_| 0)
 }
 
-fn find(reader: BufReader<File>) -> usize {
-    find_br(reader)
+fn find(reader: BufReader<File>) -> String {
+    find_br(reader).unwrap_or_default()
 }
 
-fn find_br<T>(reader: T) -> usize
+fn find_br<T>(reader: T) -> Result<String>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let mut result = String::new();
+
+    for line in valid_lines(reader) {
+        let mut pass_vec = to_vec(&line)?;
+        let mut valid = false;
+
+        while !valid {
+            increment(&mut pass_vec);
+            valid = is_valid(&pass_vec);
+        }
+
+        result = to_str(&mut pass_vec)?;
+    }
+
+    Ok(result)
+}
+
+fn is_valid(_pass: &[u8]) -> bool {
+    true
+}
+
+fn increment(pass: &mut Vec<u8>) {
+    let mut push_a = false;
+    let len = pass.len();
+
+    for (idx, val) in pass.iter_mut().enumerate() {
+        *val = (*val + 1) % 26;
+        if *val == 0 {
+            if idx == len - 1 {
+                push_a = true;
+            }
+            continue;
+        }
+        break;
+    }
+
+    if push_a {
+        pass.push(0);
+    }
+}
+
+fn to_str(vec: &mut [u8]) -> Result<String> {
+    let mut pass = String::new();
+    vec.reverse();
+
+    for v in vec {
+        match v {
+            0 => pass.push('a'),
+            1 => pass.push('b'),
+            2 => pass.push('c'),
+            3 => pass.push('d'),
+            4 => pass.push('e'),
+            5 => pass.push('f'),
+            6 => pass.push('g'),
+            7 => pass.push('h'),
+            8 => pass.push('i'),
+            9 => pass.push('j'),
+            10 => pass.push('k'),
+            11 => pass.push('l'),
+            12 => pass.push('m'),
+            13 => pass.push('n'),
+            14 => pass.push('o'),
+            15 => pass.push('p'),
+            16 => pass.push('q'),
+            17 => pass.push('r'),
+            18 => pass.push('s'),
+            19 => pass.push('t'),
+            20 => pass.push('u'),
+            21 => pass.push('v'),
+            22 => pass.push('w'),
+            23 => pass.push('x'),
+            24 => pass.push('y'),
+            25 => pass.push('z'),
+            _ => return Err(anyhow!("invalid password value")),
+        }
+    }
+    Ok(pass)
+}
+
+fn to_vec(line: &str) -> Result<Vec<u8>> {
+    let mut pass = vec![];
+
+    for ch in line.chars() {
+        match ch {
+            'a' => pass.push(0),
+            'b' => pass.push(1),
+            'c' => pass.push(2),
+            'd' => pass.push(3),
+            'e' => pass.push(4),
+            'f' => pass.push(5),
+            'g' => pass.push(6),
+            'h' => pass.push(7),
+            'i' => pass.push(8),
+            'j' => pass.push(9),
+            'k' => pass.push(10),
+            'l' => pass.push(11),
+            'm' => pass.push(12),
+            'n' => pass.push(13),
+            'o' => pass.push(14),
+            'p' => pass.push(15),
+            'q' => pass.push(16),
+            'r' => pass.push(17),
+            's' => pass.push(18),
+            't' => pass.push(19),
+            'u' => pass.push(20),
+            'v' => pass.push(21),
+            'w' => pass.push(22),
+            'x' => pass.push(23),
+            'y' => pass.push(24),
+            'z' => pass.push(25),
+            _ => return Err(anyhow!("invalid password character")),
+        }
+    }
+    pass.reverse();
+    Ok(pass)
 }
 
 /// Solution for Part 2
@@ -61,22 +214,21 @@ where
     for _line in valid_lines(reader) {}
     0
 }
-
 #[cfg(test)]
 mod one_star {
-    // use super::find_br;
+    use super::find_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"turn on 0,0 through 999,999";
-    // const TEST_2: &str = r"toggle 0,0 through 999,0";
-    // const TEST_3: &str = r"turn on 0,0 through 999,999\nturn off 499,499 through 500,500";
+    const TEST_1: &str = r"az";
+    const TEST_2: &str = r"z";
+    const TEST_3: &str = r"abc";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find_br(Cursor::new(TEST_1))?, 1_000_000);
-        // assert_eq!(find_br(Cursor::new(TEST_2))?, 1_000);
-        // assert_eq!(find_br(Cursor::new(TEST_3))?, 999_996);
+        assert_eq!(find_br(Cursor::new(TEST_1))?, "ba");
+        assert_eq!(find_br(Cursor::new(TEST_2))?, "aa");
+        assert_eq!(find_br(Cursor::new(TEST_3))?, "abd");
         Ok(())
     }
 }
