@@ -147,7 +147,6 @@ fn build_graph(
     Ok(())
 }
 
-#[allow(clippy::needless_range_loop, clippy::unnecessary_wraps)]
 fn find_distances(
     graph: &Graph<String, isize>,
     nodes: &HashSet<NodeIndex>,
@@ -209,16 +208,20 @@ where
         build_graph(&line, &edge_re, &mut graph, &mut nodes)?;
     }
 
+    add_myself(&mut graph, &mut nodes);
+
+    let (_min_dist, max_dist) = find_distances(&graph, &nodes)?;
+    Ok(max_dist)
+}
+
+fn add_myself(graph: &mut Graph<String, isize>, nodes: &mut HashSet<NodeIndex>) {
     let my_idx = graph.add_node("Jason".to_string());
 
-    for n_idx in &nodes {
+    for n_idx in nodes.iter() {
         let _ = graph.add_edge(my_idx, *n_idx, 0);
         let _ = graph.add_edge(*n_idx, my_idx, 0);
     }
     let _ = nodes.insert(my_idx);
-
-    let (_min_dist, max_dist) = find_distances(&graph, &nodes)?;
-    Ok(max_dist)
 }
 
 #[cfg(test)]
