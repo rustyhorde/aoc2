@@ -142,6 +142,7 @@ fn enough_dups(pass: &[u8]) -> bool {
                 break;
             }
             found_one = true;
+            // Skip the next window to avoid overlaps
             skip_next = true;
         }
     }
