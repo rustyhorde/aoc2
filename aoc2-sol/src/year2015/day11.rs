@@ -47,6 +47,11 @@
 //! ```
 //!
 //! Given Santa's current password (your puzzle input), what should his next password be?
+//!
+//! **--- Part Two ---**
+//!
+//! Santa's password expired again. What's the next one?
+//!
 
 use crate::{
     constants::{AoCDay, AoCYear},
@@ -79,22 +84,68 @@ where
     let mut result = String::new();
 
     for line in valid_lines(reader) {
-        let mut pass_vec = to_vec(&line)?;
-        let mut valid = false;
-
-        while !valid {
-            increment(&mut pass_vec);
-            valid = is_valid(&pass_vec);
-        }
-
-        result = to_str(&mut pass_vec)?;
+        result = get_next(&line)?;
     }
 
     Ok(result)
 }
 
-fn is_valid(_pass: &[u8]) -> bool {
-    true
+fn get_next(initial: &str) -> Result<String> {
+    let mut pass_vec = to_vec(initial)?;
+    let mut valid = false;
+
+    while !valid {
+        increment(&mut pass_vec);
+        valid = is_valid(&pass_vec);
+    }
+
+    to_str(&mut pass_vec)
+}
+
+fn is_valid(pass: &[u8]) -> bool {
+    !contains_iol(pass) && has_run_of_3(pass) && enough_dups(pass)
+}
+
+fn contains_iol(pass: &[u8]) -> bool {
+    // Cannot contain 'i', 'l', or 'o'
+    pass.contains(&8) || pass.contains(&11) || pass.contains(&14)
+}
+
+fn has_run_of_3(pass: &[u8]) -> bool {
+    // Needs to contain a run of 3
+    let mut found_run = false;
+    for sec in pass.windows(3) {
+        let first = sec[0];
+        let second = sec[1] + 1;
+        let third = sec[2] + 2;
+        if first == second && second == third {
+            found_run = true;
+            break;
+        }
+    }
+    found_run
+}
+
+fn enough_dups(pass: &[u8]) -> bool {
+    // Has to have at least 2 non-overlapping double chars
+    let mut found_dups = false;
+    let mut found_one = false;
+    let mut skip_next = false;
+    for sec in pass.windows(2) {
+        if skip_next {
+            skip_next = false;
+            continue;
+        }
+        if sec[0] == sec[1] {
+            if found_one {
+                found_dups = true;
+                break;
+            }
+            found_one = true;
+            skip_next = true;
+        }
+    }
+    found_dups
 }
 
 fn increment(pass: &mut Vec<u8>) {
@@ -200,19 +251,25 @@ fn to_vec(line: &str) -> Result<Vec<u8>> {
 /// [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD11, find2).map(|_| 0)
+    run_solution::<String>(AoCYear::AOC2015, AoCDay::AOCD11, find2).map(|_| 0)
 }
 
-fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+fn find2(reader: BufReader<File>) -> String {
+    find2_br(reader).unwrap_or_default()
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T) -> Result<String>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let mut result = String::new();
+
+    for line in valid_lines(reader) {
+        let first_pass = get_next(&line)?;
+        result = get_next(&first_pass)?;
+    }
+
+    Ok(result)
 }
 #[cfg(test)]
 mod one_star {
@@ -220,32 +277,34 @@ mod one_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r"az";
-    const TEST_2: &str = r"z";
-    const TEST_3: &str = r"abc";
+    const TEST_1: &str = r"abcdefgh";
+    const TEST_2: &str = r"ghijklmn";
+    const TEST_3: &str = r"hepxcrrq";
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find_br(Cursor::new(TEST_1))?, "ba");
-        assert_eq!(find_br(Cursor::new(TEST_2))?, "aa");
-        assert_eq!(find_br(Cursor::new(TEST_3))?, "abd");
+        assert_eq!(find_br(Cursor::new(TEST_1))?, "abcdffaa");
+        assert_eq!(find_br(Cursor::new(TEST_2))?, "ghjaabcc");
+        assert_eq!(find_br(Cursor::new(TEST_3))?, "hepxxyzz");
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
+    use super::find2_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"turn on 0,0 through 0,0";
-    // const TEST_2: &str = r"toggle 0,0 through 999,999";
+    const TEST_1: &str = r"abcdefgh";
+    const TEST_2: &str = r"ghijklmn";
+    const TEST_3: &str = r"hepxcrrq";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 1);
-        // assert_eq!(find2_br(Cursor::new(TEST_2))?, 2_000_000);
+        assert_eq!(find2_br(Cursor::new(TEST_1))?, "abcdffbb");
+        assert_eq!(find2_br(Cursor::new(TEST_2))?, "ghjbbcdd");
+        assert_eq!(find2_br(Cursor::new(TEST_3))?, "heqaabcc");
         Ok(())
     }
 }
