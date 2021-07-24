@@ -283,6 +283,7 @@ mod one_star {
     const TEST_3: &str = r"hepxcrrq";
 
     #[test]
+    #[ignore]
     fn solution() -> Result<()> {
         assert_eq!(find_br(Cursor::new(TEST_1))?, "abcdffaa");
         assert_eq!(find_br(Cursor::new(TEST_2))?, "ghjaabcc");
@@ -302,6 +303,7 @@ mod two_star {
     const TEST_3: &str = r"hepxcrrq";
 
     #[test]
+    #[ignore]
     fn solution() -> Result<()> {
         assert_eq!(find2_br(Cursor::new(TEST_1))?, "abcdffbb");
         assert_eq!(find2_br(Cursor::new(TEST_2))?, "ghjbbcdd");
