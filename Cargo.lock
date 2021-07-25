@@ -50,6 +50,7 @@ dependencies = [
  "bitvec",
  "getset",
  "itertools",
+ "lazy_static",
  "md5",
  "ndarray",
  "petgraph",
