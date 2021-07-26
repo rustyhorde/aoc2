@@ -67,12 +67,42 @@
 //! would be chosen.
 //!
 //! What is the quantum entanglement of the first group of packages in the ideal configuration?
+//!
+//! **--- Part Two ---**
+//!
+//! That's weird... the sleigh still isn't balancing.
+//!
+//! "Ho ho ho", Santa muses to himself. "I forgot the trunk".
+//!
+//! Balance the sleigh again, but this time, separate the packages into four
+//! groups instead of three. The other constraints still apply.
+//!
+//! Given the example packages above, this would be some of the new unique first
+//! groups, their quantum entanglements, and one way to divide the remaining packages:
+//!
+//! ```text
+//! 11 4    (QE=44); 10 5;   9 3 2 1; 8 7
+//! 10 5    (QE=50); 11 4;   9 3 2 1; 8 7
+//! 9 5 1   (QE=45); 11 4;   10 3 2;  8 7
+//! 9 4 2   (QE=72); 11 3 1; 10 5;    8 7
+//! 9 3 2 1 (QE=54); 11 4;   10 5;    8 7
+//! 8 7     (QE=56); 11 4;   10 5;    9 3 2 1
+//! ```
+//!
+//! Of these, there are three arrangements that put the minimum (two) number of packages
+//! in the first group: `11 4`, `10 5`, and `8 7`. Of these, `11 4` has the lowest
+//! quantum entanglement, and so it is selected.
+//!
+//! Now, what is the quantum entanglement of the first group of packages in the
+//! ideal configuration?
+//!
 
 use crate::{
     constants::{AoCDay, AoCYear},
     utils::{run_solution, valid_lines},
 };
 use anyhow::Result;
+use itertools::Itertools;
 use std::{
     fs::File,
     io::{BufRead, BufReader},
@@ -96,31 +126,38 @@ fn find_br<T>(reader: T) -> Result<usize>
 where
     T: BufRead,
 {
+    find_min_qe(reader, 3)
+}
+
+fn find_min_qe<T>(reader: T, compartments: usize) -> Result<usize>
+where
+    T: BufRead,
+{
     let mut weights = vec![];
 
     for line in valid_lines(reader) {
         weights.push(line.parse::<usize>()?);
     }
 
-    let group_size = weights.iter().sum::<usize>() / 3;
-    println!("Group Size: {}", group_size);
-    // let mut equals = vec![];
-    // let mut min_len = usize::MAX;
-    // for set in weights.iter().powerset().permutations(3).filter(|set| set[0].is_empty() || set[1].is_empty() || set[2].is_empty()) {
-    //     if set[0].len() > min_len {
-    //         continue;
-    //     }
-    //     let s0 = set[0].iter().copied().sum::<usize>();
-    //     let s1 = set[1].iter().copied().sum::<usize>();
-    //     let s2 = set[2].iter().copied().sum::<usize>();
-    //     if s0 == s1 && s1 == s2 {
-    //         if set[0].len() < min_len {
-    //             min_len = set[0].len();
-    //         }
-    //         equals.push(s0);
-    //     }
-    // }
-    Ok(0)
+    let group_size = weights.iter().sum::<usize>() / compartments;
+    let mut min_qe = usize::MAX;
+
+    for i in 0..weights.len() {
+        let mut qe_at_len = weights
+            .iter()
+            .combinations(i)
+            .filter(|x| x.iter().copied().sum::<usize>() == group_size)
+            .map(|x| x.iter().copied().product())
+            .collect::<Vec<usize>>();
+
+        qe_at_len.sort_unstable();
+        if !qe_at_len.is_empty() {
+            min_qe = qe_at_len[0];
+            break;
+        }
+    }
+
+    Ok(min_qe)
 }
 
 /// Solution for Part 2
@@ -134,15 +171,14 @@ pub fn part_2() -> Result<u32> {
 }
 
 fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+    find2_br(reader).unwrap_or_default()
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T) -> Result<usize>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    find_min_qe(reader, 4)
 }
 
 #[cfg(test)]
@@ -171,17 +207,24 @@ mod one_star {
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
+    use super::find2_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"turn on 0,0 through 0,0";
-    // const TEST_2: &str = r"toggle 0,0 through 999,999";
+    const TEST_1: &str = r"1
+2
+3
+4
+5
+7
+8
+9
+10
+11";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 1);
-        // assert_eq!(find2_br(Cursor::new(TEST_2))?, 2_000_000);
+        assert_eq!(find2_br(Cursor::new(TEST_1))?, 44);
         Ok(())
     }
 }
