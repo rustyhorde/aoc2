@@ -206,15 +206,105 @@ pub fn part_2() -> Result<u32> {
 }
 
 fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+    find2_br(reader, None)
+        .map_err(|e| {
+            eprintln!("{}", e);
+            e
+        })
+        .unwrap_or_default()
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T, start_opt: Option<&str>) -> Result<usize>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let rep_re = Regex::new(r"^(.*) => (.*)$")?;
+    let ini_re = Regex::new(r"^([a-zA-Z]+)$")?;
+    let mut rep_map = HashMap::new();
+    let mut start_set = false;
+    let mut start = String::new();
+
+    for line in valid_lines(reader) {
+        if rep_re.is_match(&line) {
+            for caps in rep_re.captures_iter(&line) {
+                let val = get_cap(1, &caps)?;
+                let rep = get_cap(2, &caps)?;
+
+                let rep_vec = rep_map.entry(val).or_insert_with(Vec::new);
+                rep_vec.push(rep);
+            }
+        } else if ini_re.is_match(&line) {
+            for caps in ini_re.captures_iter(&line) {
+                start = get_cap(1, &caps)?;
+                start_set = true;
+            }
+        }
+    }
+
+    if !start_set {
+        if let Some(start_str) = start_opt {
+            start = start_str.to_string();
+            start_set = true;
+        }
+    }
+
+    if !start_set {
+        return Err(anyhow!("I can't start"));
+    }
+
+    let toks = rep_map
+        .keys()
+        .map(|k| k.chars().rev().collect())
+        .collect::<Vec<String>>();
+    start = start.replace("Rn", "(");
+    start = start.replace("Ar", ")");
+    start = start.replace('Y', ",");
+    start = start.chars().rev().collect();
+
+    let mut curr = start;
+    let mut t = 0;
+    let mut p = 0;
+    let mut c = 0;
+    loop {
+        if curr.is_empty() {
+            break;
+        }
+
+        let (first, rest) = curr.split_at(1);
+        match first {
+            "(" | ")" => {
+                t += 1;
+                p += 1;
+                curr = rest.to_string();
+                continue;
+            }
+            "," => {
+                t += 1;
+                c += 1;
+                curr = rest.to_string();
+                continue;
+            }
+            _ => {}
+        }
+        if toks.contains(&first.to_string()) {
+            t += 1;
+            curr = rest.to_string();
+            continue;
+        } else if curr.len() > 1 {
+            let (first_two, rest_two) = curr.split_at(2);
+            if toks.contains(&first_two.to_string()) {
+                t += 1;
+                curr = rest_two.to_string();
+                continue;
+            }
+            break;
+        } else {
+            t += 1;
+            curr = rest.to_string();
+        }
+    }
+
+    Ok(t - p - (2 * c) - 1)
 }
 
 #[cfg(test)]
@@ -239,17 +329,17 @@ O => HH";
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
+    use super::find2_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"turn on 0,0 through 0,0";
-    // const TEST_2: &str = r"toggle 0,0 through 999,999";
+    const TEST_1: &str = r"H => HO
+H => OH
+O => HH";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 1);
-        // assert_eq!(find2_br(Cursor::new(TEST_2))?, 2_000_000);
+        assert_eq!(find2_br(Cursor::new(TEST_1), Some(TEST_1))?, 1);
         Ok(())
     }
 }
