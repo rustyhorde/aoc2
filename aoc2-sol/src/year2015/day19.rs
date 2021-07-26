@@ -298,10 +298,10 @@ where
                 continue;
             }
             break;
-        } else {
-            t += 1;
-            curr = rest.to_string();
         }
+
+        t += 1;
+        curr = rest.to_string();
     }
 
     Ok(t - p - (2 * c) - 1)

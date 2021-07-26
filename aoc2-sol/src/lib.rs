@@ -170,3 +170,4 @@ pub mod year2018;
 pub mod year2019;
 pub mod year2020;
 pub mod year2021;
+pub mod year2022;
