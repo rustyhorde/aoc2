@@ -6,7 +6,32 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! Advent of Code - Day 7
+//! Advent of Code - Day 7 "Internet Protocol Version 7"
+//!
+//! **--- Day 7: Internet Protocol Version 7 ---**
+//!
+//! **--- Part 1 ---**
+//!
+//! While snooping around the local network of EBHQ, you compile a list of
+//! IP addresses (they're `IPv7`, of course; `IPv6` is much too limited). You'd like
+//! to figure out which IPs support TLS (transport-layer snooping).
+//!
+//! An IP supports TLS if it has an Autonomous Bridge Bypass Annotation, or `ABBA`.
+//! An `ABBA` is any four-character sequence which consists of a pair of two different
+//! characters followed by the reverse of that pair, such as `xyyx` or `abba`.
+//! However, the IP also must not have an ABBA within any hypernet sequences, which
+//! are contained by square brackets.
+//!
+//! For example:
+//!
+//! ```text
+//! abba[mnop]qrst supports TLS (abba outside square brackets).
+//! abcd[bddb]xyyx does not support TLS (bddb is within square brackets, even though xyyx is outside square brackets).
+//! aaaa[qwer]tyui does not support TLS (aaaa is invalid; the interior characters must be different).
+//! ioxxoj[asdfgh]zxcvbn supports TLS (oxxo is outside square brackets, even though it's within a larger string).
+//! ```
+//!
+//! How many IPs in your puzzle input support TLS?
 
 use crate::{
     constants::{AoCDay, AoCYear},
@@ -36,8 +61,60 @@ fn find_br<T>(reader: T) -> usize
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let mut ips = vec![];
+    for line in valid_lines(reader) {
+        let mut hypers = vec![];
+        let mut supers = vec![];
+        let mut hyper = String::new();
+        let mut sup = String::new();
+        let mut in_hyper = false;
+        for ch in line.chars() {
+            match ch {
+                '[' => {
+                    supers.push(sup.clone());
+                    sup.clear();
+                    in_hyper = true;
+                }
+                ']' => {
+                    hypers.push(hyper.clone());
+                    hyper.clear();
+                    in_hyper = false;
+                }
+                _ => {
+                    if in_hyper {
+                        hyper.push(ch);
+                    } else {
+                        sup.push(ch);
+                    }
+                }
+            }
+        }
+        if !sup.is_empty() {
+            supers.push(sup);
+        }
+        ips.push((hypers, supers));
+    }
+
+    let mut valid = 0;
+
+    'outer: for (hypers, supers) in ips {
+        for hyper in hypers {
+            for win in hyper.as_bytes().windows(4) {
+                if win[0] == win[3] && win[1] == win[2] && win[0] != win[1] {
+                    continue 'outer;
+                }
+            }
+        }
+        for sup in supers {
+            for win in sup.as_bytes().windows(4) {
+                if win[0] == win[3] && win[1] == win[2] && win[0] != win[1] {
+                    valid += 1;
+                    continue 'outer;
+                }
+            }
+        }
+    }
+    valid
 }
 
 /// Solution for Part 2
@@ -68,11 +145,14 @@ mod one_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r">";
+    const TEST_1: &str = r"abba[mnop]qrst
+abcd[bddb]xyyx
+aaaa[qwer]tyui
+ioxxoj[asdfgh]zxcvbn";
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find_br(Cursor::new(TEST_1)), 0);
+        assert_eq!(find_br(Cursor::new(TEST_1)), 2);
         Ok(())
     }
 }
