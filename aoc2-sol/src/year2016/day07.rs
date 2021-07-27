@@ -194,25 +194,20 @@ where
     let mut valid = 0;
 
     'outer: for (hypers, supers) in ips {
-        // println!();
         let mut abas = vec![];
         for hyper in hypers {
             for win in hyper.as_bytes().windows(3) {
                 if win[0] == win[2] && win[0] != win[1] {
-                    // println!("Found ABA ({:?}), saving opposite", win);
                     let opposite = vec![win[1], win[0], win[1]];
                     abas.push(opposite);
                 }
             }
         }
-        // println!("Opposites: {:?}", abas);
         for sup in supers {
             for win in sup.as_bytes().windows(3) {
                 if win[0] == win[2] && win[0] != win[1] {
-                    // println!("Found BAB ({:?}), checking...", win);
                     let bab = vec![win[0], win[1], win[2]];
                     if abas.contains(&bab) {
-                        // println!("Valid!");
                         valid += 1;
                         continue 'outer;
                     }
