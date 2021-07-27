@@ -33,6 +33,7 @@ use crate::{
 };
 use anyhow::{anyhow, Result};
 use bitvec::{order::Msb0, view::BitView};
+use md5::Digest;
 use rayon::iter::{repeat, IntoParallelIterator, ParallelIterator};
 use std::{
     fs::File,
@@ -89,8 +90,8 @@ fn check_range(line: &str, lz: usize, range: Range<usize>) -> Option<((&str, usi
 }
 
 fn has_enough_leading_zeros(tuple: &((&str, usize), usize)) -> bool {
-    let digest = md5::compute(format!("{}{}", (tuple.0).0, tuple.1).as_bytes());
-    digest.0.view_bits::<Msb0>().leading_zeros() >= (tuple.0).1
+    let digest = md5::Md5::digest(format!("{}{}", (tuple.0).0, tuple.1).as_bytes());
+    digest.view_bits::<Msb0>().leading_zeros() >= (tuple.0).1
 }
 
 /// Solution for Part 2
