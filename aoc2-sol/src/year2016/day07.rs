@@ -32,6 +32,28 @@
 //! ```
 //!
 //! How many IPs in your puzzle input support TLS?
+//!
+//! **--- Part Two ---**
+//!
+//! You would also like to know which IPs support SSL (super-secret listening).
+//!
+//! An IP supports SSL if it has an Area-Broadcast Accessor, or ABA, anywhere in the
+//! supernet sequences (outside any square bracketed sections), and a corresponding
+//! Byte Allocation Block, or BAB, anywhere in the hypernet sequences. An ABA is any
+//! three-character sequence which consists of the same character twice with a different
+//! character between them, such as `xyx` or `aba`. A corresponding BAB is the same
+//! characters but in reversed positions: `yxy` and `bab`, respectively.
+//!
+//! For example:
+//!
+//! ```text
+//! aba[bab]xyz supports SSL (aba outside square brackets with corresponding bab within square brackets).
+//! xyx[xyx]xyx does not support SSL (xyx, but no corresponding yxy).
+//! aaa[kek]eke supports SSL (eke in supernet with corresponding kek in hypernet; the aaa sequence is not related, because the interior character must be different).
+//! zazbz[bzb]cdb supports SSL (zaz has no corresponding aza, but zbz has a corresponding bzb, even though zaz and zbz overlap).
+//! ```
+//!
+//! How many IPs in your puzzle input support SSL?
 
 use crate::{
     constants::{AoCDay, AoCYear},
@@ -135,8 +157,71 @@ fn find2_br<T>(reader: T) -> usize
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let mut ips = vec![];
+    for line in valid_lines(reader) {
+        let mut hypers = vec![];
+        let mut supers = vec![];
+        let mut hyper = String::new();
+        let mut sup = String::new();
+        let mut in_hyper = false;
+        for ch in line.chars() {
+            match ch {
+                '[' => {
+                    supers.push(sup.clone());
+                    sup.clear();
+                    in_hyper = true;
+                }
+                ']' => {
+                    hypers.push(hyper.clone());
+                    hyper.clear();
+                    in_hyper = false;
+                }
+                _ => {
+                    if in_hyper {
+                        hyper.push(ch);
+                    } else {
+                        sup.push(ch);
+                    }
+                }
+            }
+        }
+        if !sup.is_empty() {
+            supers.push(sup);
+        }
+        ips.push((hypers, supers));
+    }
+
+    let mut valid = 0;
+
+    'outer: for (hypers, supers) in ips {
+        // println!();
+        let mut abas = vec![];
+        for hyper in hypers {
+            for win in hyper.as_bytes().windows(3) {
+                if win[0] == win[2] && win[0] != win[1] {
+                    // println!("Found ABA ({:?}), saving opposite", win);
+                    let opposite = vec![win[1], win[0], win[1]];
+                    abas.push(opposite);
+                }
+            }
+        }
+        // println!("Opposites: {:?}", abas);
+        for sup in supers {
+            for win in sup.as_bytes().windows(3) {
+                if win[0] == win[2] && win[0] != win[1] {
+                    // println!("Found BAB ({:?}), checking...", win);
+                    let bab = vec![win[0], win[1], win[2]];
+                    if abas.contains(&bab) {
+                        // println!("Valid!");
+                        valid += 1;
+                        continue 'outer;
+                    }
+                }
+            }
+        }
+    }
+
+    valid
 }
 
 #[cfg(test)]
@@ -159,17 +244,18 @@ ioxxoj[asdfgh]zxcvbn";
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
+    use super::find2_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"^v";
-    // const TEST_2: &str = r"^>v<";
-    // const TEST_3: &str = r"^v^v^v^v^v";
+    const TEST_1: &str = r"aba[bab]xyz
+xyx[xyx]xyx
+aaa[kek]eke
+zazbz[bzb]cdb";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 3);
+        assert_eq!(find2_br(Cursor::new(TEST_1)), 3);
         Ok(())
     }
 }
