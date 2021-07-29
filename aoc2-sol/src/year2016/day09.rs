@@ -91,85 +91,12 @@ fn find_br<T>(reader: T) -> Result<usize>
 where
     T: BufRead,
 {
-    let mut uncompressed = String::new();
+    let mut count = 0;
     for line in valid_lines(reader) {
-        let mut determining_comp = false;
-        let mut found_x = false;
-        let mut count = vec![];
-        let mut repeat = vec![];
-        let mut repeat_str = vec![];
-        let mut count_val = 0;
-        let mut repeat_val = 0;
-        for ch in line.chars() {
-            match ch {
-                '(' => {
-                    if count_val > 0 {
-                        count_val -= 1;
-                        repeat_str.push(ch.to_string());
-                        if count_val == 0 {
-                            let r = repeat_str.join("");
-                            for _i in 0..repeat_val {
-                                uncompressed.push_str(&r);
-                            }
-                            repeat.clear();
-                            repeat_str.clear();
-                            repeat_val = 0;
-                        }
-                    } else {
-                        determining_comp = true;
-                    }
-                }
-                ')' => {
-                    if determining_comp {
-                        determining_comp = false;
-                        found_x = false;
-                        repeat_val = repeat.join("").parse::<usize>()?;
-                    } else if count_val > 0 {
-                        count_val -= 1;
-                        repeat_str.push(ch.to_string());
-                        if count_val == 0 {
-                            let r = repeat_str.join("");
-                            for _i in 0..repeat_val {
-                                uncompressed.push_str(&r);
-                            }
-                            repeat.clear();
-                            repeat_str.clear();
-                            repeat_val = 0;
-                        }
-                    }
-                }
-                _ => {
-                    if determining_comp && !found_x {
-                        if ch == 'x' {
-                            found_x = true;
-                            count_val = count.join("").parse::<usize>()?;
-                            count.clear();
-                        } else {
-                            count.push(ch.to_string());
-                        }
-                    } else if determining_comp && found_x {
-                        repeat.push(ch.to_string());
-                    } else if count_val > 0 {
-                        count_val -= 1;
-                        repeat_str.push(ch.to_string());
-                        if count_val == 0 {
-                            let r = repeat_str.join("");
-                            for _i in 0..repeat_val {
-                                uncompressed.push_str(&r);
-                            }
-                            repeat.clear();
-                            repeat_str.clear();
-                            repeat_val = 0;
-                        }
-                    } else {
-                        uncompressed.push(ch);
-                    }
-                }
-            }
-        }
+        let char_vec = line.chars().collect::<Vec<char>>();
+        count = decompress(&char_vec, true)?;
     }
-
-    Ok(uncompressed.len())
+    Ok(count)
 }
 
 /// Solution for Part 2
@@ -183,17 +110,50 @@ pub fn part_2() -> Result<u32> {
 }
 
 fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+    find2_br(reader).unwrap_or_default()
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T) -> Result<usize>
 where
     T: BufRead,
 {
+    let mut count = 0;
     for line in valid_lines(reader) {
-        for _ch in line.chars() {}
+        let char_vec = line.chars().collect::<Vec<char>>();
+        count = decompress(&char_vec, false)?;
     }
-    0
+    Ok(count)
+}
+
+fn decompress(data: &[char], part1: bool) -> Result<usize> {
+    let mut count = 0;
+    let mut i = 0;
+    while i < data.len() {
+        let curr = data[i];
+        match curr {
+            '(' => {
+                i += 1;
+                let mut blah = String::new();
+                while data[i] != ')' {
+                    blah.push(data[i]);
+                    i += 1;
+                }
+                let sv = blah.split('x').collect::<Vec<&str>>();
+                let length = str::parse::<usize>(sv[0])?;
+                let amount = str::parse::<usize>(sv[1])?;
+                if part1 {
+                    count += amount * length;
+                } else {
+                    count += amount * decompress(&data[i + 1..=i + length], part1)?;
+                }
+                i += length;
+            }
+            _ => count += 1,
+        }
+        i += 1;
+    }
+
+    Ok(count)
 }
 
 #[cfg(test)]
@@ -231,7 +191,7 @@ mod two_star {
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find2_br(Cursor::new(TEST_1)), 0);
+        assert_eq!(find2_br(Cursor::new(TEST_1))?, 20);
         Ok(())
     }
 }
