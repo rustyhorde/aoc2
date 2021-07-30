@@ -82,27 +82,9 @@ use anyhow::{anyhow, Result};
 use regex::Regex;
 use std::{
     collections::{BTreeMap, HashMap},
-    fmt,
     fs::File,
     io::{BufRead, BufReader},
 };
-
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-struct State {
-    time: usize,
-    discs: BTreeMap<usize, (usize, usize)>,
-    ball_loc: usize,
-}
-
-impl fmt::Display for State {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "Time: {}", self.time)?;
-        for (id, (position, _)) in &self.discs {
-            writeln!(f, "Disc #{}: {}", id, position)?;
-        }
-        writeln!(f, "Ball: {}", self.ball_loc)
-    }
-}
 
 /// Solution for Part 1
 ///
@@ -124,39 +106,34 @@ fn find_br<T>(reader: T, map_size: usize) -> Result<usize>
 where
     T: BufRead,
 {
-    let disc_map = setup(reader, map_size, false)?;
-    drop_the_balls(&disc_map)
+    let (num_discs, disc_map) = setup(reader, map_size, false)?;
+    drop_the_balls(&disc_map, num_discs)
 }
 
-fn drop_the_balls(disc_map: &HashMap<usize, BTreeMap<usize, (usize, usize)>>) -> Result<usize> {
+fn drop_the_balls(
+    disc_map: &HashMap<usize, BTreeMap<usize, (usize, usize)>>,
+    num_discs: usize,
+) -> Result<usize> {
     let mut successful_start = 0;
     'outer: for start in 0.. {
-        let mut state = State {
-            time: start,
-            discs: disc_map
-                .get(&start)
-                .ok_or_else(|| anyhow!("not enough spins"))?
-                .clone(),
-            ..State::default()
-        };
-        'inner: loop {
-            tick(&mut state);
-            if bounced(&state)? {
-                break 'inner;
-            }
-
-            if state.ball_loc == state.discs.len() {
-                successful_start = start;
-                break 'outer;
+        for (idx, map_idx) in ((start + 1)..=(start + num_discs)).enumerate() {
+            let map = disc_map
+                .get(&map_idx)
+                .ok_or_else(|| anyhow!("not enough spins"))?;
+            let (position, _) = map.get(&(idx + 1)).ok_or_else(|| anyhow!("invbjkfdaj"))?;
+            if *position != 0 {
+                continue 'outer;
             }
         }
+        successful_start = start;
+        break;
     }
     Ok(successful_start)
 }
 
 type DiscSpinMap = HashMap<usize, BTreeMap<usize, (usize, usize)>>;
 
-fn setup<T>(reader: T, map_size: usize, part2: bool) -> Result<DiscSpinMap>
+fn setup<T>(reader: T, map_size: usize, part2: bool) -> Result<(usize, DiscSpinMap)>
 where
     T: BufRead,
 {
@@ -178,6 +155,7 @@ where
     }
 
     // Pre-compile the disc states at a given time
+    let num_discs = discs.len();
     let mut disc_map = HashMap::new();
     let mut previous = disc_map.entry(0).or_insert(discs);
 
@@ -186,27 +164,7 @@ where
         rotate_discs(&mut discs_state);
         previous = disc_map.entry(i).or_insert(discs_state);
     }
-    Ok(disc_map)
-}
-
-fn bounced(state: &State) -> Result<bool> {
-    let ball_loc = state.ball_loc;
-
-    if ball_loc == 0 {
-        Ok(false)
-    } else {
-        let (position, _) = state
-            .discs
-            .get(&ball_loc)
-            .ok_or_else(|| anyhow!("invalid disc"))?;
-        Ok(*position != 0)
-    }
-}
-
-fn tick(state: &mut State) {
-    state.time += 1;
-    rotate_discs(&mut state.discs);
-    state.ball_loc += 1;
+    Ok((num_discs, disc_map))
 }
 
 fn rotate_discs(discs: &mut BTreeMap<usize, (usize, usize)>) {
@@ -235,8 +193,8 @@ fn find2_br<T>(reader: T, map_size: usize) -> Result<usize>
 where
     T: BufRead,
 {
-    let disc_map = setup(reader, map_size, true)?;
-    drop_the_balls(&disc_map)
+    let (num_discs, disc_map) = setup(reader, map_size, true)?;
+    drop_the_balls(&disc_map, num_discs)
 }
 
 #[cfg(test)]
