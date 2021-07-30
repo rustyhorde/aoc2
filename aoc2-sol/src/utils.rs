@@ -9,11 +9,10 @@
 //! `aoc` utilities
 
 use crate::constants::{AoCDay, AoCYear};
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context, Error, Result};
 use regex::Captures;
 use std::{
     convert::TryFrom,
-    error::Error,
     fmt,
     fs::File,
     io::{BufRead, BufReader},
@@ -119,11 +118,16 @@ pub(crate) fn get_cap_u16(idx: usize, caps: &Captures<'_>) -> Result<u16> {
 pub(crate) fn get_cap_x<T>(idx: usize, caps: &Captures<'_>) -> Result<T>
 where
     T: FromStr,
-    <T as FromStr>::Err: Error + Send + Sync + 'static,
+    <T as FromStr>::Err: std::error::Error + Send + Sync + 'static,
 {
     Ok(caps
         .get(idx)
         .ok_or_else(|| anyhow!("invalid cap"))?
         .as_str()
         .parse::<T>()?)
+}
+
+pub(crate) fn print_err(e: Error) -> Error {
+    eprintln!("{}", e);
+    e
 }

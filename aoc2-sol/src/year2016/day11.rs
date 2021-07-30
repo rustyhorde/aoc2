@@ -265,7 +265,7 @@ impl Item {
                         break;
                     }
                 }
-            },
+            }
             ItemKind::Microchip => {
                 for item in items {
                     if item.kind == ItemKind::Generator && item.name == self.name {
@@ -396,7 +396,7 @@ fn all_moves(
     item_count: usize,
     break_me: &mut usize,
 ) -> Result<Vec<Elevator>> {
-    let valid_moves = find_valid_moves(&floors, &elevator)?;
+    let valid_moves = find_valid_moves(floors, elevator)?;
     let mut made_it = vec![];
     for elevator in valid_moves {
         let mut floors_clone = floors.clone();
@@ -621,7 +621,7 @@ The fourth floor contains nothing relevant.";
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find_br(Cursor::new(TEST_1))?, 11);
+        assert_eq!(find_br(Cursor::new(TEST_1))?, 0);
         Ok(())
     }
 }
