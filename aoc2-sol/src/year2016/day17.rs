@@ -69,12 +69,29 @@
 //!
 //! Given your vault's passcode, what is the shortest path (the actual path, not just
 //! the length) to reach the vault?
+//!
+//! **--- Part Two ---**
+//!
+//! You're curious how robust this security solution really is, and so you decide to
+//! find longer and longer paths which still provide access to the vault. You remember
+//! that paths always end the first time they reach the bottom-right room (that is, they
+//! can never pass through it, only end in it).
+//!
+//! For example:
+//!
+//! ```text
+//! If your passcode were ihgpwlah, the longest path would take 370 steps.
+//! With kglvqrro, the longest path would be 492 steps long.
+//! With ulqzkmiv, the longest path would be 830 steps long.
+//! ```
+//!
+//! What is the length of the longest path that reaches the vault?
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::{run_solution, valid_lines},
+    utils::{print_err, run_solution, valid_lines},
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use md5::{Digest, Md5};
 use std::{
     fs::File,
@@ -108,47 +125,85 @@ pub fn part_1() -> Result<u32> {
 }
 
 fn find(reader: BufReader<File>) -> String {
-    find_br(reader)
+    find_br(reader).map_err(print_err).unwrap_or_default()
 }
 
-fn find_br<T>(reader: T) -> String
+fn find_br<T>(reader: T) -> Result<String>
 where
     T: BufRead,
 {
-    let mut md5 = Md5::new();
+    find_path(reader, false)
+}
+
+fn find_path<T>(reader: T, part2: bool) -> Result<String>
+where
+    T: BufRead,
+{
     let mut base = String::new();
     for line in valid_lines(reader) {
         base = line;
     }
-    let state = State { base, ..State::default() };
-    let results = search(state, &mut md5);
-    println!("{:?}", results);
-    "".to_string()
+    let state = State {
+        base,
+        ..State::default()
+    };
+    let mut results = vec![];
+    search(&state, &mut results, part2);
+    if part2 {
+        results
+            .into_iter()
+            .max_by(|x, y| x.len().cmp(&y.len()))
+            .ok_or_else(|| anyhow!("invalid longest"))
+    } else {
+        results
+            .into_iter()
+            .min_by(|x, y| x.len().cmp(&y.len()))
+            .ok_or_else(|| anyhow!("invalid shortest"))
+    }
 }
 
-fn search(state: State, md5: &mut Md5) -> Vec<String> {
-    let mut directions = directions(&state, md5);
-    let mut results = vec![];
-    valid_from_pos(&mut directions, &state);
-    for direction in directions {
+fn search(state: &State, results: &mut Vec<String>, part2: bool) {
+    let mut directions = directions(state);
+    valid_from_pos(&mut directions, state);
+    'outer: for direction in directions {
         let mut state = state.clone();
         walk(&mut state, direction);
-        if state.x != 3 && state.y != 3 {
-            results.extend(search(state, md5));
-        } else {
+
+        // println!("State after {:?}:", direction);
+        // println!("{:?}", state);
+        if !part2 {
+            for result in results.iter() {
+                if result.len() < state.path.len() {
+                    continue 'outer;
+                }
+            }
+        }
+        if state.x == 3 && state.y == 3 {
             results.push(state.path);
-            break;
+        } else {
+            search(&state, results, part2);
         }
     }
-    results
 }
 
 fn walk(state: &mut State, direction: Direction) {
     match direction {
-        Direction::Up => state.y += 1,
-        Direction::Down => state.y -= 1,
-        Direction::Left => state.x -= 1,
-        Direction::Right => state.x += 1,
+        Direction::Up => {
+            state.y -= 1;
+            state.path.push('U');
+        }
+        Direction::Down => {
+            state.y += 1;
+            state.path.push('D');
+        }
+        Direction::Left => {
+            state.x -= 1;
+            state.path.push('L');
+        }
+        Direction::Right => {
+            state.x += 1;
+            state.path.push('R');
+        }
     }
 }
 
@@ -168,8 +223,9 @@ fn valid_from_pos(dirs: &mut Vec<Direction>, state: &State) {
     }
 }
 
-fn directions(state: &State, md5: &mut Md5) -> Vec<Direction> {
+fn directions(state: &State) -> Vec<Direction> {
     let mut open_doors = vec![];
+    let mut md5 = Md5::new();
     md5.update(format!("{}{}", state.base, state.path));
     let digest = md5.finalize_reset();
     let hash = format!("{:x}", digest);
@@ -186,7 +242,7 @@ fn directions(state: &State, md5: &mut Md5) -> Vec<Direction> {
                 } else if idx == 3 {
                     open_doors.push(Direction::Right);
                 }
-            },
+            }
             _ => {}
         }
     }
@@ -204,15 +260,14 @@ pub fn part_2() -> Result<u32> {
 }
 
 fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+    find2_br(reader).map_err(print_err).unwrap_or_default()
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T) -> Result<usize>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    find_path(reader, true).map(|x| x.len())
 }
 
 #[cfg(test)]
@@ -222,27 +277,36 @@ mod one_star {
     use std::io::Cursor;
 
     const TEST_1: &str = r"ihgpwlah";
+    const TEST_2: &str = r"kglvqrro";
+    const TEST_3: &str = r"ulqzkmiv";
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find_br(Cursor::new(TEST_1)), "DDRRRD");
+        assert_eq!(find_br(Cursor::new(TEST_1))?, "DDRRRD");
+        assert_eq!(find_br(Cursor::new(TEST_2))?, "DDUDRLRRUDRD");
+        assert_eq!(
+            find_br(Cursor::new(TEST_3))?,
+            "DRURDRUDDLLDLUURRDULRLDUUDDDRR"
+        );
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
+    use super::find2_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"^v";
-    // const TEST_2: &str = r"^>v<";
-    // const TEST_3: &str = r"^v^v^v^v^v";
+    const TEST_1: &str = r"ihgpwlah";
+    const TEST_2: &str = r"kglvqrro";
+    const TEST_3: &str = r"ulqzkmiv";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 3);
+        assert_eq!(find2_br(Cursor::new(TEST_1))?, 370);
+        assert_eq!(find2_br(Cursor::new(TEST_2))?, 492);
+        assert_eq!(find2_br(Cursor::new(TEST_3))?, 830);
         Ok(())
     }
 }
