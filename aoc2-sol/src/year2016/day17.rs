@@ -169,8 +169,6 @@ fn search(state: &State, results: &mut Vec<String>, part2: bool) {
         let mut state = state.clone();
         walk(&mut state, direction);
 
-        // println!("State after {:?}:", direction);
-        // println!("{:?}", state);
         if !part2 {
             for result in results.iter() {
                 if result.len() < state.path.len() {
