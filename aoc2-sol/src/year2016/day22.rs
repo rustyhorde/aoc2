@@ -174,6 +174,7 @@ use crate::{
 };
 use anyhow::{anyhow, Result};
 use itertools::Itertools;
+use ndarray::Array2;
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -199,8 +200,29 @@ fn find_br<T>(reader: T) -> Result<usize>
 where
     T: BufRead,
 {
+    let nodes = load(reader)?;
+    let mut valid = 0;
+    for keys in nodes.keys().permutations(2) {
+        let (_first_s, first_u, _first_a) =
+            nodes.get(keys[0]).ok_or_else(|| anyhow!("invalid node"))?;
+        let (_second_s, _second_u, second_a) =
+            nodes.get(keys[1]).ok_or_else(|| anyhow!("invalid node"))?;
+
+        if *first_u != 0 && first_u <= second_a {
+            valid += 1;
+        }
+    }
+    Ok(valid)
+}
+
+type NodeMap = HashMap<(usize, usize), (usize, usize, usize)>;
+
+fn load<T>(reader: T) -> Result<NodeMap>
+where
+    T: BufRead,
+{
     let ds_re = Regex::new(r"^/dev/grid/node-x(\d+)-y(\d+) +(\d+)T +(\d+)T +(\d+)T")?;
-    let mut blah = HashMap::new();
+    let mut nodes = HashMap::new();
     for line in valid_lines(reader) {
         if ds_re.is_match(&line) {
             for caps in ds_re.captures_iter(&line) {
@@ -209,23 +231,11 @@ where
                 let size = get_cap_x::<usize>(3, &caps)?;
                 let used = get_cap_x::<usize>(4, &caps)?;
                 let avail = get_cap_x::<usize>(5, &caps)?;
-                let _ = blah.insert((x, y), (size, used, avail));
+                let _ = nodes.insert((x, y), (size, used, avail));
             }
         }
     }
-
-    let mut valid = 0;
-    for keys in blah.keys().permutations(2) {
-        let (_first_s, first_u, _first_a) =
-            blah.get(keys[0]).ok_or_else(|| anyhow!("invalid node"))?;
-        let (_second_s, _second_u, second_a) =
-            blah.get(keys[1]).ok_or_else(|| anyhow!("invalid node"))?;
-
-        if *first_u != 0 && first_u <= second_a {
-            valid += 1;
-        }
-    }
-    Ok(valid)
+    Ok(nodes)
 }
 
 /// Solution for Part 2
@@ -239,15 +249,60 @@ pub fn part_2() -> Result<u32> {
 }
 
 fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+    find2_br(reader).map_err(print_err).unwrap_or_default()
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T) -> Result<usize>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let nodes = load(reader)?;
+    let max_x = nodes
+        .keys()
+        .max_by(|a, b| (a.0).cmp(&b.0))
+        .ok_or_else(|| anyhow!("bad x nodes"))?;
+    let max_y = nodes
+        .keys()
+        .max_by(|a, b| (a.1).cmp(&b.1))
+        .ok_or_else(|| anyhow!("bad y nodes"))?;
+    println!("Max X: {}, Max Y: {}", max_x.0, max_y.1);
+
+    let mut arr = Array2::<NodeKind>::default((max_y.1 + 1, max_x.0 + 1));
+    for ((cols, rows), (size, used, _avail)) in nodes {
+        arr[[rows, cols]] = if size > 100 {
+            NodeKind::Wall
+        } else if used == 0 {
+            NodeKind::Empty
+        } else {
+            NodeKind::Normal
+        };
+    }
+    // println!("Initial State");
+    // for rows in arr.axis_iter(Axis(0)) {
+    //     for col in rows.iter() {
+    //         print!("{}", match *col {
+    //             NodeKind::Normal => ". ",
+    //             NodeKind::Wall => "| ",
+    //             NodeKind::Empty => "_ ",
+    //         });
+    //     }
+    //     println!();
+    // }
+    // println!();
+    Ok(0)
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum NodeKind {
+    Normal,
+    Wall,
+    Empty,
+}
+
+impl Default for NodeKind {
+    fn default() -> Self {
+        Self::Normal
+    }
 }
 
 #[cfg(test)]
@@ -272,17 +327,20 @@ Filesystem              Size  Used  Avail  Use%
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
+    use super::find2_br;
     use anyhow::Result;
-    // use std::io::Cursor;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"^v";
-    // const TEST_2: &str = r"^>v<";
-    // const TEST_3: &str = r"^v^v^v^v^v";
+    const TEST_1: &str = r"root@ebhq-gridcenter# df -h
+Filesystem              Size  Used  Avail  Use%
+/dev/grid/node-x0-y0     92T   73T    19T   79%
+/dev/grid/node-x0-y1     91T   66T    25T   72%
+/dev/grid/node-x0-y2     85T   73T    12T   85%
+/dev/grid/node-x0-y3     85T   68T    17T   80%";
 
     #[test]
     fn solution() -> Result<()> {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 3);
+        assert_eq!(find2_br(Cursor::new(TEST_1))?, 1);
         Ok(())
     }
 }
