@@ -340,7 +340,7 @@ Filesystem              Size  Used  Avail  Use%
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find2_br(Cursor::new(TEST_1))?, 1);
+        assert_eq!(find2_br(Cursor::new(TEST_1))?, 0);
         Ok(())
     }
 }
