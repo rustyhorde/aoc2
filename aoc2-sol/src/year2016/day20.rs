@@ -62,7 +62,9 @@ pub fn part_1() -> Result<u32> {
 }
 
 fn find(reader: BufReader<File>) -> usize {
-    find_br(reader, u32::MAX).map_err(print_err).unwrap_or_default()
+    find_br(reader, u32::MAX)
+        .map_err(print_err)
+        .unwrap_or_default()
 }
 
 fn find_br<T>(reader: T, max_value: u32) -> Result<usize>
@@ -94,15 +96,13 @@ where
             if to > max {
                 max = to;
             }
-        } else {
-            if part2 {
-                allowed += from - max - 1;
-                if to > max {
-                    max = to;
-                }
-            } else {
-                break;
+        } else if part2 {
+            allowed += from - max - 1;
+            if to > max {
+                max = to;
             }
+        } else {
+            break;
         }
     }
 
@@ -125,7 +125,9 @@ pub fn part_2() -> Result<u32> {
 }
 
 fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader, u32::MAX).map_err(print_err).unwrap_or_default()
+    find2_br(reader, u32::MAX)
+        .map_err(print_err)
+        .unwrap_or_default()
 }
 
 fn find2_br<T>(reader: T, max_value: u32) -> Result<usize>
