@@ -200,113 +200,33 @@ use crate::{
 };
 use anyhow::{anyhow, Result};
 use indexmap::IndexSet;
-use itertools::Itertools;
 use regex::Regex;
 use std::{
-    cmp::Ordering,
-    collections::BTreeMap,
-    fmt,
+    collections::{hash_map::DefaultHasher, BTreeMap},
     fs::File,
+    hash::{Hash, Hasher},
     io::{BufRead, BufReader},
 };
 
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialOrd, PartialEq)]
-enum ItemKind {
-    Generator,
-    Microchip,
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+enum PosKind {
+    Generator(u64),
+    Microchip(u64),
+    Space,
+    Elevator,
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
-struct Item {
-    name: Element,
-    kind: ItemKind,
+#[allow(dead_code)]
+struct Pos {
+    row: usize,
+    col: usize,
+    kind: PosKind,
 }
 
-impl PartialOrd for Item {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Item {
-    fn cmp(&self, other: &Item) -> Ordering {
-        if self.name.cmp(&other.name) == Ordering::Equal {
-            self.kind.cmp(&other.kind)
-        } else {
-            self.name.cmp(&other.name)
-        }
-    }
-}
-
-impl fmt::Display for Item {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut element = String::new();
-        element.push_str(&self.name.0.to_ascii_uppercase()[0..1]);
-        element.push_str(&self.name.0[1..2]);
-        write!(
-            f,
-            "{}",
-            match self.kind {
-                ItemKind::Generator => format!("{}G", element),
-                ItemKind::Microchip => format!("{}M", element),
-            }
-        )
-    }
-}
-
-impl Item {
-    fn can_join(&self, items: &[Item]) -> bool {
-        let mut can_join = false;
-        match self.kind {
-            ItemKind::Generator => {
-                for item in items {
-                    if item.kind == ItemKind::Microchip && item.name != self.name {
-                        can_join = false;
-                        break;
-                    }
-                }
-            }
-            ItemKind::Microchip => {
-                for item in items {
-                    if item.kind == ItemKind::Generator && item.name == self.name {
-                        can_join = true;
-                        break;
-                    }
-                }
-
-                let mut has_another_generator = false;
-                for item in items {
-                    if item.kind == ItemKind::Generator && item.name != self.name {
-                        has_another_generator = true;
-                        break;
-                    }
-                }
-
-                if !has_another_generator {
-                    can_join = true;
-                }
-            }
-        }
-        can_join
-    }
-}
-
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-struct Element(String);
-
-#[derive(Clone, Copy, Debug)]
-enum Direction {
-    Up,
-    Down,
-}
-
-#[derive(Clone, Debug, Default)]
-struct Elevator {
-    item1: Option<Item>,
-    item2: Option<Item>,
-    floor: usize,
-    moves: usize,
-    direction: Option<Direction>,
+#[allow(dead_code)]
+struct State {
+    visited: Vec<Vec<Vec<Pos>>>,
+    data: Vec<Vec<Pos>>,
 }
 
 /// Solution for Part 1
@@ -331,7 +251,7 @@ where
     let generator_re = Regex::new(r"a [a-z]+ generator[ ,\.]")?;
     let microchip_re = Regex::new(r"a [a-z]+-compatible[ ,\.]")?;
     let mut floors = BTreeMap::new();
-    let mut elevator = Elevator::default();
+    let mut items = IndexSet::new();
 
     for line in valid_lines(reader) {
         let mut floor = 0;
@@ -344,22 +264,21 @@ where
                 "fourth" => 3,
                 _ => return Err(anyhow!(format!("invalid floor: {}", floor_str))),
             };
-            let _ = floors.entry(floor).or_insert_with(Vec::<Item>::new);
+            let _ = floors.entry(floor).or_insert_with(Vec::new);
         }
         for m in generator_re.find_iter(&line) {
             let generator_match = &line[m.start()..m.end()];
             let split = generator_match.split(' ').collect::<Vec<&str>>();
-            let generator = split[1].to_string();
+            let mut generator = split[1].to_string();
+            generator.push('G');
             let floor_vec = floors.entry(floor).or_default();
-            floor_vec.push(Item {
-                name: Element(generator),
-                kind: ItemKind::Generator,
-            });
+            floor_vec.push(generator.clone());
+            let _ = items.insert(generator);
         }
         for m in microchip_re.find_iter(&line) {
             let microchip_match = &line[m.start()..m.end()];
             let split = microchip_match.split(' ').collect::<Vec<&str>>();
-            let microchip =
+            let mut microchip =
                 split[1]
                     .chars()
                     .take_while(|c| *c != '-')
@@ -368,222 +287,55 @@ where
                         val.push(ch);
                         val
                     });
+            microchip.push('M');
             let floor_vec = floors.entry(floor).or_default();
-            floor_vec.push(Item {
-                name: Element(microchip),
-                kind: ItemKind::Microchip,
-            });
+            floor_vec.push(microchip.clone());
+            let _ = items.insert(microchip);
         }
     }
 
-    current_state(&floors, &elevator);
-    let mut item_set = IndexSet::new();
-    for items in floors.values() {
-        for item in items {
-            let _ = item_set.insert(item.clone());
+    let items_count = items.len() + 1;
+
+    let mut data = vec![];
+
+    for (floor, items_on_floor) in floors {
+        let mut floor_vec = vec![PosKind::Space; items_count];
+
+        if floor == 0 {
+            floor_vec[0] = PosKind::Elevator;
         }
-    }
-    item_set.sort();
-    let mut break_after = 2;
-    let results = all_moves(&mut floors, &mut elevator, item_set.len(), &mut break_after)?;
-    println!("Results: {}", results.len());
-    Ok(0)
-}
-
-fn all_moves(
-    floors: &mut BTreeMap<usize, Vec<Item>>,
-    elevator: &mut Elevator,
-    item_count: usize,
-    break_me: &mut usize,
-) -> Result<Vec<Elevator>> {
-    let valid_moves = find_valid_moves(floors, elevator)?;
-    let mut made_it = vec![];
-    for elevator in valid_moves {
-        let mut floors_clone = floors.clone();
-        let mut elevator_clone = elevator.clone();
-        move_floors(&mut floors_clone, &mut elevator_clone);
-        current_state(&floors_clone, &elevator_clone);
-
-        *break_me -= 1;
-
-        if *break_me == 0 {
-            break;
-        }
-        if let Some(items_on_4) = floors.get(&3) {
-            if items_on_4.len() == item_count {
-                made_it.push(elevator_clone);
+        for item in &items_on_floor {
+            let idx = items
+                .get_index_of(item)
+                .ok_or_else(|| anyhow!("bad item"))?;
+            if item.ends_with('M') {
+                let blah = item.trim_end_matches('M');
+                let mut hasher = DefaultHasher::new();
+                blah.hash(&mut hasher);
+                floor_vec[idx + 1] = PosKind::Microchip(hasher.finish());
             } else {
-                made_it.extend(all_moves(
-                    &mut floors_clone,
-                    &mut elevator_clone,
-                    item_count,
-                    break_me,
-                )?);
+                let blah = item.trim_end_matches('G');
+                let mut hasher = DefaultHasher::new();
+                blah.hash(&mut hasher);
+                floor_vec[idx + 1] = PosKind::Generator(hasher.finish());
             }
-        } else {
-            return Err(anyhow!("invalid 4th floor"));
         }
-    }
-    Ok(made_it)
-}
-
-fn move_floors(floors: &mut BTreeMap<usize, Vec<Item>>, elevator: &mut Elevator) {
-    // Remove the item from the current floor, then move the elevator and
-    // item accordingly
-    let curr_floor = elevator.floor;
-
-    match elevator.direction {
-        Some(Direction::Up) => {
-            if let Some(item) = &elevator.item1 {
-                floors.entry(curr_floor).or_default().retain(|f| f != item);
-                floors.entry(curr_floor + 1).or_default().push(item.clone());
-            }
-            elevator.floor += 1;
-            elevator.moves += 1;
-            elevator.direction = None;
-        }
-        Some(Direction::Down) => {
-            if let Some(item) = &elevator.item1 {
-                floors.entry(curr_floor).or_default().retain(|f| f != item);
-                floors.entry(curr_floor - 1).or_default().push(item.clone());
-            }
-            elevator.floor -= 1;
-            elevator.moves += 1;
-            elevator.direction = None;
-        }
-        _ => {}
-    }
-}
-
-fn find_valid_moves(
-    floors: &BTreeMap<usize, Vec<Item>>,
-    elevator: &Elevator,
-) -> Result<Vec<Elevator>> {
-    let mut possible = vec![];
-    let curr_floor = elevator.floor;
-    let curr_items = floors
-        .get(&curr_floor)
-        .ok_or_else(|| anyhow!("invalid floor"))?;
-
-    for combo in curr_items
-        .iter()
-        .powerset()
-        .filter(|x| !x.is_empty() && x.len() <= 2)
-    {
-        let len = combo.len();
-        let mut new_elevator = elevator.clone();
-        if len >= 1 {
-            new_elevator.item1 = Some(combo[0].clone());
-        }
-        if len == 2 {
-            new_elevator.item2 = Some(combo[1].clone());
-        }
-        possible.push(new_elevator);
+        data.push(floor_vec);
     }
 
-    can_move_up(&mut possible, floors, curr_floor)?;
-    can_move_down(&mut possible, floors, curr_floor)?;
+    let mut goal = vec![vec![PosKind::Space; items_count]; 4];
+    goal[3][0] = PosKind::Elevator;
 
-    // Filter out elevators stuck on curr floor
-    Ok(possible
-        .into_iter()
-        .filter(|x| x.direction.is_some())
-        .collect())
-}
-
-fn can_move_up(
-    elevators: &mut Vec<Elevator>,
-    floors: &BTreeMap<usize, Vec<Item>>,
-    curr_floor: usize,
-) -> Result<()> {
-    if curr_floor != 3 {
-        let above_items = floors
-            .get(&(curr_floor + 1))
-            .ok_or_else(|| anyhow!("invalid floor"))?;
-        for elevator in elevators {
-            let mut can_move_up = false;
-            if let Some(item1) = &elevator.item1 {
-                // Check item1 against above_items
-                can_move_up = item1.can_join(above_items);
-            }
-            if let Some(item2) = &elevator.item2 {
-                // Check item2 against above_items
-                can_move_up = item2.can_join(above_items);
-            }
-            if can_move_up {
-                elevator.direction = Some(Direction::Up);
+    for row in &data {
+        for (idx, pos) in row.iter().enumerate() {
+            if *pos != PosKind::Space {
+                goal[3][idx] = *pos;
             }
         }
     }
-    Ok(())
-}
-
-fn can_move_down(
-    elevators: &mut Vec<Elevator>,
-    floors: &BTreeMap<usize, Vec<Item>>,
-    curr_floor: usize,
-) -> Result<()> {
-    if curr_floor != 0 {
-        let below_items = floors
-            .get(&(curr_floor - 1))
-            .ok_or_else(|| anyhow!("invalid floor"))?;
-        for elevator in elevators {
-            let mut can_move_up = false;
-            if let Some(item1) = &elevator.item1 {
-                // Check item1 against above_items
-                can_move_up = item1.can_join(below_items);
-            }
-            if let Some(item2) = &elevator.item2 {
-                // Check item2 against above_items
-                can_move_up = item2.can_join(below_items);
-            }
-            if can_move_up {
-                elevator.direction = Some(Direction::Down);
-            }
-        }
-    }
-    Ok(())
-}
-
-fn current_state(floors: &BTreeMap<usize, Vec<Item>>, elevator: &Elevator) {
-    let mut item_set = IndexSet::new();
-    for items in floors.values() {
-        for item in items {
-            let _ = item_set.insert(item.clone());
-        }
-    }
-    item_set.sort();
-    let max_width = item_set.len();
-
-    for i in (0..floors.len()).rev() {
-        let mut floor_str = String::new();
-        floor_str.push('F');
-        floor_str.push_str(&(i + 1).to_string());
-        floor_str.push(' ');
-
-        if elevator.floor == i {
-            floor_str.push('E');
-        } else {
-            floor_str.push('.');
-        }
-        floor_str.push_str("   ");
-
-        if let Some(items) = floors.get(&i) {
-            let mut str_rep: Vec<String> = Vec::new();
-            for _ in 0..max_width {
-                str_rep.push(".  ".to_string());
-            }
-
-            for item in items {
-                if let Some(idx) = item_set.get_index_of(item) {
-                    str_rep[idx] = item.to_string();
-                }
-            }
-            let row = str_rep.join(" ");
-            floor_str.push_str(&row);
-        }
-        println!("{}", floor_str);
-    }
+    println!("{:?}", data);
+    println!("{:?}", goal);
+    Ok(0)
 }
 
 /// Solution for Part 2
