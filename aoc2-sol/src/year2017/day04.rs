@@ -6,14 +6,56 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! Advent of Code - Day 4
+//! High-Entropy Passphrases
+//!
+//! **--- Day 4: High-Entropy Passphrases ---**
+//!
+//! **--- Part 1 ---**
+//!
+//! A new system policy has been put in place that requires all accounts to
+//! use a passphrase instead of simply a password. A passphrase consists
+//! of a series of words (lowercase letters) separated by spaces.
+//!
+//! To ensure security, a valid passphrase must contain no duplicate words.
+//!
+//! For example:
+//!
+//! ```text
+//! aa bb cc dd ee is valid.
+//! aa bb cc dd aa is not valid - the word aa appears more than once.
+//! aa bb cc dd aaa is valid - aa and aaa count as different words.
+//! ```
+//!
+//! The system's full passphrase list is available as your puzzle input.
+//! How many passphrases are valid?
+//!
+//! **--- Part Two ---**
+//!
+//! For added security, yet another system policy has been put in place. Now,
+//! a valid passphrase must contain no two words that are anagrams of each other
+//! - that is, a passphrase is invalid if any word's letters can be rearranged
+//! to form any other word in the passphrase.
+//!
+//! For example:
+//!
+//! ```text
+//! abcde fghij is a valid passphrase.
+//! abcde xyz ecdab is not valid - the letters from the third word can be rearranged to form the first word.
+//! a ab abc abd abf abj is a valid passphrase, because all letters need to be used when forming another word.
+//! iiii oiii ooii oooi oooo is valid.
+//! oiii ioii iioi iiio is not valid - any of these words can be rearranged to form any other word.
+//! ```
+//!
+//! Under this new system policy, how many passphrases are valid?
 
 use crate::{
     constants::{AoCDay, AoCYear},
     utils::{run_solution, valid_lines},
 };
 use anyhow::Result;
+use itertools::Itertools;
 use std::{
+    collections::HashSet,
     fs::File,
     io::{BufRead, BufReader},
 };
@@ -36,8 +78,32 @@ fn find_br<T>(reader: T) -> usize
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    check_password(reader, false)
+}
+
+fn check_password<T>(reader: T, part2: bool) -> usize
+where
+    T: BufRead,
+{
+    let mut count = 0;
+    for line in valid_lines(reader) {
+        if (part2 && check_for_anagrams(&line)) || (!part2 && check_for_duplicates(&line)) {
+            count += 1;
+        }
+    }
+    count
+}
+
+/// Check each passphrase for the same word an toss out any that violate.
+fn check_for_duplicates(line: &str) -> bool {
+    let mut word_set = HashSet::new();
+
+    for word in line.split_whitespace() {
+        if !word_set.insert(word) {
+            return false;
+        }
+    }
+    true
 }
 
 /// Solution for Part 2
@@ -58,8 +124,19 @@ fn find2_br<T>(reader: T) -> usize
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    check_password(reader, true)
+}
+
+fn check_for_anagrams(line: &str) -> bool {
+    let mut word_set = HashSet::new();
+
+    for word in line.split_whitespace() {
+        let s = word.chars().sorted_by(|a, b| b.cmp(a)).collect::<String>();
+        if !word_set.insert(s) {
+            return false;
+        }
+    }
+    true
 }
 
 #[cfg(test)]
@@ -68,11 +145,13 @@ mod one_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r">";
+    const TEST_1: &str = r"aa bb cc dd ee
+aa bb cc dd aa
+aa bb cc dd aaa";
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find_br(Cursor::new(TEST_1)), 0);
+        assert_eq!(find_br(Cursor::new(TEST_1)), 2);
         Ok(())
     }
 }

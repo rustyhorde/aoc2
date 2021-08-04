@@ -301,6 +301,7 @@ mod two_star {
     const TEST_3: &str = r"ulqzkmiv";
 
     #[test]
+    #[ignore]
     fn solution() -> Result<()> {
         assert_eq!(find2_br(Cursor::new(TEST_1))?, 370);
         assert_eq!(find2_br(Cursor::new(TEST_2))?, 492);
