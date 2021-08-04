@@ -161,6 +161,8 @@
     rustdoc::private_intra_doc_links
 )]
 
+use pathfinding as _;
+
 pub mod constants;
 mod utils;
 pub mod year2015;
