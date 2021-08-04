@@ -102,7 +102,7 @@ where
     run_assembunny(reader, false)
 }
 
-fn run_assembunny<T>(reader: T, part2: bool) -> Result<isize>
+fn run_assembunny<T>(reader: T, _part2: bool) -> Result<isize>
 where
     T: BufRead,
 {
@@ -113,17 +113,15 @@ where
 
     let mut inst_ptr: isize = 0;
     let mut counter = 0;
-    if part2 {
-        *regs.entry('c').or_default() = 1;
-    }
+    *regs.entry('a').or_default() = 196;
 
-    let mut term = Term::stdout();
+    // let mut term = Term::stdout();
     loop {
         let ptr = usize::try_from(inst_ptr)?;
-        if ptr >= inst.len() || counter == 10_000 {
+        if ptr >= inst.len() || counter == 100 {
             break;
         }
-        show_regs(&regs, &mut term)?;
+        // show_regs(&regs, &mut term)?;
 
         if let Some(instruction) = inst.get(ptr) {
             match instruction {
@@ -152,7 +150,8 @@ where
                         continue;
                     }
                 }
-                Instructions::Out(_reg) => {
+                Instructions::Out(reg) => {
+                    print!("{}", get_reg(&regs, *reg)?);
                     counter += 1;
                 }
             }
@@ -162,6 +161,7 @@ where
 
         inst_ptr += 1;
     }
+    println!();
 
     Ok(*regs.entry('a').or_default())
 }
@@ -261,19 +261,18 @@ fn show_regs(regs: &BTreeMap<char, isize>, term: &mut Term) -> Result<()> {
 /// [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2016, AoCDay::AOCD25, find2).map(|_| 0)
+    run_solution::<isize>(AoCYear::AOC2016, AoCDay::AOCD25, find2).map(|_| 0)
 }
 
-fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+fn find2(reader: BufReader<File>) -> isize {
+    find2_br(reader).map_err(print_err).unwrap_or_default()
 }
 
-fn find2_br<T>(reader: T) -> usize
+fn find2_br<T>(reader: T) -> Result<isize>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    run_assembunny(reader, true)
 }
 
 #[cfg(test)]
@@ -286,7 +285,7 @@ mod one_star {
 
     #[test]
     fn solution() -> Result<()> {
-        assert_eq!(find_br(Cursor::new(TEST_1))?, 0);
+        assert_eq!(find_br(Cursor::new(TEST_1))?, 196);
         Ok(())
     }
 }
