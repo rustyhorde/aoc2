@@ -124,7 +124,7 @@ fn row_min_max_diff(line: &str) -> Result<usize> {
     let mut min = usize::MAX;
     let mut max = 0;
 
-    for val_res in line.split_whitespace().map(|x| x.parse::<usize>()) {
+    for val_res in line.split_whitespace().map(str::parse) {
         let val = val_res?;
         if val < min {
             min = val;
