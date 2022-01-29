@@ -93,10 +93,10 @@ where
     for line in valid_lines(reader) {
         for cap in line_re.captures_iter(&line) {
             let action = &cap[1];
-            let x1 = (&cap[2]).parse::<usize>()?;
-            let y1 = (&cap[3]).parse::<usize>()?;
-            let x2 = (&cap[4]).parse::<usize>()?;
-            let y2 = (&cap[5]).parse::<usize>()?;
+            let x1 = (cap[2]).parse::<usize>()?;
+            let y1 = (cap[3]).parse::<usize>()?;
+            let x2 = (cap[4]).parse::<usize>()?;
+            let y2 = (cap[5]).parse::<usize>()?;
 
             match action {
                 "turn on" => {
@@ -163,10 +163,10 @@ where
     for line in valid_lines(reader) {
         for cap in line_re.captures_iter(&line) {
             let action = &cap[1];
-            let x1 = (&cap[2]).parse::<usize>()?;
-            let y1 = (&cap[3]).parse::<usize>()?;
-            let x2 = (&cap[4]).parse::<usize>()?;
-            let y2 = (&cap[5]).parse::<usize>()?;
+            let x1 = (cap[2]).parse::<usize>()?;
+            let y1 = (cap[3]).parse::<usize>()?;
+            let x2 = (cap[4]).parse::<usize>()?;
+            let y2 = (cap[5]).parse::<usize>()?;
 
             match action {
                 "turn on" => {

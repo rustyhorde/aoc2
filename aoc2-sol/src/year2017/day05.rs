@@ -106,7 +106,7 @@ where
     jump_away(&mut jump_vec, part2)
 }
 
-fn jump_away(jump_vec: &mut Vec<isize>, crazy_jumps: bool) -> Result<isize> {
+fn jump_away(jump_vec: &mut [isize], crazy_jumps: bool) -> Result<isize> {
     let list_len = jump_vec.len();
     let mut step = 0;
     let mut current_idx = 0;

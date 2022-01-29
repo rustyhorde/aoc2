@@ -223,7 +223,7 @@ where
     Ok((nodes, children))
 }
 
-fn assign_parents(programs: &mut Vec<Program>, children: &HashMap<usize, Vec<String>>) {
+fn assign_parents(programs: &mut [Program], children: &HashMap<usize, Vec<String>>) {
     for (id, names) in children {
         for name in names {
             for node in programs.iter_mut() {
@@ -281,7 +281,7 @@ where
 }
 
 /// Traverse the vectors, assigning proper children vectors.
-fn assign_children(nodes: &mut Vec<Program>, children: HashMap<usize, Vec<String>>) -> Result<()> {
+fn assign_children(nodes: &mut [Program], children: HashMap<usize, Vec<String>>) -> Result<()> {
     let children_ids: HashMap<usize, Vec<usize>> = children
         .into_iter()
         .map(|(k, v)| {
