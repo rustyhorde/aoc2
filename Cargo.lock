@@ -99,9 +99,9 @@ dependencies = [
 
 [[package]]
 name = "block-buffer"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1d36a02058e76b040de25a4464ba1c80935655595b661505c8b39b664828b95"
+checksum = "03588e54c62ae6d763e2a80090d50353b785795361b4ff5b3bf0a5097fc31c0b"
 dependencies = [
  "generic-array",
 ]
@@ -208,9 +208,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-epoch"
-version = "0.9.6"
+version = "0.9.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97242a70df9b89a65d0b6df3c4bf5b9ce03c5b7309019777fbde37e7537f8762"
+checksum = "c00d6d2ea26e8b151d99093005cb442fb9a37aeaca582a03ec70946f49ab5ed9"
 dependencies = [
  "cfg-if",
  "crossbeam-utils",
@@ -221,9 +221,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-utils"
-version = "0.8.6"
+version = "0.8.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfcae03edb34f947e64acdb1c33ec169824e20657e9ecb61cef6c8c74dcb8120"
+checksum = "b5e5bed1f1c269533fa816a0a5492b3545209a205ca1a54842be180eb63a16a6"
 dependencies = [
  "cfg-if",
  "lazy_static",
@@ -788,9 +788,9 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "semver"
-version = "1.0.4"
+version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "568a8e6258aa33c13358f81fd834adb854c6f7c9468520910a9b1e8fac068012"
+checksum = "0486718e92ec9a68fbed73bb5ef687d71103b142595b406835649bebd33f72c7"
 
 [[package]]
 name = "serde"
