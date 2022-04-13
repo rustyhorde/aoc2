@@ -80,9 +80,9 @@ use crate::{
     utils::{print_err, run_solution, valid_lines},
 };
 use anyhow::{anyhow, Result};
-use pathfinding::prelude::absdiff;
 use std::{
     collections::HashMap,
+    convert::TryInto,
     fs::File,
     io::{BufRead, BufReader},
 };
@@ -110,7 +110,7 @@ where
         value = line.parse::<isize>()?;
     }
     let final_tuple = calculate_tuple(value);
-    Ok(absdiff(final_tuple.0, 0) + absdiff(final_tuple.1, 0))
+    Ok((final_tuple.0.abs_diff(0) + final_tuple.1.abs_diff(0)).try_into()?)
 }
 
 // Start a (0,0) and rapidly move out "shells" until

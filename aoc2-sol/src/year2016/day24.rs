@@ -70,7 +70,7 @@ use crate::{
 };
 use anyhow::{anyhow, Result};
 use itertools::Itertools;
-use pathfinding::prelude::{absdiff, astar};
+use pathfinding::prelude::astar;
 use std::{
     collections::HashMap,
     convert::TryFrom,
@@ -113,7 +113,7 @@ impl Pos {
     }
 
     fn distance(&self, other: &Pos) -> usize {
-        absdiff(self.row, other.row) + absdiff(self.col, other.col)
+        self.row.abs_diff(other.row) + self.col.abs_diff(other.col)
     }
 
     fn is_point(&self) -> bool {
