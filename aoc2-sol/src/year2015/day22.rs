@@ -295,12 +295,14 @@ struct GameState {
 
 impl fmt::Display for GameState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use std::fmt::Write;
+
         let effects = self
             .effects
             .iter()
             .fold("".to_string(), |acc, (kind, dur)| {
                 let mut acc = acc;
-                acc.push_str(&format!("{} => {},", kind, dur));
+                write!(acc, "{} => {},", kind, dur).expect("Unable to write string");
                 acc
             });
         write!(

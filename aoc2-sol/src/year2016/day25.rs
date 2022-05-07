@@ -60,7 +60,7 @@ use crate::{
     constants::{AoCDay, AoCYear},
     utils::{get_cap_x, print_err, run_solution, valid_lines},
 };
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use console::Term;
 use regex::Regex;
 use std::{
@@ -242,9 +242,11 @@ fn get_reg(regs: &BTreeMap<char, isize>, reg: char) -> Result<isize> {
 
 #[allow(dead_code)]
 fn show_regs(regs: &BTreeMap<char, isize>, term: &mut Term) -> Result<()> {
+    use std::fmt::Write;
+
     let mut buf = String::new();
     for (idx, (k, v)) in regs.iter().enumerate() {
-        buf.push_str(&format!("{}: {}", k, v));
+        write!(buf, "{}: {}", k, v).with_context(|| "Unable to write string")?;
         if idx < regs.len() - 1 {
             buf.push_str(", ");
         }

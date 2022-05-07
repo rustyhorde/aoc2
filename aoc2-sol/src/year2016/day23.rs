@@ -234,9 +234,11 @@ fn get_reg(regs: &BTreeMap<char, isize>, reg: char) -> Result<isize> {
 
 #[allow(dead_code)]
 fn show_regs(regs: &BTreeMap<char, isize>) {
+    use std::fmt::Write;
+
     let mut buf = String::new();
     for (idx, (k, v)) in regs.iter().enumerate() {
-        buf.push_str(&format!("{}: {}", k, v));
+        write!(buf, "{}: {}", k, v).expect("Unable to write string");
         if idx < regs.len() - 1 {
             buf.push_str(", ");
         }
