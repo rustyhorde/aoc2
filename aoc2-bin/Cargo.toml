@@ -17,7 +17,7 @@ rand = "0.8.4"
 [build-dependencies]
 anyhow = "1.0.42"
 rustversion = "1.0.5"
-vergen = "5.1.13"
+vergen = "7.3.1"
 
 [dev-dependencies]
 regex = "1.5.4"
