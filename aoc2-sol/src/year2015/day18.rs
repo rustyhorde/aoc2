@@ -194,7 +194,7 @@ where
     let mut lights: Array2<u8> = Array2::zeros((e_len + 2, e_len + 2));
     for (y, line) in valid_lines(reader).enumerate() {
         for (x, ch) in line.chars().enumerate() {
-            lights[[x + 1, y + 1]] = if ch == '#' { 1 } else { 0 };
+            lights[[x + 1, y + 1]] = u8::from(ch == '#');
         }
     }
 
@@ -219,7 +219,7 @@ where
             let curr_cell = window[(1, 1)];
             let total_alive =
                 window.fold(0, |count, cell| if *cell == 1 { count + 1 } else { count });
-            let neighbors_alive = total_alive - if curr_cell == 1 { 1 } else { 0 };
+            let neighbors_alive = total_alive - i32::from(curr_cell == 1);
 
             if curr_cell == 1 {
                 if neighbors_alive == 2 || neighbors_alive == 3 {
@@ -284,7 +284,7 @@ where
             {
                 lights[[x + 1, y + 1]] = 1;
             } else {
-                lights[[x + 1, y + 1]] = if ch == '#' { 1 } else { 0 };
+                lights[[x + 1, y + 1]] = u8::from(ch == '#');
             }
         }
     }
@@ -310,7 +310,7 @@ where
             let curr_cell = window[(1, 1)];
             let total_alive =
                 window.fold(0, |count, cell| if *cell == 1 { count + 1 } else { count });
-            let neighbors_alive = total_alive - if curr_cell == 1 { 1 } else { 0 };
+            let neighbors_alive = total_alive - i32::from(curr_cell == 1);
 
             if curr_cell == 1 {
                 if neighbors_alive == 2 || neighbors_alive == 3 {
