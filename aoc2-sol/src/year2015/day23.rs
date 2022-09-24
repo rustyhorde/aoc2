@@ -108,13 +108,13 @@ where
     for line in valid_lines(reader) {
         if hlf_re.is_match(&line) {
             let reg = get_cap(1, &hlf_re.captures(&line).context("bad cap")?)?;
-            inst.push(Inst::Half(if &reg == "a" { 0 } else { 1 }));
+            inst.push(Inst::Half(usize::from(&reg != "a")));
         } else if tpl_re.is_match(&line) {
             let reg = get_cap(1, &tpl_re.captures(&line).context("bad cap")?)?;
-            inst.push(Inst::Triple(if &reg == "a" { 0 } else { 1 }));
+            inst.push(Inst::Triple(usize::from(&reg != "a")));
         } else if inc_re.is_match(&line) {
             let reg = get_cap(1, &inc_re.captures(&line).context("bad cap")?)?;
-            inst.push(Inst::Inc(if &reg == "a" { 0 } else { 1 }));
+            inst.push(Inst::Inc(usize::from(&reg != "a")));
         } else if jmp_re.is_match(&line) {
             let caps = jmp_re.captures(&line).context("bad cap")?;
             let sign = get_cap(1, &caps)?;
@@ -125,13 +125,13 @@ where
             let reg = get_cap(1, &caps)?;
             let sign = get_cap(2, &caps)?;
             let offset = get_cap_x::<usize>(3, &caps)?;
-            inst.push(Inst::Jie(if &reg == "a" { 0 } else { 1 }, sign, offset));
+            inst.push(Inst::Jie(usize::from(&reg != "a"), sign, offset));
         } else if jump_if_one_re.is_match(&line) {
             let caps = jump_if_one_re.captures(&line).context("bad cap")?;
             let reg = get_cap(1, &caps)?;
             let sign = get_cap(2, &caps)?;
             let offset = get_cap_x::<usize>(3, &caps)?;
-            inst.push(Inst::Jio(if &reg == "a" { 0 } else { 1 }, sign, offset));
+            inst.push(Inst::Jio(usize::from(&reg != "a"), sign, offset));
         } else {
             return Err(anyhow!(format!("Invalid instruction: {}", line)));
         }
@@ -218,13 +218,13 @@ where
     for line in valid_lines(reader) {
         if hlf_re.is_match(&line) {
             let reg = get_cap(1, &hlf_re.captures(&line).context("bad cap")?)?;
-            inst.push(Inst::Half(if &reg == "a" { 0 } else { 1 }));
+            inst.push(Inst::Half(usize::from(&reg != "a")));
         } else if tpl_re.is_match(&line) {
             let reg = get_cap(1, &tpl_re.captures(&line).context("bad cap")?)?;
-            inst.push(Inst::Triple(if &reg == "a" { 0 } else { 1 }));
+            inst.push(Inst::Triple(usize::from(&reg != "a")));
         } else if inc_re.is_match(&line) {
             let reg = get_cap(1, &inc_re.captures(&line).context("bad cap")?)?;
-            inst.push(Inst::Inc(if &reg == "a" { 0 } else { 1 }));
+            inst.push(Inst::Inc(usize::from(&reg != "a")));
         } else if jmp_re.is_match(&line) {
             let caps = jmp_re.captures(&line).context("bad cap")?;
             let sign = get_cap(1, &caps)?;
@@ -235,13 +235,13 @@ where
             let reg = get_cap(1, &caps)?;
             let sign = get_cap(2, &caps)?;
             let offset = get_cap_x::<usize>(3, &caps)?;
-            inst.push(Inst::Jie(if &reg == "a" { 0 } else { 1 }, sign, offset));
+            inst.push(Inst::Jie(usize::from(&reg != "a"), sign, offset));
         } else if jump_if_one_re.is_match(&line) {
             let caps = jump_if_one_re.captures(&line).context("bad cap")?;
             let reg = get_cap(1, &caps)?;
             let sign = get_cap(2, &caps)?;
             let offset = get_cap_x::<usize>(3, &caps)?;
-            inst.push(Inst::Jio(if &reg == "a" { 0 } else { 1 }, sign, offset));
+            inst.push(Inst::Jio(usize::from(&reg != "a"), sign, offset));
         } else {
             return Err(anyhow!(format!("Invalid instruction: {}", line)));
         }
