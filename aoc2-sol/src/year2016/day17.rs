@@ -226,7 +226,7 @@ fn directions(state: &State) -> Vec<Direction> {
     let mut md5 = Md5::new();
     md5.update(format!("{}{}", state.base, state.path));
     let digest = md5.finalize_reset();
-    let hash = format!("{:x}", digest);
+    let hash = format!("{digest:x}");
     let hash_dirs_str = &hash[0..4];
     for (idx, dir) in hash_dirs_str.chars().enumerate() {
         match dir {

@@ -100,7 +100,7 @@ fn find(reader: BufReader<File>) -> usize {
             .unwrap_or_default()
             .into(),
         Err(e) => {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             1
         }
     }
@@ -306,7 +306,7 @@ fn find2(reader: BufReader<File>) -> usize {
             .unwrap_or_default()
             .into(),
         Err(e) => {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             1
         }
     }
@@ -324,10 +324,7 @@ where
         second_pass.push(line.clone());
     }
 
-    if let Some(buf) = first_pass
-        .into_iter()
-        .reduce(|a, b| format!("{}\n{}", a, b))
-    {
+    if let Some(buf) = first_pass.into_iter().reduce(|a, b| format!("{a}\n{b}")) {
         let cursor = Cursor::new(buf);
         let mut circuit_map = find_br(cursor)?;
         let val_at_a = circuit_map
@@ -347,10 +344,7 @@ where
         let not_re = Regex::new(r"NOT (.*)")?;
         let mut no_input = VecDeque::new();
 
-        if let Some(buf) = second_pass
-            .into_iter()
-            .reduce(|a, b| format!("{}\n{}", a, b))
-        {
+        if let Some(buf) = second_pass.into_iter().reduce(|a, b| format!("{a}\n{b}")) {
             let cursor = Cursor::new(buf);
             for line in valid_lines(cursor) {
                 for cap in line_re.captures_iter(&line) {

@@ -133,7 +133,7 @@ where
             let offset = get_cap_x::<usize>(3, &caps)?;
             inst.push(Inst::Jio(usize::from(&reg != "a"), sign, offset));
         } else {
-            return Err(anyhow!(format!("Invalid instruction: {}", line)));
+            return Err(anyhow!(format!("Invalid instruction: {line}")));
         }
     }
 
@@ -243,7 +243,7 @@ where
             let offset = get_cap_x::<usize>(3, &caps)?;
             inst.push(Inst::Jio(usize::from(&reg != "a"), sign, offset));
         } else {
-            return Err(anyhow!(format!("Invalid instruction: {}", line)));
+            return Err(anyhow!(format!("Invalid instruction: {line}")));
         }
     }
 

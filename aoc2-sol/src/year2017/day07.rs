@@ -138,13 +138,13 @@ impl fmt::Display for Program {
             self.id, self.name, self.weight
         )?;
         if let Some(parent) = self.parent {
-            write!(f, ", parent: {}", parent)?;
+            write!(f, ", parent: {parent}")?;
         }
 
         if let Some(children) = &self.children {
             write!(f, ", children => (")?;
             for child in children {
-                write!(f, "{},", child)?;
+                write!(f, "{child},")?;
             }
             write!(f, ")")?;
         }
@@ -216,7 +216,7 @@ where
                 });
             }
         } else {
-            return Err(anyhow!(format!("invalid node: {}", line)));
+            return Err(anyhow!(format!("invalid node: {line}")));
         }
     }
 

@@ -178,16 +178,16 @@ fn generate_1000(salt: &str, md5: &mut Md5, part2: bool) -> VecDeque<String> {
 }
 
 fn generate_md5(idx: usize, salt: &str, md5: &mut Md5, part2: bool) -> String {
-    let md5_in = format!("{}{}", salt, idx);
+    let md5_in = format!("{salt}{idx}");
     md5.update(md5_in);
     let md5_hash = md5.finalize_reset();
-    let mut hex = format!("{:x}", md5_hash);
+    let mut hex = format!("{md5_hash:x}");
 
     if part2 {
         for _ in 0..2016 {
             md5.update(hex);
             let md5_hash = md5.finalize_reset();
-            hex = format!("{:x}", md5_hash);
+            hex = format!("{md5_hash:x}");
         }
     }
 

@@ -142,7 +142,7 @@ where
                 match &direction[..] {
                     "left" => instructions.push(Instructions::RotLeft(x)),
                     "right" => instructions.push(Instructions::RotRight(x)),
-                    _ => return Err(anyhow!(format!("invalid instruction: {}", line))),
+                    _ => return Err(anyhow!(format!("invalid instruction: {line}"))),
                 }
             }
         } else if move_re.is_match(&line) {
@@ -157,7 +157,7 @@ where
                 instructions.push(Instructions::RotB(x));
             }
         } else {
-            return Err(anyhow!(format!("invalid instruction: {}", line)));
+            return Err(anyhow!(format!("invalid instruction: {line}")));
         }
     }
 

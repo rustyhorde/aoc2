@@ -82,7 +82,7 @@ impl TryFrom<String> for Command {
         match &command[..] {
             "inc" => Ok(Command::Inc),
             "dec" => Ok(Command::Dec),
-            _ => Err(anyhow!(format!("invalid command: {}", command))),
+            _ => Err(anyhow!(format!("invalid command: {command}"))),
         }
     }
 }
@@ -114,7 +114,7 @@ impl TryFrom<String> for Operator {
             "<=" => Ok(Operator::LessThanEqualTo),
             "<" => Ok(Operator::LessThan),
             "!=" => Ok(Operator::NotEqualTo),
-            _ => Err(anyhow!(format!("invalid operator: {}", command))),
+            _ => Err(anyhow!(format!("invalid operator: {command}"))),
         }
     }
 }

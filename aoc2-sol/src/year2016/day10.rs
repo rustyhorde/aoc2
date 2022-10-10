@@ -154,7 +154,7 @@ where
                 );
             }
         } else {
-            return Err(anyhow!(format!("invalid instruction: {}", line)));
+            return Err(anyhow!(format!("invalid instruction: {line}")));
         }
     }
 

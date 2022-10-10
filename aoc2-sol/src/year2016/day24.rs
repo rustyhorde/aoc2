@@ -185,7 +185,7 @@ impl fmt::Display for Grid {
             for col in row {
                 buf.push_str(&col.kind.to_string());
             }
-            writeln!(f, "{}", buf)?;
+            writeln!(f, "{buf}")?;
             buf.clear();
         }
         Ok(())
@@ -239,7 +239,7 @@ where
                     let kind = PosKind::Point(usize::try_from(digit)?);
                     row_vec.push(Pos { row, col, kind });
                 }
-                _ => return Err(anyhow!(format!("invalid input: {}", ch))),
+                _ => return Err(anyhow!(format!("invalid input: {ch}"))),
             }
         }
         data.push(row_vec);

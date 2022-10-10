@@ -13,7 +13,7 @@ use clap::ErrorKind;
 #[allow(clippy::needless_pass_by_value)]
 pub(crate) fn clap_or_error(err: anyhow::Error) -> i32 {
     let disp_err = || {
-        eprint!("{:?}", err);
+        eprint!("{err:?}");
         1
     };
     match err.downcast_ref::<clap::Error>() {

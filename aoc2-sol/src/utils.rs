@@ -90,8 +90,8 @@ where
     let now = Instant::now();
     let res = f(data);
     let (whole, frac, units) = elapsed_parts(now.elapsed())?;
-    println!("Answer:  {}", res);
-    println!("Elapsed: {}.{}{}", whole, frac, units);
+    println!("Answer:  {res}");
+    println!("Elapsed: {whole}.{frac}{units}");
     Ok(res)
 }
 
@@ -128,6 +128,6 @@ where
 }
 
 pub(crate) fn print_err(e: Error) -> Error {
-    eprintln!("{}", e);
+    eprintln!("{e}");
     e
 }

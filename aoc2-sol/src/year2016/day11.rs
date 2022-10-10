@@ -262,7 +262,7 @@ where
                 "second" => 1,
                 "third" => 2,
                 "fourth" => 3,
-                _ => return Err(anyhow!(format!("invalid floor: {}", floor_str))),
+                _ => return Err(anyhow!(format!("invalid floor: {floor_str}"))),
             };
             let _ = floors.entry(floor).or_insert_with(Vec::new);
         }
@@ -333,8 +333,8 @@ where
             }
         }
     }
-    println!("{:?}", data);
-    println!("{:?}", goal);
+    println!("{data:?}");
+    println!("{goal:?}");
     Ok(0)
 }
 

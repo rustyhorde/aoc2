@@ -168,7 +168,7 @@ where
                 }
             }
         } else {
-            return Err(anyhow!(format!("no instruction at ptr: {:?}", ptr)));
+            return Err(anyhow!(format!("no instruction at ptr: {ptr:?}")));
         }
 
         inst_ptr += 1;
@@ -229,7 +229,7 @@ where
                 inst.push(Instructions::JumpNotZeroReg(register_1, value_1));
             }
         } else {
-            return Err(anyhow!(format!("invalid instruction: {}", line)));
+            return Err(anyhow!(format!("invalid instruction: {line}")));
         }
     }
     Ok(())

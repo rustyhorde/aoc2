@@ -103,7 +103,7 @@ where
             my_hasher.update(to_hash.as_bytes());
 
             let hash = my_hasher.finalize();
-            let hash_str = format!("{:x}", hash);
+            let hash_str = format!("{hash:x}");
             if hash_str.starts_with("00000") {
                 if let Some(v) = hash_str.get(5..6) {
                     password.push_str(v);
@@ -152,7 +152,7 @@ where
             my_hasher.update(to_hash.as_bytes());
 
             let hash = my_hasher.finalize();
-            let hash_str = format!("{:x}", hash);
+            let hash_str = format!("{hash:x}");
             if hash_str.starts_with("00000") {
                 let idx_h_str = hash_str.clone();
                 let v_h_str = hash_str.clone();

@@ -92,7 +92,7 @@ pub fn part_1() -> Result<u32> {
 fn find(reader: BufReader<File>) -> isize {
     find_br(reader)
         .map_err(|e| {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             e
         })
         .unwrap_or_default()
@@ -122,7 +122,7 @@ where
                 )?;
                 steps.push(Vector::Left(val));
             } else {
-                return Err(anyhow!(format!("Invalid direction! {}", tok)));
+                return Err(anyhow!(format!("Invalid direction! {tok}")));
             }
         }
     }
@@ -171,7 +171,7 @@ pub fn part_2() -> Result<u32> {
 fn find2(reader: BufReader<File>) -> isize {
     find2_br(reader)
         .map_err(|e| {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             e
         })
         .unwrap_or_default()
@@ -201,7 +201,7 @@ where
                 )?;
                 steps.push(Vector::Left(val));
             } else {
-                return Err(anyhow!(format!("Invalid direction! {}", tok)));
+                return Err(anyhow!(format!("Invalid direction! {tok}")));
             }
         }
     }

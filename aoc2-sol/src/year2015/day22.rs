@@ -299,13 +299,13 @@ impl fmt::Display for GameState {
 
         let effects = self.effects.iter().fold(String::new(), |acc, (kind, dur)| {
             let mut acc = acc;
-            write!(acc, "{} => {},", kind, dur).expect("Unable to write string");
+            write!(acc, "{kind} => {dur},").expect("Unable to write string");
             acc
         });
         write!(
             f,
-            "player: {}, boss: {}, ms: {}, e: {}",
-            self.player, self.boss, self.mana_spent, effects,
+            "player: {}, boss: {}, ms: {}, e: {effects}",
+            self.player, self.boss, self.mana_spent,
         )
     }
 }

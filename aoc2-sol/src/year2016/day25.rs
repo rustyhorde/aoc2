@@ -156,7 +156,7 @@ where
                 }
             }
         } else {
-            return Err(anyhow!(format!("no instruction at ptr: {:?}", ptr)));
+            return Err(anyhow!(format!("no instruction at ptr: {ptr:?}")));
         }
 
         inst_ptr += 1;
@@ -226,7 +226,7 @@ where
                 inst.push(Instructions::Out(register_1));
             }
         } else {
-            return Err(anyhow!(format!("invalid instruction: {}", line)));
+            return Err(anyhow!(format!("invalid instruction: {line}")));
         }
     }
     Ok(())
@@ -236,7 +236,7 @@ fn get_reg(regs: &BTreeMap<char, isize>, reg: char) -> Result<isize> {
     if let Some(val) = regs.get(&reg) {
         Ok(*val)
     } else {
-        Err(anyhow!(format!("invalid register: {}", reg)))
+        Err(anyhow!(format!("invalid register: {reg}")))
     }
 }
 
@@ -246,7 +246,7 @@ fn show_regs(regs: &BTreeMap<char, isize>, term: &mut Term) -> Result<()> {
 
     let mut buf = String::new();
     for (idx, (k, v)) in regs.iter().enumerate() {
-        write!(buf, "{}: {}", k, v).with_context(|| "Unable to write string")?;
+        write!(buf, "{k}: {v}").with_context(|| "Unable to write string")?;
         if idx < regs.len() - 1 {
             buf.push_str(", ");
         }

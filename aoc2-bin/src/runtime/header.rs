@@ -124,7 +124,7 @@ where
         let key = format!("{:>16} ({:>7})", *prefix, *kind);
         let blue_key = bold_blue.apply_to(key);
         let green_val = bold_green.apply_to(*value);
-        writeln!(writer, "{}: {}", blue_key, green_val)?;
+        writeln!(writer, "{blue_key}: {green_val}")?;
     }
     writeln!(writer)?;
 

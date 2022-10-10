@@ -152,7 +152,7 @@ where
             bv = chk_sum;
             break;
         }
-        result = format!("{}", bv);
+        result = format!("{bv}");
     }
     result.retain(|c| c != '[' && c != ']');
     Ok(result)
