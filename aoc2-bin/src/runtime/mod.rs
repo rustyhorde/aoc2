@@ -13,19 +13,18 @@ mod config;
 mod fnmap;
 mod header;
 
-use self::{cli::YEAR, fnmap::FN_MAP};
-use anyhow::{anyhow, Result};
-use aoc2_sol::constants::{
-    AoCDay, AoCYear, DAY_1, DAY_10, DAY_11, DAY_12, DAY_13, DAY_14, DAY_15, DAY_16, DAY_17, DAY_18,
-    DAY_19, DAY_2, DAY_20, DAY_21, DAY_22, DAY_23, DAY_24, DAY_25, DAY_3, DAY_4, DAY_5, DAY_6,
-    DAY_7, DAY_8, DAY_9,
+use self::{
+    cli::{AoC2Subcommand, Args, Command},
+    fnmap::FN_MAP,
 };
-use clap::ArgMatches;
+use anyhow::{anyhow, Result};
+use aoc2_sol::constants::{AoCDay, AoCYear};
+use clap::Parser;
 use std::{convert::TryFrom, io};
 
 pub(crate) fn run() -> Result<()> {
     // Parse the command line
-    let matches = cli::app().get_matches_safe()?;
+    let matches = Args::try_parse()?;
 
     // Load the configuration
     // let config = load(&matches)?;
@@ -33,39 +32,34 @@ pub(crate) fn run() -> Result<()> {
     // Output the pretty header
     header::header(&mut io::stdout())?;
 
-    let year = AoCYear::try_from(
-        matches
-            .value_of(YEAR)
-            .ok_or_else(|| anyhow!("invalid year"))?,
-    )?;
+    let year = AoCYear::try_from(&matches.year()[..])?;
 
-    let match_tuple = match matches.subcommand() {
-        (DAY_1, Some(matches)) => (matches, AoCDay::AOCD01),
-        (DAY_2, Some(matches)) => (matches, AoCDay::AOCD02),
-        (DAY_3, Some(matches)) => (matches, AoCDay::AOCD03),
-        (DAY_4, Some(matches)) => (matches, AoCDay::AOCD04),
-        (DAY_5, Some(matches)) => (matches, AoCDay::AOCD05),
-        (DAY_6, Some(matches)) => (matches, AoCDay::AOCD06),
-        (DAY_7, Some(matches)) => (matches, AoCDay::AOCD07),
-        (DAY_8, Some(matches)) => (matches, AoCDay::AOCD08),
-        (DAY_9, Some(matches)) => (matches, AoCDay::AOCD09),
-        (DAY_10, Some(matches)) => (matches, AoCDay::AOCD10),
-        (DAY_11, Some(matches)) => (matches, AoCDay::AOCD11),
-        (DAY_12, Some(matches)) => (matches, AoCDay::AOCD12),
-        (DAY_13, Some(matches)) => (matches, AoCDay::AOCD13),
-        (DAY_14, Some(matches)) => (matches, AoCDay::AOCD14),
-        (DAY_15, Some(matches)) => (matches, AoCDay::AOCD15),
-        (DAY_16, Some(matches)) => (matches, AoCDay::AOCD16),
-        (DAY_17, Some(matches)) => (matches, AoCDay::AOCD17),
-        (DAY_18, Some(matches)) => (matches, AoCDay::AOCD18),
-        (DAY_19, Some(matches)) => (matches, AoCDay::AOCD19),
-        (DAY_20, Some(matches)) => (matches, AoCDay::AOCD20),
-        (DAY_21, Some(matches)) => (matches, AoCDay::AOCD21),
-        (DAY_22, Some(matches)) => (matches, AoCDay::AOCD22),
-        (DAY_23, Some(matches)) => (matches, AoCDay::AOCD23),
-        (DAY_24, Some(matches)) => (matches, AoCDay::AOCD24),
-        (DAY_25, Some(matches)) => (matches, AoCDay::AOCD25),
-        _ => return Err(anyhow!("Unable to determine the day you wish to run")),
+    let match_tuple = match matches.command() {
+        Command::Day01(command) => (command, AoCDay::AOCD01),
+        Command::Day02(command) => (command, AoCDay::AOCD02),
+        Command::Day03(command) => (command, AoCDay::AOCD03),
+        Command::Day04(command) => (command, AoCDay::AOCD04),
+        Command::Day05(command) => (command, AoCDay::AOCD05),
+        Command::Day06(command) => (command, AoCDay::AOCD06),
+        Command::Day07(command) => (command, AoCDay::AOCD07),
+        Command::Day08(command) => (command, AoCDay::AOCD08),
+        Command::Day09(command) => (command, AoCDay::AOCD09),
+        Command::Day10(command) => (command, AoCDay::AOCD10),
+        Command::Day11(command) => (command, AoCDay::AOCD11),
+        Command::Day12(command) => (command, AoCDay::AOCD12),
+        Command::Day13(command) => (command, AoCDay::AOCD13),
+        Command::Day14(command) => (command, AoCDay::AOCD14),
+        Command::Day15(command) => (command, AoCDay::AOCD15),
+        Command::Day16(command) => (command, AoCDay::AOCD16),
+        Command::Day17(command) => (command, AoCDay::AOCD17),
+        Command::Day18(command) => (command, AoCDay::AOCD18),
+        Command::Day19(command) => (command, AoCDay::AOCD19),
+        Command::Day20(command) => (command, AoCDay::AOCD20),
+        Command::Day21(command) => (command, AoCDay::AOCD21),
+        Command::Day22(command) => (command, AoCDay::AOCD22),
+        Command::Day23(command) => (command, AoCDay::AOCD23),
+        Command::Day24(command) => (command, AoCDay::AOCD24),
+        Command::Day25(command) => (command, AoCDay::AOCD25),
     };
 
     let _ = find_solution(match_tuple.0, year, match_tuple.1)?;
@@ -74,10 +68,10 @@ pub(crate) fn run() -> Result<()> {
 }
 
 /// Find the solution.
-fn find_solution(matches: &ArgMatches<'_>, year: AoCYear, day: AoCDay) -> Result<u32> {
-    let is_second_star = matches.is_present("second");
+fn find_solution(matches: &AoC2Subcommand, year: AoCYear, day: AoCDay) -> Result<u32> {
+    let is_second_star = matches.second();
 
-    if let Some(f) = (*FN_MAP).get(&(year, day, is_second_star)) {
+    if let Some(f) = (*FN_MAP).get(&(year, day, *is_second_star)) {
         f()
     } else {
         Err(anyhow!("Unable to find year and day to run!"))

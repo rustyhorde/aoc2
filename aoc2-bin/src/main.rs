@@ -110,7 +110,7 @@
     unused_must_use,
     unused_mut,
     unused_parens,
-    unused_qualifications,
+    // unused_qualifications,
     unused_results,
     unused_unsafe,
     unused_variables,

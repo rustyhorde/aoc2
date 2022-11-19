@@ -8,75 +8,237 @@
 
 //! `aoc` Command Line Interface
 
-use aoc2_sol::constants::{get_day_about, AoCDay};
-use clap::{crate_authors, crate_name, crate_version, App, Arg, SubCommand};
+use aoc2_sol::constants::{
+    DAY_1, DAY_10, DAY_11, DAY_12, DAY_13, DAY_14, DAY_15, DAY_16, DAY_17, DAY_18, DAY_19, DAY_2,
+    DAY_20, DAY_21, DAY_22, DAY_23, DAY_24, DAY_25, DAY_3, DAY_4, DAY_5, DAY_6, DAY_7, DAY_8,
+    DAY_9,
+};
+use clap::{error::ErrorKind, Args as ClapArgs, Error, FromArgMatches, Parser, Subcommand};
+use getset::Getters;
 
 pub(crate) const DEFAULT_YEAR: &str = "2021";
 pub(crate) const YEAR: &str = "year";
 
-pub(crate) fn app<'a, 'b>() -> App<'a, 'b> {
-    App::new(crate_name!())
-        .version(crate_version!())
-        .author(crate_authors!())
-        .about("Run Advent of Code daily problems")
-        .usage("\u{1f31f}   solution: aoc <day>\n    \u{1f31f}\u{1f31f} solution: aoc <day> -s")
-        .arg(
-            Arg::with_name(YEAR)
-                .short("y")
-                .long(YEAR)
-                .default_value(DEFAULT_YEAR)
-                .required(true)
-                .help("Specify the year you wish to work with"),
-        )
-        .arg(
-            Arg::with_name("time")
-                .short("t")
-                .long("time")
-                .help("Generate benchmark time"),
-        )
-        .subcommand(subcommand(AoCDay::AOCD01))
-        .subcommand(subcommand(AoCDay::AOCD02))
-        .subcommand(subcommand(AoCDay::AOCD03))
-        .subcommand(subcommand(AoCDay::AOCD04))
-        .subcommand(subcommand(AoCDay::AOCD05))
-        .subcommand(subcommand(AoCDay::AOCD06))
-        .subcommand(subcommand(AoCDay::AOCD07))
-        .subcommand(subcommand(AoCDay::AOCD08))
-        .subcommand(subcommand(AoCDay::AOCD09))
-        .subcommand(subcommand(AoCDay::AOCD10))
-        .subcommand(subcommand(AoCDay::AOCD11))
-        .subcommand(subcommand(AoCDay::AOCD12))
-        .subcommand(subcommand(AoCDay::AOCD13))
-        .subcommand(subcommand(AoCDay::AOCD14))
-        .subcommand(subcommand(AoCDay::AOCD15))
-        .subcommand(subcommand(AoCDay::AOCD16))
-        .subcommand(subcommand(AoCDay::AOCD17))
-        .subcommand(subcommand(AoCDay::AOCD18))
-        .subcommand(subcommand(AoCDay::AOCD19))
-        .subcommand(subcommand(AoCDay::AOCD20))
-        .subcommand(subcommand(AoCDay::AOCD21))
-        .subcommand(subcommand(AoCDay::AOCD22))
-        .subcommand(subcommand(AoCDay::AOCD23))
-        .subcommand(subcommand(AoCDay::AOCD24))
-        .subcommand(subcommand(AoCDay::AOCD25))
+#[derive(Debug, Getters, Parser)]
+#[command(author, version, about = "Run Advent of Code daily problems", long_about = None)]
+#[getset(get = "pub(crate)")]
+pub(crate) struct Args {
+    #[arg(name = YEAR, short = 'y', long, help = "Specify the year you wish to work with", default_value_t = DEFAULT_YEAR.to_string())]
+    year: String,
+    #[arg(name = "time", short = 't', long, help = "Generate benchmark time")]
+    time: bool,
+    #[command(subcommand)]
+    command: Command,
 }
 
-/// Advent of Code `SubCommand`
-fn subcommand<'a, 'b>(day: AoCDay) -> App<'a, 'b> {
-    SubCommand::with_name(day.into())
-        .about(get_day_about(day))
-        .arg(
-            Arg::with_name("file")
-                .short("f")
-                .long("file")
-                .takes_value(true)
-                .required(true)
-                .default_value("data_file"),
+#[derive(Debug)]
+pub(crate) enum Command {
+    Day01(AoC2Subcommand),
+    Day02(AoC2Subcommand),
+    Day03(AoC2Subcommand),
+    Day04(AoC2Subcommand),
+    Day05(AoC2Subcommand),
+    Day06(AoC2Subcommand),
+    Day07(AoC2Subcommand),
+    Day08(AoC2Subcommand),
+    Day09(AoC2Subcommand),
+    Day10(AoC2Subcommand),
+    Day11(AoC2Subcommand),
+    Day12(AoC2Subcommand),
+    Day13(AoC2Subcommand),
+    Day14(AoC2Subcommand),
+    Day15(AoC2Subcommand),
+    Day16(AoC2Subcommand),
+    Day17(AoC2Subcommand),
+    Day18(AoC2Subcommand),
+    Day19(AoC2Subcommand),
+    Day20(AoC2Subcommand),
+    Day21(AoC2Subcommand),
+    Day22(AoC2Subcommand),
+    Day23(AoC2Subcommand),
+    Day24(AoC2Subcommand),
+    Day25(AoC2Subcommand),
+}
+
+impl FromArgMatches for Command {
+    fn from_arg_matches(matches: &clap::ArgMatches) -> Result<Self, Error> {
+        match matches.subcommand() {
+            Some((DAY_1, args)) => Ok(Self::Day01(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_2, args)) => Ok(Self::Day02(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_3, args)) => Ok(Self::Day03(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_4, args)) => Ok(Self::Day04(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_5, args)) => Ok(Self::Day05(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_6, args)) => Ok(Self::Day06(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_7, args)) => Ok(Self::Day07(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_8, args)) => Ok(Self::Day08(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_9, args)) => Ok(Self::Day09(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_10, args)) => Ok(Self::Day10(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_11, args)) => Ok(Self::Day11(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_12, args)) => Ok(Self::Day12(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_13, args)) => Ok(Self::Day13(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_14, args)) => Ok(Self::Day14(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_15, args)) => Ok(Self::Day15(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_16, args)) => Ok(Self::Day16(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_17, args)) => Ok(Self::Day17(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_18, args)) => Ok(Self::Day18(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_19, args)) => Ok(Self::Day19(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_20, args)) => Ok(Self::Day20(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_21, args)) => Ok(Self::Day21(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_22, args)) => Ok(Self::Day22(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_23, args)) => Ok(Self::Day23(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_24, args)) => Ok(Self::Day24(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((DAY_25, args)) => Ok(Self::Day25(AoC2Subcommand::from_arg_matches(args)?)),
+            Some((_, _)) => Err(Error::raw(
+                ErrorKind::InvalidSubcommand,
+                "Valid subcommands are `day01` through `day25`",
+            )),
+            None => Err(Error::raw(
+                ErrorKind::MissingSubcommand,
+                "Valid subcommands are `day01` through `day25`",
+            )),
+        }
+    }
+
+    fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) -> Result<(), Error> {
+        match matches.subcommand() {
+            Some((DAY_1, args)) => *self = Self::Day01(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_2, args)) => *self = Self::Day02(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_3, args)) => *self = Self::Day03(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_4, args)) => *self = Self::Day04(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_5, args)) => *self = Self::Day05(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_6, args)) => *self = Self::Day06(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_7, args)) => *self = Self::Day07(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_8, args)) => *self = Self::Day08(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_9, args)) => *self = Self::Day09(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_10, args)) => *self = Self::Day10(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_11, args)) => *self = Self::Day11(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_12, args)) => *self = Self::Day12(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_13, args)) => *self = Self::Day13(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_14, args)) => *self = Self::Day14(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_15, args)) => *self = Self::Day15(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_16, args)) => *self = Self::Day16(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_17, args)) => *self = Self::Day17(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_18, args)) => *self = Self::Day18(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_19, args)) => *self = Self::Day19(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_20, args)) => *self = Self::Day20(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_21, args)) => *self = Self::Day21(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_22, args)) => *self = Self::Day22(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_23, args)) => *self = Self::Day23(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_24, args)) => *self = Self::Day24(AoC2Subcommand::from_arg_matches(args)?),
+            Some((DAY_25, args)) => *self = Self::Day25(AoC2Subcommand::from_arg_matches(args)?),
+            Some((_, _)) => {
+                return Err(Error::raw(
+                    ErrorKind::InvalidSubcommand,
+                    "Valid subcommands are `add` and `remove`",
+                ))
+            }
+            None => (),
+        };
+        Ok(())
+    }
+}
+
+impl Subcommand for Command {
+    fn augment_subcommands(cmd: clap::Command) -> clap::Command {
+        cmd.subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_1)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_2)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_3)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_4)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_5)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_6)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_7)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_8)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_9)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_10)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_11)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_12)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_13)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_14)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_15)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_16)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_17)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_18)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_19)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_20)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_21)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_22)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_23)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_24)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_25)))
+            .subcommand_required(true)
+    }
+
+    fn augment_subcommands_for_update(cmd: clap::Command) -> clap::Command {
+        cmd.subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_1)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_2)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_3)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_4)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_5)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_6)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_7)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_8)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_9)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_10)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_11)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_12)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_13)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_14)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_15)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_16)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_17)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_18)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_19)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_20)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_21)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_22)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_23)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_24)))
+            .subcommand(AoC2Subcommand::augment_args(clap::Command::new(DAY_25)))
+            .subcommand_required(true)
+    }
+
+    fn has_subcommand(name: &str) -> bool {
+        matches!(
+            name,
+            DAY_1
+                | DAY_2
+                | DAY_3
+                | DAY_4
+                | DAY_5
+                | DAY_6
+                | DAY_7
+                | DAY_8
+                | DAY_9
+                | DAY_10
+                | DAY_11
+                | DAY_12
+                | DAY_13
+                | DAY_14
+                | DAY_15
+                | DAY_16
+                | DAY_17
+                | DAY_18
+                | DAY_19
+                | DAY_20
+                | DAY_21
+                | DAY_22
+                | DAY_23
+                | DAY_24
+                | DAY_25
         )
-        .arg(
-            Arg::with_name("second")
-                .short("s")
-                .long("second")
-                .help("Run the alrgorithm to calculate the value for the 2nd star"),
-        )
+    }
+}
+
+#[derive(Debug, Getters, Parser)]
+#[getset(get = "pub(crate)")]
+pub(crate) struct AoC2Subcommand {
+    #[arg(name = "file", short, long, required = true, default_value_t = String::from("data_file"))]
+    file: String,
+    #[arg(
+        name = "second",
+        short,
+        long,
+        help = "Run the algorithm to calculate the value for the 2nd star"
+    )]
+    second: bool,
 }

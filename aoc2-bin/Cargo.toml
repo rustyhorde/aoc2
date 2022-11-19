@@ -8,8 +8,9 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0.42"
 aoc2-sol = { path = "../aoc2-sol" }
-clap = "2.33.3"
+clap = {version = "4.0.26", features = ["derive"] }
 console = "0.15.2"
+getset = "0.1.2"
 indexmap = "1.7.0"
 lazy_static = "1.4.0"
 rand = "0.8.4"

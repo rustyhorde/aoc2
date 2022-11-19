@@ -8,7 +8,7 @@
 
 //! `aoc2` error handling
 
-use clap::ErrorKind;
+use clap::error::ErrorKind;
 
 #[allow(clippy::needless_pass_by_value)]
 pub(crate) fn clap_or_error(err: anyhow::Error) -> i32 {
@@ -17,12 +17,12 @@ pub(crate) fn clap_or_error(err: anyhow::Error) -> i32 {
         1
     };
     match err.downcast_ref::<clap::Error>() {
-        Some(e) => match e.kind {
-            ErrorKind::HelpDisplayed => {
-                eprint!("{}", e.message);
+        Some(e) => match e.kind() {
+            ErrorKind::DisplayHelp => {
+                eprint!("{e}");
                 0
             }
-            ErrorKind::VersionDisplayed => 0,
+            ErrorKind::DisplayVersion => 0,
             _ => disp_err(),
         },
         None => disp_err(),
@@ -37,7 +37,10 @@ pub(crate) fn success(_: ()) -> i32 {
 mod test {
     use super::{clap_or_error, success};
     use anyhow::{anyhow, Error};
-    use clap::ErrorKind::{HelpDisplayed, VersionDisplayed};
+    use clap::{
+        error::ErrorKind::{DisplayHelp, DisplayVersion},
+        Command,
+    };
 
     #[test]
     fn success_works() {
@@ -51,13 +54,17 @@ mod test {
 
     #[test]
     fn clap_or_error_is_help() {
-        let clap_error = Error::new(clap::Error::with_description("help", HelpDisplayed));
+        let mut cmd = Command::new("aoc2");
+        let error = cmd.error(DisplayHelp, "help");
+        let clap_error = Error::new(error);
         assert_eq!(0, clap_or_error(clap_error));
     }
 
     #[test]
     fn clap_or_error_is_version() {
-        let clap_error = Error::new(clap::Error::with_description("version", VersionDisplayed));
+        let mut cmd = Command::new("aoc2");
+        let error = cmd.error(DisplayVersion, "1.0");
+        let clap_error = Error::new(error);
         assert_eq!(0, clap_or_error(clap_error));
     }
 }
