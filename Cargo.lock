@@ -33,7 +33,7 @@ dependencies = [
  "anyhow",
  "aoc2-sol",
  "clap",
- "console 0.14.1",
+ "console",
  "indexmap",
  "lazy_static",
  "rand",
@@ -48,7 +48,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bitvec",
- "console 0.15.2",
+ "console",
  "getset",
  "indexmap",
  "itertools",
@@ -134,21 +134,6 @@ dependencies = [
  "textwrap",
  "unicode-width",
  "vec_map",
-]
-
-[[package]]
-name = "console"
-version = "0.14.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3993e6445baa160675931ec041a5e03ca84b9c6e32a056150d3aa2bdda0a1f45"
-dependencies = [
- "encode_unicode",
- "lazy_static",
- "libc",
- "regex",
- "terminal_size",
- "unicode-width",
- "winapi",
 ]
 
 [[package]]

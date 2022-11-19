@@ -95,7 +95,7 @@ use crate::{
     utils::{print_err, run_solution, valid_lines},
 };
 use anyhow::{anyhow, Result};
-use bitvec::{order::Msb0, prelude::BitVec};
+use bitvec::{order::Msb0, prelude::*};
 use std::{
     fs::File,
     io::{BufRead, BufReader},
@@ -154,11 +154,11 @@ where
         }
         result = format!("{bv}");
     }
-    result.retain(|c| c != '[' && c != ']');
+    result.retain(|c| c != '[' && c != ']' && c != ',' && c != ' ');
     Ok(result)
 }
 
-fn dragon(data: &mut BitVec<Msb0, usize>) {
+fn dragon(data: &mut BitVec<usize, Msb0>) {
     let mut copy = data.to_bitvec();
     copy = copy.iter().rev().map(|x| !x).collect();
     data.push(false);
