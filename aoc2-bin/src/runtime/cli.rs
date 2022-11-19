@@ -232,7 +232,7 @@ impl Subcommand for Command {
 #[derive(Debug, Getters, Parser)]
 #[getset(get = "pub(crate)")]
 pub(crate) struct AoC2Subcommand {
-    #[arg(name = "file", short, long, required = true, default_value_t = String::from("data_file"))]
+    #[arg(name = "file", short, long, default_value_t = String::from("data_file"))]
     file: String,
     #[arg(
         name = "second",
