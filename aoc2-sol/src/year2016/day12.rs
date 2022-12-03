@@ -155,8 +155,7 @@ where
                         }
                     } else {
                         return Err(anyhow!(format!(
-                            "invalid jnz reg instruction: {:?}",
-                            instruction
+                            "invalid jnz reg instruction: {instruction:?}"
                         )));
                     }
                 }
