@@ -6,19 +6,19 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.42"
+anyhow = "1.0.69"
 aoc2-sol = { path = "../aoc2-sol" }
-clap = {version = "4.0.26", features = ["derive"] }
-console = "0.15.2"
+clap = {version = "4.1.4", features = ["derive"] }
+console = "0.15.5"
 getset = "0.1.2"
-indexmap = "1.7.0"
+indexmap = "1.9.2"
 lazy_static = "1.4.0"
-rand = "0.8.4"
+rand = "0.8.5"
 
 [build-dependencies]
-anyhow = "1.0.42"
-rustversion = "1.0.5"
-vergen = "7.3.1"
+anyhow = "1.0.69"
+rustversion = "1.0.11"
+vergen = "7.5.1"
 
 [dev-dependencies]
-regex = "1.5.4"
+regex = "1.7.1"

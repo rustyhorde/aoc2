@@ -133,8 +133,8 @@ mod one_star {
     #[test]
     #[ignore]
     fn solution() -> Result<()> {
-        assert_eq!(find_br(Cursor::new(TEST_1))?, 609043);
-        assert_eq!(find_br(Cursor::new(TEST_2))?, 1048970);
+        assert_eq!(find_br(Cursor::new(TEST_1))?, 609_043);
+        assert_eq!(find_br(Cursor::new(TEST_2))?, 1_048_970);
         Ok(())
     }
 }
@@ -151,8 +151,8 @@ mod two_star {
     #[test]
     #[ignore]
     fn solution() -> Result<()> {
-        assert_eq!(find2_br(Cursor::new(TEST_1))?, 6742839);
-        assert_eq!(find2_br(Cursor::new(TEST_2))?, 5714438);
+        assert_eq!(find2_br(Cursor::new(TEST_1))?, 6_742_839);
+        assert_eq!(find2_br(Cursor::new(TEST_2))?, 5_714_438);
         Ok(())
     }
 }

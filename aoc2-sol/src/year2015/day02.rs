@@ -169,33 +169,29 @@ fn handle_line_p2(acc: &mut usize, line: String) -> Option<usize> {
 #[cfg(test)]
 mod one_star {
     use super::find_area_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"2x3x4";
     const TEST_2: &str = r"1x1x10";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_area_br(Cursor::new(TEST_1)), 58);
         assert_eq!(find_area_br(Cursor::new(TEST_2)), 43);
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
     use super::find_length_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"2x3x4";
     const TEST_2: &str = r"1x1x10";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_length_br(Cursor::new(TEST_1)), 34);
         assert_eq!(find_length_br(Cursor::new(TEST_2)), 14);
-        Ok(())
     }
 }

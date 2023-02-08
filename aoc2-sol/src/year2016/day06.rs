@@ -186,7 +186,6 @@ where
 #[cfg(test)]
 mod one_star {
     use super::find_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"eedadn
@@ -207,16 +206,14 @@ dvrsen
 enarar";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_br(Cursor::new(TEST_1)), "easter");
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
     use super::find2_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"eedadn
@@ -237,8 +234,7 @@ dvrsen
 enarar";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find2_br(Cursor::new(TEST_1)), "advent");
-        Ok(())
     }
 }

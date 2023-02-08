@@ -148,7 +148,6 @@ fn handle_ch(state: &mut &mut (i32, i32), ch: char) -> Option<(i32, i32)> {
 #[cfg(test)]
 mod one_star {
     use super::find_floor_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_CHAIN: &str = r"(())";
@@ -162,7 +161,7 @@ mod one_star {
     const TEST_CHAIN_8: &str = r")())())";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN)), 0);
         assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_1)), 0);
         assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_2)), 3);
@@ -172,23 +171,20 @@ mod one_star {
         assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_6)), -1);
         assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_7)), -3);
         assert_eq!(find_floor_br(Cursor::new(TEST_CHAIN_8)), -3);
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
     use super::find_basement_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_CHAIN: &str = r")";
     const TEST_CHAIN_1: &str = r"()())";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_basement_br(Cursor::new(TEST_CHAIN)), 1,);
         assert_eq!(find_basement_br(Cursor::new(TEST_CHAIN_1)), 5);
-        Ok(())
     }
 }

@@ -179,7 +179,6 @@ mod one_star {
 #[cfg(test)]
 mod two_star {
     use super::find2_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r#"""
@@ -188,8 +187,7 @@ mod two_star {
 "\x27""#;
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find2_br(Cursor::new(TEST_1)), 19);
-        Ok(())
     }
 }

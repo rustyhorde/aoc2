@@ -124,7 +124,6 @@ fn find2(reader: BufReader<File>) -> usize {
 #[cfg(test)]
 mod one_star {
     use super::find_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"1";
@@ -134,20 +133,18 @@ mod one_star {
     const TEST_5: &str = r"111221";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_br(Cursor::new(TEST_1), 1), 2);
         assert_eq!(find_br(Cursor::new(TEST_2), 1), 2);
         assert_eq!(find_br(Cursor::new(TEST_3), 1), 4);
         assert_eq!(find_br(Cursor::new(TEST_4), 1), 6);
         assert_eq!(find_br(Cursor::new(TEST_5), 1), 6);
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
     use super::find_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"1";
@@ -157,12 +154,11 @@ mod two_star {
     const TEST_5: &str = r"111221";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_br(Cursor::new(TEST_1), 1), 2);
         assert_eq!(find_br(Cursor::new(TEST_2), 1), 2);
         assert_eq!(find_br(Cursor::new(TEST_3), 1), 4);
         assert_eq!(find_br(Cursor::new(TEST_4), 1), 6);
         assert_eq!(find_br(Cursor::new(TEST_5), 1), 6);
-        Ok(())
     }
 }

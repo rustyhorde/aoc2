@@ -319,16 +319,14 @@ inc b";
 #[cfg(test)]
 mod two_star {
     // use super::find2_br;
-    use anyhow::Result;
     // use std::io::Cursor;
 
     // const TEST_1: &str = r"turn on 0,0 through 0,0";
     // const TEST_2: &str = r"toggle 0,0 through 999,999";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         // assert_eq!(find2_br(Cursor::new(TEST_1))?, 1);
         // assert_eq!(find2_br(Cursor::new(TEST_2))?, 2_000_000);
-        Ok(())
     }
 }

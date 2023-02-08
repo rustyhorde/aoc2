@@ -174,7 +174,6 @@ where
 #[cfg(test)]
 mod one_star {
     use super::find_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"ugknbfddgicrmopn";
@@ -184,20 +183,18 @@ mod one_star {
     const TEST_5: &str = r"dvszwmarrgswjxmb";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find_br(Cursor::new(TEST_1)), 1);
         assert_eq!(find_br(Cursor::new(TEST_2)), 1);
         assert_eq!(find_br(Cursor::new(TEST_3)), 0);
         assert_eq!(find_br(Cursor::new(TEST_4)), 0);
         assert_eq!(find_br(Cursor::new(TEST_5)), 0);
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
     use super::find2_br;
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"qjhvhtzxzqqjkmpb";
@@ -206,11 +203,10 @@ mod two_star {
     const TEST_4: &str = r"ieodomkazucvgmuy";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         assert_eq!(find2_br(Cursor::new(TEST_1)), 1);
         assert_eq!(find2_br(Cursor::new(TEST_2)), 1);
         assert_eq!(find2_br(Cursor::new(TEST_3)), 0);
         assert_eq!(find2_br(Cursor::new(TEST_4)), 0);
-        Ok(())
     }
 }

@@ -584,12 +584,11 @@ where
 #[cfg(test)]
 mod one_star {
     use super::{boss_turn, player_turn, Boss, EndTurn, GameState, Player, SpellKind, SPELLS};
-    use anyhow::Result;
     use std::collections::HashMap;
     // use std::io::Cursor;
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         let mut state = GameState {
             player: Player {
                 hit_points: 10,
@@ -615,58 +614,55 @@ mod one_star {
         assert_eq!(21, state.player.mana);
         assert_eq!(14, state.boss.hit_points);
         assert!(state.effects.contains_key(&SpellKind::Recharge));
-        println!("Player Turn: {}", state);
+        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
         assert_eq!(2, state.player.hit_points);
         assert_eq!(0, state.player.armor);
         assert_eq!(122, state.player.mana);
         assert_eq!(14, state.boss.hit_points);
-        println!("Boss Turn:   {}", state);
+        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[2], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {}", state);
+        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
-        println!("Boss Turn:   {}", state);
+        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[1], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {}", state);
+        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
-        println!("Boss Turn:   {}", state);
+        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[3], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {}", state);
+        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
-        println!("Boss Turn:   {}", state);
+        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[0], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {}", state);
+        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::BossKilled);
-        println!("Boss Turn:   {}", state);
+        println!("Boss Turn:   {state}");
         // assert_eq!(find_br(Cursor::new(TEST_1))?, 1_000_000);
         // assert_eq!(find_br(Cursor::new(TEST_2))?, 1_000);
         // assert_eq!(find_br(Cursor::new(TEST_3))?, 999_996);
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
     // use super::find2_br;
-    use anyhow::Result;
     // use std::io::Cursor;
 
     // const TEST_1: &str = r"turn on 0,0 through 0,0";
     // const TEST_2: &str = r"toggle 0,0 through 999,999";
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         // assert_eq!(find2_br(Cursor::new(TEST_1))?, 1);
         // assert_eq!(find2_br(Cursor::new(TEST_2))?, 2_000_000);
-        Ok(())
     }
 }
