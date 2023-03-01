@@ -156,7 +156,7 @@ where
 
     for (row, row_arr) in arr.axis_iter(Axis(0)).enumerate() {
         for (col, _val) in row_arr.iter().enumerate() {
-            let _ = graph.add_node((row, col));
+            _ = graph.add_node((row, col));
         }
     }
     add_edges(&arr, &mut graph, max_row, max_col)?;
@@ -199,7 +199,7 @@ fn add_edges(
                     let child_ni = find_node(graph, c_row, c_col)?;
                     let child_val = arr[[c_row, c_col]];
                     if child_val == 0 && !(c_row == row && c_col == col) {
-                        let _ = graph.add_edge(ni, child_ni, 1);
+                        _ = graph.add_edge(ni, child_ni, 1);
                     }
                 }
             }

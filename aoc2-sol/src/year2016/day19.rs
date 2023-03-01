@@ -78,7 +78,7 @@ where
     // let mut elf_circle = BTreeMap::new();
 
     // for i in 0..elf_count {
-    //     let _ = elf_circle.entry(i).or_insert(1_usize);
+    //     _ = elf_circle.entry(i).or_insert(1_usize);
     // }
 
     // let mut elf_ptr = 0;
@@ -170,7 +170,7 @@ where
 
             let taker = elf_queue.pop_front().ok_or_else(|| anyhow!("badness"))?;
             elf_queue.push_back(taker);
-            let _ = elf_queue.pop_front();
+            _ = elf_queue.pop_front();
         }
 
         Ok(elf_queue[0])

@@ -114,7 +114,7 @@ where
 
     loop {
         // We've seen the current vec, so put into set.
-        let _ = seen.insert(vals_vec.clone());
+        _ = seen.insert(vals_vec.clone());
 
         // Find the first position of max value.
         let mut iter = vals_vec.iter().copied().enumerate();

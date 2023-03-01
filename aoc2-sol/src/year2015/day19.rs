@@ -168,7 +168,7 @@ where
                 new_string.push_str(rep);
                 new_string.push_str(parts.1);
 
-                let _ = molecules.insert(new_string.clone());
+                _ = molecules.insert(new_string.clone());
             }
         }
     }
@@ -187,7 +187,7 @@ where
                 new_string.push_str(rep);
                 new_string.push_str(parts.1);
 
-                let _ = molecules.insert(new_string.clone());
+                _ = molecules.insert(new_string.clone());
             }
         }
     }

@@ -17,8 +17,8 @@ pub(crate) type FnMap = HashMap<(AoCYear, AoCDay, bool), fn() -> Result<u32>>;
 
 macro_rules! aoc_ins {
     ($fnmap:ident, $year:expr, $day:expr, $y:ident, $d:ident) => {
-        let _ = $fnmap.insert(($year, $day, false), aoc2_sol::$y::$d::part_1);
-        let _ = $fnmap.insert(($year, $day, true), aoc2_sol::$y::$d::part_2);
+        _ = $fnmap.insert(($year, $day, false), aoc2_sol::$y::$d::part_1);
+        _ = $fnmap.insert(($year, $day, true), aoc2_sol::$y::$d::part_2);
     };
 }
 

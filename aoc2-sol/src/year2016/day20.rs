@@ -85,7 +85,7 @@ where
         for caps in line_re.captures_iter(&line) {
             let from = get_cap_x::<u32>(1, &caps)?;
             let to = get_cap_x::<u32>(2, &caps)?;
-            let _ = blah.insert(from, to);
+            _ = blah.insert(from, to);
         }
     }
 

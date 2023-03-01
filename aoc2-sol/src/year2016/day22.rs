@@ -231,7 +231,7 @@ where
                 let size = get_cap_x::<usize>(3, &caps)?;
                 let used = get_cap_x::<usize>(4, &caps)?;
                 let avail = get_cap_x::<usize>(5, &caps)?;
-                let _ = nodes.insert((x, y), (size, used, avail));
+                _ = nodes.insert((x, y), (size, used, avail));
             }
         }
     }

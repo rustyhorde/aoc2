@@ -190,7 +190,7 @@ where
                 points: 0,
             };
 
-            let _ = reindeers.insert(name, reindeer);
+            _ = reindeers.insert(name, reindeer);
         }
     }
 
@@ -201,9 +201,9 @@ fn race(reindeers: &mut HashMap<String, Reindeer>, dur: usize, award: bool) -> R
     for _i in 0..dur {
         for reindeer in reindeers.values_mut() {
             if reindeer.state == ReindeerState::Flying {
-                let _ = reindeer.fly();
+                _ = reindeer.fly();
             } else {
-                let _ = reindeer.rest();
+                _ = reindeer.rest();
             }
         }
 

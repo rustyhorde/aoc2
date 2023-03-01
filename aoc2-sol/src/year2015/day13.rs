@@ -131,7 +131,7 @@ fn build_graph(
             .find(|i| graph[*i] == n1)
             .unwrap_or_else(|| {
                 let idx = graph.add_node(n1.clone());
-                let _ = nodes.insert(idx);
+                _ = nodes.insert(idx);
                 idx
             });
         let idx2 = graph
@@ -139,10 +139,10 @@ fn build_graph(
             .find(|i| graph[*i] == n2)
             .unwrap_or_else(|| {
                 let idx = graph.add_node(n2.clone());
-                let _ = nodes.insert(idx);
+                _ = nodes.insert(idx);
                 idx
             });
-        let _ = graph.add_edge(idx1, idx2, if op == "lose" { -w } else { w });
+        _ = graph.add_edge(idx1, idx2, if op == "lose" { -w } else { w });
     }
     Ok(())
 }
@@ -218,10 +218,10 @@ fn add_myself(graph: &mut Graph<String, isize>, nodes: &mut HashSet<NodeIndex>) 
     let my_idx = graph.add_node("Jason".to_string());
 
     for n_idx in nodes.iter() {
-        let _ = graph.add_edge(my_idx, *n_idx, 0);
-        let _ = graph.add_edge(*n_idx, my_idx, 0);
+        _ = graph.add_edge(my_idx, *n_idx, 0);
+        _ = graph.add_edge(*n_idx, my_idx, 0);
     }
-    let _ = nodes.insert(my_idx);
+    _ = nodes.insert(my_idx);
 }
 
 #[cfg(test)]

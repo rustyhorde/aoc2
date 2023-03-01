@@ -62,7 +62,7 @@ pub(crate) fn run() -> Result<()> {
         Command::Day25(command) => (command, AoCDay::AOCD25),
     };
 
-    let _ = find_solution(match_tuple.0, year, match_tuple.1)?;
+    _ = find_solution(match_tuple.0, year, match_tuple.1)?;
 
     Ok(())
 }

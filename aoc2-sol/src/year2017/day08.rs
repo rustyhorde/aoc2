@@ -212,8 +212,8 @@ where
                 value,
                 condition: cond,
             };
-            let _ = regs.entry(reg).or_default();
-            let _ = regs.entry(cond_reg).or_default();
+            _ = regs.entry(reg).or_default();
+            _ = regs.entry(cond_reg).or_default();
             inst.push(instruction);
         }
     }

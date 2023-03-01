@@ -143,7 +143,7 @@ where
                 } else {
                     GiveTo::Output(high)
                 };
-                let _ = bots_map.insert(
+                _ = bots_map.insert(
                     bot,
                     Giving {
                         gt_low,

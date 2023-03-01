@@ -273,8 +273,8 @@ fn get_path_lengths(grid: &Grid) -> HashMap<(usize, usize), usize> {
             |p| p.distance(&point_tuple.1) / 3,
             |p| *p == point_tuple.1,
         ) {
-            let _ = path_lens.insert((point_tuple.2, point_tuple.3), len);
-            let _ = path_lens.insert((point_tuple.3, point_tuple.2), len);
+            _ = path_lens.insert((point_tuple.2, point_tuple.3), len);
+            _ = path_lens.insert((point_tuple.3, point_tuple.2), len);
         }
     }
 

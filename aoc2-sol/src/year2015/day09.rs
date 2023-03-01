@@ -113,7 +113,7 @@ fn build_graph(
             .find(|i| graph[*i] == n1)
             .unwrap_or_else(|| {
                 let idx = graph.add_node(n1.clone());
-                let _ = nodes.insert(idx);
+                _ = nodes.insert(idx);
                 idx
             });
         let idx2 = graph
@@ -121,10 +121,10 @@ fn build_graph(
             .find(|i| graph[*i] == n2)
             .unwrap_or_else(|| {
                 let idx = graph.add_node(n2.clone());
-                let _ = nodes.insert(idx);
+                _ = nodes.insert(idx);
                 idx
             });
-        let _ = graph.add_edge(idx1, idx2, w);
+        _ = graph.add_edge(idx1, idx2, w);
     }
     Ok(())
 }

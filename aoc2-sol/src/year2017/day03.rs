@@ -187,7 +187,7 @@ where
 fn next_biggest(max_value: isize) -> Result<isize> {
     let mut tuple_map: HashMap<(isize, isize), isize> = HashMap::new();
     let mut current_tuple = (0, 0);
-    let _ = tuple_map.insert(current_tuple, 1);
+    _ = tuple_map.insert(current_tuple, 1);
 
     for shell in 1.. {
         let shell_len = 8 * shell;
@@ -211,7 +211,7 @@ fn next_biggest(max_value: isize) -> Result<isize> {
 
             let value = calculate_tuple_val(current_tuple, &tuple_map);
             if value <= max_value {
-                let _ = tuple_map.insert(current_tuple, value);
+                _ = tuple_map.insert(current_tuple, value);
             } else {
                 return Ok(value);
             }

@@ -217,7 +217,7 @@ where
             | (Vector::Left(magnitude), Cardinal::South) => {
                 curr_face = Cardinal::East;
                 for _i in 0..magnitude {
-                    let _ = visited.insert((x, y));
+                    _ = visited.insert((x, y));
                     x += 1;
                     if visited.contains(&(x, y)) {
                         break 'outer;
@@ -228,7 +228,7 @@ where
             | (Vector::Left(magnitude), Cardinal::West) => {
                 curr_face = Cardinal::South;
                 for _i in 0..magnitude {
-                    let _ = visited.insert((x, y));
+                    _ = visited.insert((x, y));
                     y -= 1;
                     if visited.contains(&(x, y)) {
                         break 'outer;
@@ -239,7 +239,7 @@ where
             | (Vector::Left(magnitude), Cardinal::North) => {
                 curr_face = Cardinal::West;
                 for _i in 0..magnitude {
-                    let _ = visited.insert((x, y));
+                    _ = visited.insert((x, y));
                     x -= 1;
                     if visited.contains(&(x, y)) {
                         break 'outer;
@@ -250,7 +250,7 @@ where
             | (Vector::Left(magnitude), Cardinal::East) => {
                 curr_face = Cardinal::North;
                 for _i in 0..magnitude {
-                    let _ = visited.insert((x, y));
+                    _ = visited.insert((x, y));
                     y += 1;
                     if visited.contains(&(x, y)) {
                         break 'outer;

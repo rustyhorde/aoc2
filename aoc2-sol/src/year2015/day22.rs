@@ -417,19 +417,19 @@ fn player_turn(state: &mut GameState, spell_to_cast: &Spell, hard_mode: bool) ->
             }
             SpellKind::MagicMissle => check_boss_hp(state, spell_to_cast.damage),
             SpellKind::Poison => {
-                let _ = state
+                _ = state
                     .effects
                     .insert(SpellKind::Poison, spell_to_cast.effect_dur);
                 EndTurn::Continue
             }
             SpellKind::Recharge => {
-                let _ = state
+                _ = state
                     .effects
                     .insert(SpellKind::Recharge, spell_to_cast.effect_dur);
                 EndTurn::Continue
             }
             SpellKind::Shield => {
-                let _ = state
+                _ = state
                     .effects
                     .insert(SpellKind::Shield, spell_to_cast.effect_dur);
                 EndTurn::Continue
@@ -505,13 +505,13 @@ fn apply_effects(state: &mut GameState) -> bool {
     }
 
     if remove_poison {
-        let _ = state.effects.remove(&SpellKind::Poison);
+        _ = state.effects.remove(&SpellKind::Poison);
     }
     if remove_recharge {
-        let _ = state.effects.remove(&SpellKind::Recharge);
+        _ = state.effects.remove(&SpellKind::Recharge);
     }
     if remove_shield {
-        let _ = state.effects.remove(&SpellKind::Shield);
+        _ = state.effects.remove(&SpellKind::Shield);
     }
 
     false

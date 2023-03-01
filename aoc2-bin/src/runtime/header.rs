@@ -18,42 +18,42 @@ use std::io::Write;
 lazy_static! {
     static ref VERGEN_MAP: IndexSet<(&'static str, &'static str, &'static str)> = {
         let mut vergen_set = IndexSet::new();
-        let _ = vergen_set.insert(("Timestamp", "build", env!("VERGEN_BUILD_TIMESTAMP")));
-        let _ = vergen_set.insert(("SemVer", "build", env!("VERGEN_BUILD_SEMVER")));
-        let _ = vergen_set.insert(("Branch", "git", env!("VERGEN_GIT_BRANCH")));
-        let _ = vergen_set.insert(("Commit SHA", "git", env!("VERGEN_GIT_SHA")));
-        let _ = vergen_set.insert((
+        _ = vergen_set.insert(("Timestamp", "build", env!("VERGEN_BUILD_TIMESTAMP")));
+        _ = vergen_set.insert(("SemVer", "build", env!("VERGEN_BUILD_SEMVER")));
+        _ = vergen_set.insert(("Branch", "git", env!("VERGEN_GIT_BRANCH")));
+        _ = vergen_set.insert(("Commit SHA", "git", env!("VERGEN_GIT_SHA")));
+        _ = vergen_set.insert((
             "Commit Timestamp",
             "git",
             env!("VERGEN_GIT_COMMIT_TIMESTAMP"),
         ));
-        let _ = vergen_set.insert(("SemVer", "git", env!("VERGEN_GIT_SEMVER")));
-        let _ = vergen_set.insert(("Channel", "rustc", env!("VERGEN_RUSTC_CHANNEL")));
-        let _ = vergen_set.insert(("Commit Date", "rustc", env!("VERGEN_RUSTC_COMMIT_DATE")));
-        let _ = vergen_set.insert(("Commit SHA", "rustc", env!("VERGEN_RUSTC_COMMIT_HASH")));
-        let _ = vergen_set.insert(("Host Triple", "rustc", env!("VERGEN_RUSTC_HOST_TRIPLE")));
+        _ = vergen_set.insert(("SemVer", "git", env!("VERGEN_GIT_SEMVER")));
+        _ = vergen_set.insert(("Channel", "rustc", env!("VERGEN_RUSTC_CHANNEL")));
+        _ = vergen_set.insert(("Commit Date", "rustc", env!("VERGEN_RUSTC_COMMIT_DATE")));
+        _ = vergen_set.insert(("Commit SHA", "rustc", env!("VERGEN_RUSTC_COMMIT_HASH")));
+        _ = vergen_set.insert(("Host Triple", "rustc", env!("VERGEN_RUSTC_HOST_TRIPLE")));
         if let Some(llvm_version) = option_env!("VERGEN_RUSTC_LLVM_VERSION") {
-            let _ = vergen_set.insert(("LLVM Version", "rustc", llvm_version));
+            _ = vergen_set.insert(("LLVM Version", "rustc", llvm_version));
         }
-        let _ = vergen_set.insert(("SemVer", "rustc", env!("VERGEN_RUSTC_SEMVER")));
-        let _ = vergen_set.insert(("Features", "cargo", env!("VERGEN_CARGO_FEATURES")));
-        let _ = vergen_set.insert(("Profile", "cargo", env!("VERGEN_CARGO_PROFILE")));
-        let _ = vergen_set.insert(("Target Triple", "cargo", env!("VERGEN_CARGO_TARGET_TRIPLE")));
-        let _ = vergen_set.insert(("Name", "sysinfo", env!("VERGEN_SYSINFO_NAME")));
-        let _ = vergen_set.insert(("OS Version", "sysinfo", env!("VERGEN_SYSINFO_OS_VERSION")));
+        _ = vergen_set.insert(("SemVer", "rustc", env!("VERGEN_RUSTC_SEMVER")));
+        _ = vergen_set.insert(("Features", "cargo", env!("VERGEN_CARGO_FEATURES")));
+        _ = vergen_set.insert(("Profile", "cargo", env!("VERGEN_CARGO_PROFILE")));
+        _ = vergen_set.insert(("Target Triple", "cargo", env!("VERGEN_CARGO_TARGET_TRIPLE")));
+        _ = vergen_set.insert(("Name", "sysinfo", env!("VERGEN_SYSINFO_NAME")));
+        _ = vergen_set.insert(("OS Version", "sysinfo", env!("VERGEN_SYSINFO_OS_VERSION")));
         if let Some(user) = option_env!("VERGEN_SYSINFO_USER") {
-            let _ = vergen_set.insert(("User", "sysinfo", user));
+            _ = vergen_set.insert(("User", "sysinfo", user));
         }
-        let _ = vergen_set.insert(("Memory", "sysinfo", env!("VERGEN_SYSINFO_TOTAL_MEMORY")));
-        let _ = vergen_set.insert(("CPU Vendor", "sysinfo", env!("VERGEN_SYSINFO_CPU_VENDOR")));
-        let _ = vergen_set.insert((
+        _ = vergen_set.insert(("Memory", "sysinfo", env!("VERGEN_SYSINFO_TOTAL_MEMORY")));
+        _ = vergen_set.insert(("CPU Vendor", "sysinfo", env!("VERGEN_SYSINFO_CPU_VENDOR")));
+        _ = vergen_set.insert((
             "CPU Cores",
             "sysinfo",
             env!("VERGEN_SYSINFO_CPU_CORE_COUNT"),
         ));
-        let _ = vergen_set.insert(("CPU Names", "sysinfo", env!("VERGEN_SYSINFO_CPU_NAME")));
-        let _ = vergen_set.insert(("CPU Brand", "sysinfo", env!("VERGEN_SYSINFO_CPU_BRAND")));
-        let _ = vergen_set.insert((
+        _ = vergen_set.insert(("CPU Names", "sysinfo", env!("VERGEN_SYSINFO_CPU_NAME")));
+        _ = vergen_set.insert(("CPU Brand", "sysinfo", env!("VERGEN_SYSINFO_CPU_BRAND")));
+        _ = vergen_set.insert((
             "CPU Frequency",
             "sysinfo",
             env!("VERGEN_SYSINFO_CPU_FREQUENCY"),

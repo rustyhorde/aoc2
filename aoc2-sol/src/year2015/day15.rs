@@ -127,7 +127,7 @@ where
             let texture = get_cap_x::<isize>(5, &caps)?;
             let calories = get_cap_x::<isize>(6, &caps)?;
 
-            let _ = i_map.insert(
+            _ = i_map.insert(
                 name,
                 Ingredient {
                     capacity,
@@ -204,7 +204,7 @@ where
             let texture = get_cap_x::<isize>(5, &caps)?;
             let calories = get_cap_x::<isize>(6, &caps)?;
 
-            let _ = i_map.insert(
+            _ = i_map.insert(
                 name,
                 Ingredient {
                     capacity,

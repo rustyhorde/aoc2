@@ -264,27 +264,27 @@ where
             for caps in cpy_int_re.captures_iter(&line) {
                 let value_1 = get_cap_x::<isize>(1, &caps)?;
                 let register_1 = get_cap_x::<char>(2, &caps)?;
-                let _ = regs.entry(register_1).or_insert(0);
+                _ = regs.entry(register_1).or_insert(0);
                 inst.push(Instructions::CopyVal(value_1, register_1));
             }
         } else if cpy_reg_re.is_match(&line) {
             for caps in cpy_reg_re.captures_iter(&line) {
                 let register_1 = get_cap_x::<char>(1, &caps)?;
                 let register_2 = get_cap_x::<char>(2, &caps)?;
-                let _ = regs.entry(register_1).or_insert(0);
-                let _ = regs.entry(register_2).or_insert(0);
+                _ = regs.entry(register_1).or_insert(0);
+                _ = regs.entry(register_2).or_insert(0);
                 inst.push(Instructions::CopyReg(register_1, register_2));
             }
         } else if inc_re.is_match(&line) {
             for caps in inc_re.captures_iter(&line) {
                 let register_1 = get_cap_x::<char>(1, &caps)?;
-                let _ = regs.entry(register_1).or_insert(0);
+                _ = regs.entry(register_1).or_insert(0);
                 inst.push(Instructions::Increment(register_1));
             }
         } else if dec_re.is_match(&line) {
             for caps in dec_re.captures_iter(&line) {
                 let register_1 = get_cap_x::<char>(1, &caps)?;
-                let _ = regs.entry(register_1).or_insert(0);
+                _ = regs.entry(register_1).or_insert(0);
                 inst.push(Instructions::Decrement(register_1));
             }
         } else if jnz_int_re.is_match(&line) {
@@ -297,20 +297,20 @@ where
             for caps in jnz_reg_re.captures_iter(&line) {
                 let register_1 = get_cap_x::<char>(1, &caps)?;
                 let value_1 = get_cap_x::<isize>(2, &caps)?;
-                let _ = regs.entry(register_1).or_insert(0);
+                _ = regs.entry(register_1).or_insert(0);
                 inst.push(Instructions::JumpNotZeroReg(register_1, value_1));
             }
         } else if jnz_vr_re.is_match(&line) {
             for caps in jnz_vr_re.captures_iter(&line) {
                 let value_1 = get_cap_x::<isize>(1, &caps)?;
                 let register_1 = get_cap_x::<char>(2, &caps)?;
-                let _ = regs.entry(register_1).or_insert(0);
+                _ = regs.entry(register_1).or_insert(0);
                 inst.push(Instructions::JumpNotZeroValReg(value_1, register_1));
             }
         } else if tgl_re.is_match(&line) {
             for caps in tgl_re.captures_iter(&line) {
                 let register_1 = get_cap_x::<char>(1, &caps)?;
-                let _ = regs.entry(register_1).or_insert(0);
+                _ = regs.entry(register_1).or_insert(0);
                 inst.push(Instructions::Toggle(register_1));
             }
         } else {

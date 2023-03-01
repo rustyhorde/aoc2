@@ -264,7 +264,7 @@ where
                 "fourth" => 3,
                 _ => return Err(anyhow!(format!("invalid floor: {floor_str}"))),
             };
-            let _ = floors.entry(floor).or_insert_with(Vec::new);
+            _ = floors.entry(floor).or_insert_with(Vec::new);
         }
         for m in generator_re.find_iter(&line) {
             let generator_match = &line[m.start()..m.end()];
@@ -273,7 +273,7 @@ where
             generator.push('G');
             let floor_vec = floors.entry(floor).or_default();
             floor_vec.push(generator.clone());
-            let _ = items.insert(generator);
+            _ = items.insert(generator);
         }
         for m in microchip_re.find_iter(&line) {
             let microchip_match = &line[m.start()..m.end()];
@@ -290,7 +290,7 @@ where
             microchip.push('M');
             let floor_vec = floors.entry(floor).or_default();
             floor_vec.push(microchip.clone());
-            let _ = items.insert(microchip);
+            _ = items.insert(microchip);
         }
     }
 
