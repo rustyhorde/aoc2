@@ -100,7 +100,7 @@ pub(crate) fn valid_lines<T>(reader: T) -> impl Iterator<Item = String>
 where
     T: BufRead,
 {
-    reader.lines().filter_map(std::result::Result::ok)
+    reader.lines().map_while(std::result::Result::ok)
 }
 
 pub(crate) fn get_cap(idx: usize, caps: &Captures<'_>) -> Result<String> {
