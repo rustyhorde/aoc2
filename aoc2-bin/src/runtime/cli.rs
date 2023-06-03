@@ -17,13 +17,12 @@ use clap::{error::ErrorKind, Args as ClapArgs, Error, FromArgMatches, Parser, Su
 use getset::Getters;
 
 pub(crate) const DEFAULT_YEAR: &str = "2021";
-pub(crate) const YEAR: &str = "year";
 
 #[derive(Debug, Getters, Parser)]
 #[command(author, version, about = "Run Advent of Code daily problems", long_about = None)]
 #[getset(get = "pub(crate)")]
 pub(crate) struct Args {
-    #[arg(name = YEAR, short = 'y', long, help = "Specify the year you wish to work with", default_value_t = DEFAULT_YEAR.to_string())]
+    #[arg(name = "year", short = 'y', long, help = "Specify the year you wish to work with", default_value_t = DEFAULT_YEAR.to_string())]
     year: String,
     #[arg(name = "time", short = 't', long, help = "Generate benchmark time")]
     time: bool,
