@@ -184,7 +184,7 @@ fn find2_br<T>(reader: T) -> Result<String>
 where
     T: BufRead,
 {
-    let valid_coords = vec![
+    let valid_coords = [
         (2, 0),
         (1, 1),
         (2, 1),

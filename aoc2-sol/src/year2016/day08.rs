@@ -184,7 +184,7 @@ fn to_string(arr: &Array2<char>) -> String {
     let mut arr_str = String::new();
     arr_str.push('\n');
     for row in arr.outer_iter() {
-        for point in row.iter() {
+        for point in row {
             arr_str.push(*point);
         }
         arr_str.push('\n');

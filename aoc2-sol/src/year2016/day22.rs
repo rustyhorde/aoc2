@@ -269,7 +269,8 @@ where
 
     let mut arr = Array2::<NodeKind>::default((max_y.1 + 1, max_x.0 + 1));
     for ((cols, rows), (size, used, _avail)) in nodes {
-        arr[[rows, cols]] = if size > 100 {
+        let rows_cols: [usize; 2] = (rows, cols).into();
+        arr[rows_cols] = if size > 100 {
             NodeKind::Wall
         } else if used == 0 {
             NodeKind::Empty

@@ -197,7 +197,8 @@ fn add_edges(
 
                 for (c_row, c_col) in cross {
                     let child_ni = find_node(graph, c_row, c_col)?;
-                    let child_val = arr[[c_row, c_col]];
+                    let row_col: [usize; 2] = (c_row, c_col).into();
+                    let child_val = arr[row_col];
                     if child_val == 0 && !(c_row == row && c_col == col) {
                         _ = graph.add_edge(ni, child_ni, 1);
                     }

@@ -234,7 +234,7 @@ fn find_givers(
     m2: usize,
     part1: bool,
 ) -> (bool, usize) {
-    for (bot, giving) in bots_map.iter() {
+    for (bot, giving) in &*bots_map {
         if let (Some(val1), Some(val2)) = (giving.val1, giving.val2) {
             if part1 && ((m1 == val1 && m2 == val2) || (m2 == val1 && m1 == val2)) {
                 return (true, *bot);

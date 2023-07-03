@@ -226,7 +226,7 @@ where
 fn assign_parents(programs: &mut [Program], children: &HashMap<usize, Vec<String>>) {
     for (id, names) in children {
         for name in names {
-            for node in programs.iter_mut() {
+            for node in &mut *programs {
                 if &node.name == name {
                     node.parent = Some(*id);
                 }

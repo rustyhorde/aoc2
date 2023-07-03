@@ -137,7 +137,7 @@ where
         }
     }
 
-    let mut regs = vec![0, 0];
+    let mut regs = [0, 0];
     let mut ptr = 0;
 
     while let Some(next) = inst.get(ptr) {
@@ -247,7 +247,7 @@ where
         }
     }
 
-    let mut regs = vec![1, 0];
+    let mut regs = [1, 0];
     let mut ptr = 0;
 
     while let Some(next) = inst.get(ptr) {

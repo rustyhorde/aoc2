@@ -228,7 +228,7 @@ fn calculate_tuple_val(tuple: (isize, isize), tuple_map: &HashMap<(isize, isize)
 
     // Add 8 nearest neighbors.  Only previously populated neighbors will have values (`Some(x)`).
     // The rest will return `None` on get.
-    let results = vec![
+    let results = [
         // Add current column (not including self)
         tuple_map.get(&(x, y + 1)),
         tuple_map.get(&(x, y - 1)),

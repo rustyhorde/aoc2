@@ -217,7 +217,7 @@ where
 fn add_myself(graph: &mut Graph<String, isize>, nodes: &mut HashSet<NodeIndex>) {
     let my_idx = graph.add_node("Jason".to_string());
 
-    for n_idx in nodes.iter() {
+    for n_idx in &*nodes {
         _ = graph.add_edge(my_idx, *n_idx, 0);
         _ = graph.add_edge(*n_idx, my_idx, 0);
     }

@@ -139,7 +139,7 @@ fn find_index(
         }
 
         if triple != 0 {
-            'outer: for hash in hashes.iter() {
+            'outer: for hash in &*hashes {
                 for win in hash.as_bytes().windows(5) {
                     if win.iter().all(|x| *x == triple) {
                         count += 1;

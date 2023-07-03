@@ -142,11 +142,11 @@ where
 
     let mut valid = 0;
     for s in triangles.chunks(3) {
-        let mut tri1 = vec![s[0][0], s[1][0], s[2][0]];
+        let mut tri1 = [s[0][0], s[1][0], s[2][0]];
         tri1.sort_unstable();
-        let mut tri2 = vec![s[0][1], s[1][1], s[2][1]];
+        let mut tri2 = [s[0][1], s[1][1], s[2][1]];
         tri2.sort_unstable();
-        let mut tri3 = vec![s[0][2], s[1][2], s[2][2]];
+        let mut tri3 = [s[0][2], s[1][2], s[2][2]];
         tri3.sort_unstable();
 
         if tri1[0] + tri1[1] > tri1[2] {

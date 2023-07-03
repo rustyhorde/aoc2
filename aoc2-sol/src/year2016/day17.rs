@@ -170,7 +170,7 @@ fn search(state: &State, results: &mut Vec<String>, part2: bool) {
         walk(&mut state, direction);
 
         if !part2 {
-            for result in results.iter() {
+            for result in &mut *results {
                 if result.len() < state.path.len() {
                     continue 'outer;
                 }

@@ -168,7 +168,7 @@ where
 }
 
 fn rotate_discs(discs: &mut BTreeMap<usize, (usize, usize)>) {
-    for (_id, (position, total_positions)) in discs.iter_mut() {
+    for (position, total_positions) in (*discs).values_mut() {
         *position = (*position + 1) % *total_positions;
     }
 }

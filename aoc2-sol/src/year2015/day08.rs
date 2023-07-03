@@ -95,8 +95,8 @@ where
     let mut total_count = 0;
     let mut actual_count = 0;
     let bs_q_re = Regex::new(r#"\\""#)?;
-    let bs_bs_re = Regex::new(r#"\\\\"#)?;
-    let ascii_re = Regex::new(r#"\\x[0-9a-f]{2}"#)?;
+    let bs_bs_re = Regex::new(r"\\\\")?;
+    let ascii_re = Regex::new(r"\\x[0-9a-f]{2}")?;
 
     for line in valid_lines(reader) {
         total_count += line.chars().count();
