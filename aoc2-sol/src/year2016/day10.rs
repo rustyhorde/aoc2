@@ -228,13 +228,13 @@ fn give_to_bot(giving: &mut Giving, value: usize) {
 }
 
 fn find_givers(
-    bots_map: &mut IndexMap<usize, Giving>,
+    bots_map: &IndexMap<usize, Giving>,
     should_give: &mut Vec<(usize, Giving, usize, usize)>,
     m1: usize,
     m2: usize,
     part1: bool,
 ) -> (bool, usize) {
-    for (bot, giving) in &*bots_map {
+    for (bot, giving) in bots_map {
         if let (Some(val1), Some(val2)) = (giving.val1, giving.val2) {
             if part1 && ((m1 == val1 && m2 == val2) || (m2 == val1 && m1 == val2)) {
                 return (true, *bot);

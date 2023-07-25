@@ -340,7 +340,7 @@ where
         hit_points: 50,
         armor: 0,
     };
-    let mut initial_state = GameState {
+    let initial_state = GameState {
         player,
         boss,
         effects: HashMap::new(),
@@ -348,11 +348,11 @@ where
     };
 
     let mut ms = usize::MAX;
-    play(&mut initial_state, &mut ms, false);
+    play(&initial_state, &mut ms, false);
     Ok(ms)
 }
 
-fn play(state: &mut GameState, ms: &mut usize, hard_mode: bool) {
+fn play(state: &GameState, ms: &mut usize, hard_mode: bool) {
     for spell in &*SPELLS {
         let mut my_gs = state.clone();
         if spell.mana_cost > my_gs.player.mana {
@@ -386,7 +386,7 @@ fn play(state: &mut GameState, ms: &mut usize, hard_mode: bool) {
                 }
                 continue;
             }
-            EndTurn::Continue => play(&mut my_gs, ms, hard_mode),
+            EndTurn::Continue => play(&my_gs, ms, hard_mode),
         }
     }
 }
@@ -569,7 +569,7 @@ where
         hit_points: 50,
         armor: 0,
     };
-    let mut initial_state = GameState {
+    let initial_state = GameState {
         player,
         boss,
         effects: HashMap::new(),
@@ -577,7 +577,7 @@ where
     };
 
     let mut ms = usize::MAX;
-    play(&mut initial_state, &mut ms, true);
+    play(&initial_state, &mut ms, true);
     Ok(ms)
 }
 
