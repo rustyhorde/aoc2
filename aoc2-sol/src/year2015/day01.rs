@@ -124,7 +124,7 @@ where
 
     valid_lines(reader)
         .map(|line| line.chars().scan(&mut state, handle_ch).for_each(|_| ()))
-        .for_each(|_| ());
+        .for_each(|()| ());
 
     state.0
 }
