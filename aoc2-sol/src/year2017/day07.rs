@@ -238,8 +238,8 @@ fn assign_parents(programs: &mut [Program], children: &HashMap<usize, Vec<String
 fn find_root(nodes: &[Program]) -> Option<Program> {
     nodes
         .iter()
-        .cloned()
         .filter(|x| x.parent.is_none())
+        .cloned()
         .at_most_one()
         .ok()
         .flatten()

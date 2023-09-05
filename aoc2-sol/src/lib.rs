@@ -70,7 +70,6 @@
     overlapping_range_endpoints,
     path_statements,
     pointer_structural_match,
-    private_in_public,
     proc_macro_back_compat,
     redundant_semicolons,
     renamed_and_removed_lints,
