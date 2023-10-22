@@ -160,6 +160,7 @@ impl fmt::Display for ArmorKind {
     }
 }
 
+#[allow(clippy::struct_field_names)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct Armor {
     kind: ArmorKind,
@@ -380,8 +381,8 @@ lazy_static! {
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
+/// [`AoCDay`](AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD21, find).map(|_| 0)
@@ -511,8 +512,8 @@ fn fight(player: &Player, boss: &Boss) -> bool {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
+/// [`AoCDay`](AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD21, find2).map(|_| 0)
