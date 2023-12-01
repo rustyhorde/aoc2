@@ -212,9 +212,9 @@ dependencies = [
 
 [[package]]
 name = "core-foundation-sys"
-version = "0.8.4"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
+checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
 name = "crossbeam-deque"
@@ -611,9 +611,9 @@ checksum = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d"
 
 [[package]]
 name = "pathfinding"
-version = "4.3.4"
+version = "4.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8e128a45131c47112814ac5bc8d46322aef106f84605ff5a3a039308877b6c6"
+checksum = "752866d4511516a35883728309499db42696f388263586b70659a5461e641db5"
 dependencies = [
  "deprecate-until",
  "fixedbitset",
