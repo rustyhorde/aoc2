@@ -73,7 +73,6 @@ use itertools::Itertools;
 use pathfinding::prelude::astar;
 use std::{
     collections::HashMap,
-    convert::TryFrom,
     fmt,
     fs::File,
     io::{BufRead, BufReader},

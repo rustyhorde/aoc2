@@ -69,7 +69,6 @@ use crate::{
 };
 use anyhow::Result;
 use std::{
-    convert::TryFrom,
     fs::File,
     io::{BufRead, BufReader},
 };

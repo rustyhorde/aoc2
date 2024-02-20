@@ -12,7 +12,6 @@ use crate::constants::{AoCDay, AoCYear};
 use anyhow::{anyhow, Context, Error, Result};
 use regex::Captures;
 use std::{
-    convert::TryFrom,
     fmt,
     fs::File,
     io::{BufRead, BufReader},

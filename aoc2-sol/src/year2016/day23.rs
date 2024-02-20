@@ -80,7 +80,6 @@ use anyhow::{anyhow, Result};
 use regex::Regex;
 use std::{
     collections::BTreeMap,
-    convert::TryFrom,
     fs::File,
     io::{BufRead, BufReader},
 };

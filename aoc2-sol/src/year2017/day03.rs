@@ -82,7 +82,6 @@ use crate::{
 use anyhow::{anyhow, Result};
 use std::{
     collections::HashMap,
-    convert::TryInto,
     fs::File,
     io::{BufRead, BufReader},
 };

@@ -95,7 +95,7 @@ use crate::{
     utils::{print_err, run_solution, valid_lines},
 };
 use anyhow::{anyhow, Result};
-use bitvec::{order::Msb0, prelude::*};
+use bitvec::prelude::*;
 use std::{
     fs::File,
     io::{BufRead, BufReader},

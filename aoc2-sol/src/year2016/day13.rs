@@ -75,7 +75,6 @@ use ndarray::{Array2, Axis};
 use petgraph::{algo::dijkstra, graph::NodeIndex, Graph, Undirected};
 use std::{
     collections::HashMap,
-    convert::TryFrom,
     fs::File,
     io::{BufRead, BufReader},
 };
