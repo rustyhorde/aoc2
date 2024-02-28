@@ -94,11 +94,7 @@ pub fn part_1() -> Result<u32> {
 
 fn find(reader: BufReader<File>) -> usize {
     match find_br(reader) {
-        Ok(map) => map
-            .get(&"a".to_string())
-            .copied()
-            .unwrap_or_default()
-            .into(),
+        Ok(map) => map.get("a").copied().unwrap_or_default().into(),
         Err(e) => {
             eprintln!("{e}");
             1
@@ -300,11 +296,7 @@ pub fn part_2() -> Result<u32> {
 
 fn find2(reader: BufReader<File>) -> usize {
     match find2_br(reader) {
-        Ok(map) => map
-            .get(&"a".to_string())
-            .copied()
-            .unwrap_or_default()
-            .into(),
+        Ok(map) => map.get("a").copied().unwrap_or_default().into(),
         Err(e) => {
             eprintln!("{e}");
             1
@@ -328,7 +320,7 @@ where
         let cursor = Cursor::new(buf);
         let mut circuit_map = find_br(cursor)?;
         let val_at_a = circuit_map
-            .get(&"a".to_string())
+            .get("a")
             .copied()
             .ok_or_else(|| anyhow!("invalid a value"))?;
 
@@ -416,14 +408,14 @@ NOT y -> i";
     #[test]
     fn solution() -> Result<()> {
         let map = find_br(Cursor::new(TEST_1))?;
-        assert_eq!(Some(&72), map.get(&"d".to_string()));
-        assert_eq!(Some(&507), map.get(&"e".to_string()));
-        assert_eq!(Some(&492), map.get(&"f".to_string()));
-        assert_eq!(Some(&114), map.get(&"g".to_string()));
-        assert_eq!(Some(&65412), map.get(&"h".to_string()));
-        assert_eq!(Some(&65079), map.get(&"i".to_string()));
-        assert_eq!(Some(&123), map.get(&"x".to_string()));
-        assert_eq!(Some(&456), map.get(&"y".to_string()));
+        assert_eq!(Some(&72), map.get("d"));
+        assert_eq!(Some(&507), map.get("e"));
+        assert_eq!(Some(&492), map.get("f"));
+        assert_eq!(Some(&114), map.get("g"));
+        assert_eq!(Some(&65412), map.get("h"));
+        assert_eq!(Some(&65079), map.get("i"));
+        assert_eq!(Some(&123), map.get("x"));
+        assert_eq!(Some(&456), map.get("y"));
         Ok(())
     }
 }
