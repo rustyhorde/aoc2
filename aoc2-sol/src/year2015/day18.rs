@@ -245,7 +245,7 @@ where
         // }
         // println!();
 
-        input = output.clone();
+        input.clone_from(&output);
     }
 
     let mut total = 0;
@@ -341,7 +341,7 @@ where
         // }
         // println!();
 
-        input = output.clone();
+        input.clone_from(&output);
     }
 
     let mut total = 0;

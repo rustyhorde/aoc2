@@ -94,7 +94,7 @@ where
                     flush(&mut out_buf, &mut count, curr);
                 }
             }
-            in_buf = out_buf.clone();
+            in_buf.clone_from(&out_buf);
             out_buf.clear();
         }
     }
