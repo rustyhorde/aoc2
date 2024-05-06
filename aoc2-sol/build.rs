@@ -1,19 +1,9 @@
-use anyhow::Result;
-use vergen_gix::{BuildBuilder, CargoBuilder, Emitter, GixBuilder, RustcBuilder, SysinfoBuilder};
-
-pub fn main() -> Result<()> {
+pub fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rustc-check-cfg=cfg(coverage_nightly)");
     nightly();
     beta();
     stable();
-    Emitter::default()
-        .add_instructions(&BuildBuilder::all_build()?)?
-        .add_instructions(&CargoBuilder::all_cargo()?)?
-        .add_instructions(&GixBuilder::all_git()?)?
-        .add_instructions(&RustcBuilder::all_rustc()?)?
-        .add_instructions(&SysinfoBuilder::all_sysinfo()?)?
-        .emit()
 }
 
 #[rustversion::nightly]

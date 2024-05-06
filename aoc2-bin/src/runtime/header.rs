@@ -19,7 +19,6 @@ lazy_static! {
     static ref VERGEN_MAP: IndexSet<(&'static str, &'static str, &'static str)> = {
         let mut vergen_set = IndexSet::new();
         _ = vergen_set.insert(("Timestamp", "build", env!("VERGEN_BUILD_TIMESTAMP")));
-        _ = vergen_set.insert(("SemVer", "build", env!("VERGEN_BUILD_SEMVER")));
         _ = vergen_set.insert(("Branch", "git", env!("VERGEN_GIT_BRANCH")));
         _ = vergen_set.insert(("Commit SHA", "git", env!("VERGEN_GIT_SHA")));
         _ = vergen_set.insert((
@@ -27,7 +26,7 @@ lazy_static! {
             "git",
             env!("VERGEN_GIT_COMMIT_TIMESTAMP"),
         ));
-        _ = vergen_set.insert(("SemVer", "git", env!("VERGEN_GIT_SEMVER")));
+        _ = vergen_set.insert(("SemVer", "git", env!("VERGEN_GIT_DESCRIBE")));
         _ = vergen_set.insert(("Channel", "rustc", env!("VERGEN_RUSTC_CHANNEL")));
         _ = vergen_set.insert(("Commit Date", "rustc", env!("VERGEN_RUSTC_COMMIT_DATE")));
         _ = vergen_set.insert(("Commit SHA", "rustc", env!("VERGEN_RUSTC_COMMIT_HASH")));
@@ -37,7 +36,7 @@ lazy_static! {
         }
         _ = vergen_set.insert(("SemVer", "rustc", env!("VERGEN_RUSTC_SEMVER")));
         _ = vergen_set.insert(("Features", "cargo", env!("VERGEN_CARGO_FEATURES")));
-        _ = vergen_set.insert(("Profile", "cargo", env!("VERGEN_CARGO_PROFILE")));
+        _ = vergen_set.insert(("Debug", "cargo", env!("VERGEN_CARGO_DEBUG")));
         _ = vergen_set.insert(("Target Triple", "cargo", env!("VERGEN_CARGO_TARGET_TRIPLE")));
         _ = vergen_set.insert(("Name", "sysinfo", env!("VERGEN_SYSINFO_NAME")));
         _ = vergen_set.insert(("OS Version", "sysinfo", env!("VERGEN_SYSINFO_OS_VERSION")));
@@ -163,7 +162,6 @@ mod test {
         assert!(!buf.is_empty());
         let header_str = String::from_utf8_lossy(&buf);
         assert!(BUILD_TIMESTAMP.is_match(&header_str));
-        assert!(BUILD_SEMVER.is_match(&header_str));
         assert!(GIT_BRANCH.is_match(&header_str));
     }
 }

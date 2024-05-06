@@ -5,13 +5,16 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+unstable = []
+
 [dependencies]
 anyhow = "1.0.69"
 bitvec = "1.0.1"
 console = "0.15.5"
 getset = "0.1.2"
-indexmap = "1.9.2"
-itertools = "0.10.5"
+indexmap = "2.2.6"
+itertools = "0.12.1"
 lazy_static = "1.4.0"
 md-5 = "0.10.5"
 ndarray = "0.15.6"
@@ -20,3 +23,6 @@ petgraph = "0.6.3"
 rayon = "1.6.1"
 regex = "1.7.1"
 serde_json = "1.0.92"
+
+[build-dependencies]
+rustversion = "1.0.15"
