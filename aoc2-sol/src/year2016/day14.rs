@@ -100,7 +100,7 @@ use std::{
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2016, AoCDay::AOCD14, find).map(|_| 0)
@@ -198,7 +198,7 @@ fn generate_md5(idx: usize, salt: &str, md5: &mut Md5, part2: bool) -> String {
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2016, AoCDay::AOCD14, find2).map(|_| 0)

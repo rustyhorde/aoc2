@@ -29,12 +29,12 @@
 //! he has imposed some additional password requirements:
 //!
 //! 1. Passwords must include one increasing straight of at least three letters,
-//! like `abc`, `bcd`, `cde`, and so on, up to `xyz`. They cannot skip letters;
-//! `abd` doesn't count.
+//!    like `abc`, `bcd`, `cde`, and so on, up to `xyz`. They cannot skip letters;
+//!    `abd` doesn't count.
 //! 2. Passwords may not contain the letters `i`, `o`, or `l`, as these letters
-//! can be mistaken for other characters and are therefore confusing.
+//!    can be mistaken for other characters and are therefore confusing.
 //! 3. Passwords must contain at least two different, non-overlapping pairs
-//! of letters, like `aa`, `bb`, or `zz`.
+//!    of letters, like `aa`, `bb`, or `zz`.
 //!
 //! For example:
 //!
@@ -67,7 +67,7 @@ use std::{
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<String>(AoCYear::AOC2015, AoCDay::AOCD11, find).map(|_| 0)
@@ -249,7 +249,7 @@ fn to_vec(line: &str) -> Result<Vec<u8>> {
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<String>(AoCYear::AOC2015, AoCDay::AOCD11, find2).map(|_| 0)

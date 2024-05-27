@@ -23,9 +23,9 @@
 //! For example:
 //!
 //! * If your secret key is `abcdef`, the answer is `609043`, because the MD5 hash of `abcdef609043`
-//! starts with five zeroes (000001dbbfa...), and it is the lowest such number to do so.
+//!   starts with five zeroes (000001dbbfa...), and it is the lowest such number to do so.
 //! * If your secret key is `pqrstuv`, the lowest number it combines with to make an MD5 hash
-//! starting with five zeroes is `1048970`; that is, the MD5 hash of `pqrstuv1048970` looks like `000006136ef`....
+//!   starting with five zeroes is `1048970`; that is, the MD5 hash of `pqrstuv1048970` looks like `000006136ef`....
 
 use crate::{
     constants::{AoCDay, AoCYear},
@@ -51,7 +51,7 @@ const PART_2_LZ: usize = 24;
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD04, find).map(|_| 0)
@@ -98,7 +98,7 @@ fn has_enough_leading_zeros(tuple: &((&str, usize), usize)) -> bool {
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD04, find2).map(|_| 0)

@@ -70,7 +70,7 @@ use std::{
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`Duration`](std::time::Duration) is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<isize>(AoCYear::AOC2015, AoCDay::AOCD01, find_floor).map(|_| 0)
@@ -106,7 +106,7 @@ fn up_or_down(acc: isize, ch: char) -> isize {
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<i32>(AoCYear::AOC2015, AoCDay::AOCD01, find_basement).map(|_| 0)

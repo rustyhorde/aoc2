@@ -34,7 +34,7 @@
 //! For added security, yet another system policy has been put in place. Now,
 //! a valid passphrase must contain no two words that are anagrams of each other
 //! - that is, a passphrase is invalid if any word's letters can be rearranged
-//! to form any other word in the passphrase.
+//!   to form any other word in the passphrase.
 //!
 //! For example:
 //!
@@ -64,7 +64,7 @@ use std::{
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2017, AoCDay::AOCD04, find).map(|_| 0)
@@ -110,7 +110,7 @@ fn check_for_duplicates(line: &str) -> bool {
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2017, AoCDay::AOCD04, find2).map(|_| 0)

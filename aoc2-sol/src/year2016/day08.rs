@@ -92,7 +92,7 @@ enum Instruction {
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2016, AoCDay::AOCD08, find).map(|_| 0)
@@ -196,7 +196,7 @@ fn to_string(arr: &Array2<char>) -> String {
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<String>(AoCYear::AOC2016, AoCDay::AOCD08, find2).map(|_| 0)

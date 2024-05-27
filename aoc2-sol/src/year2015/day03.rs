@@ -28,7 +28,7 @@
 //!
 //! * `>` delivers presents to `2` houses: one at the starting location, and one to the east.
 //! * `^>v<` delivers presents to `4` houses in a square, including twice to the
-//! house at his starting/ending location.
+//!   house at his starting/ending location.
 //! * `^v^v^v^v^v` delivers a bunch of presents to some very lucky children at only 2 houses.
 //!
 //! **--- Part Two ---**
@@ -63,7 +63,7 @@ use std::{
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD03, find).map(|_| 0)
@@ -121,7 +121,7 @@ fn deliver(
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD03, find2).map(|_| 0)

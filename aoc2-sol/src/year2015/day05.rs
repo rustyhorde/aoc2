@@ -38,9 +38,9 @@
 //! Now, a nice string is one with all of the following properties:
 //!
 //! * It contains a pair of any two letters that appears at least twice in the string without
-//! overlapping, like `xyxy (xy)` or `aabcdefgaa (aa)`, but not like `aaa` (`aa`, but it overlaps).
+//!   overlapping, like `xyxy (xy)` or `aabcdefgaa (aa)`, but not like `aaa` (`aa`, but it overlaps).
 //! * It contains at least one letter which repeats with exactly one letter between them, like `xyx`,
-//! `abcdefeghi (efe)`, or even `aaa`.
+//!   `abcdefeghi (efe)`, or even `aaa`.
 //!
 //! For example:
 //!
@@ -66,7 +66,7 @@ use std::{
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD05, find).map(|_| 0)
@@ -120,7 +120,7 @@ where
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD05, find2).map(|_| 0)

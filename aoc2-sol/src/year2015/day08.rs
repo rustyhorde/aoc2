@@ -28,7 +28,7 @@
 //! * `""` is 2 characters of code (the two double quotes), but the string contains zero characters.
 //! * `"abc"` is 5 characters of code, but 3 characters in the string data.
 //! * `"aaa\"aaa"` is 10 characters of code, but the string itself contains six "a" characters
-//! and a single, escaped quote character, for a total of 7 characters in the string data.
+//!   and a single, escaped quote character, for a total of 7 characters in the string data.
 //! * `"\x27"` is 6 characters of code, but the string itself contains just one
 //! - an apostrophe ('), escaped using hexadecimal notation.
 //!
@@ -78,7 +78,7 @@ use std::{
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD08, find).map(|_| 0)
@@ -116,7 +116,7 @@ where
 ///
 /// # Errors
 /// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-/// [`AoCDay`](crate::constants::AoCDay) cannot be read.
+///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD08, find2).map(|_| 0)
