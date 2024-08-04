@@ -1,7 +1,7 @@
 [package]
 name = "aoc2"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,19 +9,19 @@ edition = "2018"
 unstable = []
 
 [dependencies]
-anyhow = "1.0.69"
+anyhow = { workspace = true }
 aoc2-sol = { path = "../aoc2-sol" }
-clap = {version = "4.1.4", features = ["derive"] }
-console = "0.15.5"
-getset = "0.1.2"
-indexmap = "2.2.6"
-lazy_static = "1.4.0"
+clap = {version = "4.5.13", features = ["derive"] }
+console = { workspace = true }
+getset = { workspace = true }
+indexmap = { workspace = true }
+lazy_static = { workspace = true }
 rand = "0.8.5"
 
 [build-dependencies]
-anyhow = "1.0.69"
-rustversion = "1.0.11"
-vergen-gix = { version = "1.0.0-beta.2", features = [
+anyhow = { workspace = true }
+rustversion = { workspace = true }
+vergen-gix = { version = "1.0.0", features = [
   "build",
   "cargo",
   "rustc",
@@ -29,4 +29,4 @@ vergen-gix = { version = "1.0.0-beta.2", features = [
 ] }
 
 [dev-dependencies]
-regex = "1.7.1"
+regex = { workspace = true }
