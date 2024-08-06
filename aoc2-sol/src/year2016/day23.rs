@@ -242,7 +242,6 @@ fn show_regs(regs: &BTreeMap<char, isize>) {
             buf.push_str(", ");
         }
     }
-    println!("{buf}");
 }
 
 fn setup<T>(reader: T, regs: &mut BTreeMap<char, isize>, inst: &mut Vec<Instructions>) -> Result<()>

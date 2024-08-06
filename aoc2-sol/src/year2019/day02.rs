@@ -125,7 +125,6 @@ where
             csv[1] = 12;
             csv[2] = 2;
         }
-        println!("initial: {csv:?}");
         let mut op_code_idx = 0;
         let mut op_code = csv[op_code_idx];
 
@@ -148,7 +147,6 @@ where
             op_code_idx += 4;
             op_code = csv[op_code_idx];
         }
-        println!("final: {csv:?}");
         result = csv[0];
     }
     result

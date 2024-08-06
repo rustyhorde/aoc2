@@ -198,15 +198,6 @@ where
         }
     }
 
-    // println!("Initial State");
-    // for y_axes in lights.axis_iter(Axis(1)) {
-    //     for x in y_axes.iter() {
-    //         print!("{}", if *x == 1 { "#" } else { "." });
-    //     }
-    //     println!();
-    // }
-    // println!();
-
     let mut output: Array2<u8> = Array2::zeros((e_len + 2, e_len + 2));
     let mut input = lights.clone();
 
@@ -236,14 +227,6 @@ where
                 curr_x += 1;
             }
         }
-        // println!("After Step {}", i + 1);
-        // for y_axes in output.axis_iter(Axis(1)) {
-        //     for x in y_axes.iter() {
-        //         print!("{}", if *x == 1 { "#" } else { "." });
-        //     }
-        //     println!();
-        // }
-        // println!();
 
         input.clone_from(&output);
     }
@@ -289,15 +272,6 @@ where
         }
     }
 
-    // println!("Initial State");
-    // for y_axes in lights.axis_iter(Axis(1)) {
-    //     for x in y_axes.iter() {
-    //         print!("{}", if *x == 1 { "#" } else { "." });
-    //     }
-    //     println!();
-    // }
-    // println!();
-
     let mut output: Array2<u8> = Array2::zeros((e_len + 2, e_len + 2));
     let mut input = lights.clone();
 
@@ -331,15 +305,6 @@ where
         output[[1, e_len]] = 1;
         output[[e_len, 1]] = 1;
         output[[e_len, e_len]] = 1;
-
-        // println!("After Step {}", i + 1);
-        // for y_axes in output.axis_iter(Axis(1)) {
-        //     for x in y_axes.iter() {
-        //         print!("{}", if *x == 1 { "#" } else { "." });
-        //     }
-        //     println!();
-        // }
-        // println!();
 
         input.clone_from(&output);
     }

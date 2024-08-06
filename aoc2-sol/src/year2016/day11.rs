@@ -333,8 +333,6 @@ where
             }
         }
     }
-    println!("{data:?}");
-    println!("{goal:?}");
     Ok(0)
 }
 

@@ -160,7 +160,6 @@ where
 
         inst_ptr += 1;
     }
-    println!();
 
     Ok(*regs.entry('a').or_default())
 }

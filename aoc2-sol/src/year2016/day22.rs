@@ -265,7 +265,6 @@ where
         .keys()
         .max_by(|a, b| (a.1).cmp(&b.1))
         .ok_or_else(|| anyhow!("bad y nodes"))?;
-    println!("Max X: {}, Max Y: {}", max_x.0, max_y.1);
 
     let mut arr = Array2::<NodeKind>::default((max_y.1 + 1, max_x.0 + 1));
     for ((cols, rows), (size, used, _avail)) in nodes {
@@ -278,18 +277,6 @@ where
             NodeKind::Normal
         };
     }
-    // println!("Initial State");
-    // for rows in arr.axis_iter(Axis(0)) {
-    //     for col in rows.iter() {
-    //         print!("{}", match *col {
-    //             NodeKind::Normal => ". ",
-    //             NodeKind::Wall => "| ",
-    //             NodeKind::Empty => "_ ",
-    //         });
-    //     }
-    //     println!();
-    // }
-    // println!();
     Ok(0)
 }
 

@@ -602,7 +602,6 @@ mod one_star {
             effects: HashMap::new(),
             mana_spent: 0,
         };
-        println!();
         assert_eq!(10, state.player.hit_points);
         assert_eq!(0, state.player.armor);
         assert_eq!(250, state.player.mana);
@@ -614,38 +613,28 @@ mod one_star {
         assert_eq!(21, state.player.mana);
         assert_eq!(14, state.boss.hit_points);
         assert!(state.effects.contains_key(&SpellKind::Recharge));
-        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
         assert_eq!(2, state.player.hit_points);
         assert_eq!(0, state.player.armor);
         assert_eq!(122, state.player.mana);
         assert_eq!(14, state.boss.hit_points);
-        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[2], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
-        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[1], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
-        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[3], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::Continue);
-        println!("Boss Turn:   {state}");
         let result = player_turn(&mut state, &(*SPELLS)[0], false);
         assert_eq!(result, EndTurn::Continue);
-        println!("Player Turn: {state}");
         let result = boss_turn(&mut state);
         assert_eq!(result, EndTurn::BossKilled);
-        println!("Boss Turn:   {state}");
         // assert_eq!(find_br(Cursor::new(TEST_1))?, 1_000_000);
         // assert_eq!(find_br(Cursor::new(TEST_2))?, 1_000);
         // assert_eq!(find_br(Cursor::new(TEST_3))?, 999_996);
