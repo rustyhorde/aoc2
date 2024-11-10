@@ -11,7 +11,7 @@ unstable = []
 [dependencies]
 anyhow = { workspace = true }
 aoc2-sol = { path = "../aoc2-sol" }
-clap = {version = "4.5.13", features = ["derive"] }
+clap = {version = "4.5.20", features = ["derive"] }
 console = { workspace = true }
 getset = { workspace = true }
 indexmap = { workspace = true }
@@ -21,7 +21,7 @@ rand = "0.8.5"
 [build-dependencies]
 anyhow = { workspace = true }
 rustversion = { workspace = true }
-vergen-gix = { version = "1.0.0", features = [
+vergen-gix = { version = "1.0.2", features = [
   "build",
   "cargo",
   "rustc",

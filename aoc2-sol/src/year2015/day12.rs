@@ -135,12 +135,10 @@ fn skip_red(v: &Value) -> i64 {
 }
 
 fn no_red(map: &Map<String, Value>) -> bool {
-    map.values()
-        .map(|v| match v {
-            Value::String(val) => val != "red",
-            _ => true,
-        })
-        .all(|x| x)
+    map.values().all(|v| match v {
+        Value::String(val) => val != "red",
+        _ => true,
+    })
 }
 
 #[cfg(test)]
