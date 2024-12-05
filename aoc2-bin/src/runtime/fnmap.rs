@@ -215,6 +215,87 @@ lazy_static! {
         aoc_ins!(fn_map, AoCYear::AOC2021, AoCDay::AOCD24, year2021, day24);
         aoc_ins!(fn_map, AoCYear::AOC2021, AoCDay::AOCD25, year2021, day25);
 
+        // 2022
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD01, year2022, day01);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD02, year2022, day02);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD03, year2022, day03);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD04, year2022, day04);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD05, year2022, day05);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD06, year2022, day06);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD07, year2022, day07);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD08, year2022, day08);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD09, year2022, day09);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD10, year2022, day10);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD11, year2022, day11);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD12, year2022, day12);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD13, year2022, day13);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD14, year2022, day14);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD15, year2022, day15);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD16, year2022, day16);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD17, year2022, day17);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD18, year2022, day18);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD19, year2022, day19);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD20, year2022, day20);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD21, year2022, day21);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD22, year2022, day22);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD23, year2022, day23);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD24, year2022, day24);
+        aoc_ins!(fn_map, AoCYear::AOC2022, AoCDay::AOCD25, year2022, day25);
+
+        // 2023
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD01, year2023, day01);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD02, year2023, day02);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD03, year2023, day03);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD04, year2023, day04);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD05, year2023, day05);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD06, year2023, day06);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD07, year2023, day07);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD08, year2023, day08);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD09, year2023, day09);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD10, year2023, day10);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD11, year2023, day11);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD12, year2023, day12);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD13, year2023, day13);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD14, year2023, day14);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD15, year2023, day15);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD16, year2023, day16);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD17, year2023, day17);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD18, year2023, day18);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD19, year2023, day19);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD20, year2023, day20);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD21, year2023, day21);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD22, year2023, day22);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD23, year2023, day23);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD24, year2023, day24);
+        aoc_ins!(fn_map, AoCYear::AOC2023, AoCDay::AOCD25, year2023, day25);
+
+        // 2024
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD01, year2024, day01);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD02, year2024, day02);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD03, year2024, day03);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD04, year2024, day04);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD05, year2024, day05);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD06, year2024, day06);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD07, year2024, day07);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD08, year2024, day08);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD09, year2024, day09);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD10, year2024, day10);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD11, year2024, day11);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD12, year2024, day12);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD13, year2024, day13);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD14, year2024, day14);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD15, year2024, day15);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD16, year2024, day16);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD17, year2024, day17);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD18, year2024, day18);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD19, year2024, day19);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD20, year2024, day20);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD21, year2024, day21);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD22, year2024, day22);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD23, year2024, day23);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD24, year2024, day24);
+        aoc_ins!(fn_map, AoCYear::AOC2024, AoCDay::AOCD25, year2024, day25);
+
         fn_map
     };
 }

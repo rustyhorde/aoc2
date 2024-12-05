@@ -56,6 +56,10 @@ pub enum AoCYear {
     AOC2021,
     /// Advent of Code 2022
     AOC2022,
+    /// Advent of Code 2023
+    AOC2023,
+    /// Advent of Code 2024
+    AOC2024,
 }
 
 impl From<AoCYear> for &'_ str {
@@ -69,6 +73,8 @@ impl From<AoCYear> for &'_ str {
             AoCYear::AOC2020 => "2020",
             AoCYear::AOC2021 => "2021",
             AoCYear::AOC2022 => "2022",
+            AoCYear::AOC2023 => "2023",
+            AoCYear::AOC2024 => "2024",
         }
     }
 }
@@ -86,6 +92,8 @@ impl TryFrom<&'_ str> for AoCYear {
             "2020" => Ok(AoCYear::AOC2020),
             "2021" => Ok(AoCYear::AOC2021),
             "2022" => Ok(AoCYear::AOC2022),
+            "2023" => Ok(AoCYear::AOC2023),
+            "2024" => Ok(AoCYear::AOC2024),
             _ => Err(anyhow!("Unable to convert to year!")),
         }
     }
