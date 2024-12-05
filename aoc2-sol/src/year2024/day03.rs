@@ -6,7 +6,7 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! **--- Advent of Code - Day 1 ---**
+//! **--- Advent of Code - Day 3 ---**
 //!
 //! **--- Day 3: Mull It Over ---**
 //!
