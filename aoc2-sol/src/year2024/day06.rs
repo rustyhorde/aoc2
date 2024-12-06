@@ -390,7 +390,7 @@ where
     }
 
     let (curr_pos, curr_dir) = curr_dir_and_pos(&matrix);
-    let (a_loop, _visited) = try_move_part_2(&matrix, &curr_pos, curr_dir);
+    let a_loop = try_move_part_2(&matrix, &curr_pos, curr_dir);
 
     let mut loop_count = 0;
     if a_loop {
@@ -399,7 +399,7 @@ where
         let matricies = find_new_blocks(&matrix);
         for matrix in &matricies {
             let (curr_pos, curr_dir) = curr_dir_and_pos(matrix);
-            let (loopy, _) = try_move_part_2(matrix, &curr_pos, curr_dir);
+            let loopy = try_move_part_2(matrix, &curr_pos, curr_dir);
             if loopy {
                 loop_count += 1;
             }
@@ -408,11 +408,7 @@ where
     loop_count
 }
 
-fn try_move_part_2(
-    matrix: &[Vec<char>],
-    initial_pos: &(usize, usize),
-    initial_dir: Dir,
-) -> (bool, IndexMap<(usize, usize), Vec<Dir>>) {
+fn try_move_part_2(matrix: &[Vec<char>], initial_pos: &(usize, usize), initial_dir: Dir) -> bool {
     let mut visited = IndexMap::new();
     let mut curr_pos = *initial_pos;
     let mut curr_dir = initial_dir;
@@ -442,7 +438,7 @@ fn try_move_part_2(
         }
     }
 
-    (loopy, visited)
+    loopy
 }
 
 fn find_new_blocks(matrix: &[Vec<char>]) -> Vec<Vec<Vec<char>>> {
