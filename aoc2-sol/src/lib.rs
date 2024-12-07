@@ -24,6 +24,7 @@
         non_exhaustive_omitted_patterns_lint,
         rustdoc_missing_doc_code_examples,
         strict_provenance_lints,
+        test,
     )
 )]
 #![cfg_attr(nightly, allow(single_use_lifetimes))]

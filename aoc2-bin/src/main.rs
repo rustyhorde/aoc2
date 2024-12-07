@@ -200,6 +200,7 @@
 )]
 // clippy lints
 #![cfg_attr(nightly, deny(clippy::all, clippy::pedantic))]
+#![cfg_attr(nightly, allow(clippy::ref_option))]
 // rustdoc lints
 #![cfg_attr(
     nightly,
@@ -221,8 +222,10 @@
 #![cfg_attr(all(docsrs, nightly), feature(doc_cfg))]
 #![cfg_attr(coverage_nightly, feature(coverage_attribute))]
 
+mod constants;
 mod error;
 mod runtime;
+mod tracing;
 
 use anyhow::Result;
 use error::{clap_or_error, success};

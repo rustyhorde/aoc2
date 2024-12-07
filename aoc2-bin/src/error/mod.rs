@@ -9,6 +9,21 @@
 //! `aoc2` error handling
 
 use clap::error::ErrorKind;
+use config::ConfigError;
+
+#[derive(thiserror::Error, Debug)]
+pub(crate) enum Error {
+    #[error("There is no valid config directory")]
+    ConfigDir,
+    #[error("Unable to deserialize config")]
+    ConfigDeserialize,
+    #[error("Config build error")]
+    ConfigBuild(#[from] ConfigError),
+    #[error("Unable to load config")]
+    ConfigLoad,
+    #[error("Unable to initialize tracing")]
+    TracingInit,
+}
 
 #[allow(clippy::needless_pass_by_value)]
 #[cfg_attr(

@@ -54,6 +54,7 @@ use std::{
     fs::File,
     io::{BufRead, BufReader},
 };
+use tracing::error;
 
 /// Solution for Part 1
 ///
@@ -68,7 +69,7 @@ pub fn part_1() -> Result<u32> {
 fn find(reader: BufReader<File>) -> u32 {
     find_br(reader)
         .map_err(|e| {
-            eprintln!("{e}");
+            error!("{e}");
             e
         })
         .unwrap_or_default()
@@ -99,7 +100,7 @@ pub fn part_2() -> Result<u32> {
 fn find2(reader: BufReader<File>) -> u32 {
     find2_br(reader)
         .map_err(|e| {
-            eprintln!("{e}");
+            error!("{e}");
             e
         })
         .unwrap_or_default()

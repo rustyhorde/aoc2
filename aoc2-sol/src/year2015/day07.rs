@@ -81,6 +81,7 @@ use std::{
     fs::File,
     io::{BufRead, BufReader, Cursor},
 };
+use tracing::error;
 
 /// Solution for Part 1
 ///
@@ -96,7 +97,7 @@ fn find(reader: BufReader<File>) -> usize {
     match find_br(reader) {
         Ok(map) => map.get("a").copied().unwrap_or_default().into(),
         Err(e) => {
-            eprintln!("{e}");
+            error!("{e}");
             1
         }
     }
@@ -298,7 +299,7 @@ fn find2(reader: BufReader<File>) -> usize {
     match find2_br(reader) {
         Ok(map) => map.get("a").copied().unwrap_or_default().into(),
         Err(e) => {
-            eprintln!("{e}");
+            error!("{e}");
             1
         }
     }

@@ -226,7 +226,7 @@
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::{run_solution, valid_lines},
+    utils::{run_setup_solution, run_solution, valid_lines},
 };
 use anyhow::Result;
 use core::fmt;
@@ -244,14 +244,15 @@ use std::{
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2024, AoCDay::AOCD06, find).map(|_| 0)
+    run_setup_solution::<Vec<Vec<char>>, usize>(AoCYear::AOC2024, AoCDay::AOCD06, setup, find)
+        .map(|_| 0)
 }
 
-fn find(reader: BufReader<File>) -> usize {
-    find_br(reader)
+fn setup(reader: BufReader<File>) -> Vec<Vec<char>> {
+    setup_br(reader)
 }
 
-fn find_br<T>(reader: T) -> usize
+fn setup_br<T>(reader: T) -> Vec<Vec<char>>
 where
     T: BufRead,
 {
@@ -260,7 +261,11 @@ where
         let cols = line.chars().collect::<Vec<char>>();
         matrix.push(cols);
     }
+    matrix
+}
 
+#[allow(clippy::needless_pass_by_value)]
+fn find(matrix: Vec<Vec<char>>) -> usize {
     let (mut curr_pos, mut curr_dir) = curr_dir_and_pos(&matrix);
     try_move(&matrix, &mut curr_pos, &mut curr_dir)
 }
@@ -460,7 +465,7 @@ fn find_new_blocks(matrix: &[Vec<char>]) -> Vec<Vec<Vec<char>>> {
 
 #[cfg(test)]
 mod one_star {
-    use super::find_br;
+    use super::{find, setup_br};
     use std::io::Cursor;
 
     const TEST_1: &str = r"....#.....
@@ -476,7 +481,8 @@ mod one_star {
 
     #[test]
     fn solution() {
-        assert_eq!(find_br(Cursor::new(TEST_1)), 41);
+        let set_sol = setup_br(Cursor::new(TEST_1));
+        assert_eq!(find(set_sol), 41);
     }
 }
 

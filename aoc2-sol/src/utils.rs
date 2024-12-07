@@ -19,6 +19,7 @@ use std::{
     str::FromStr,
     time::{Duration, Instant},
 };
+use tracing::{error, warn};
 
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum TimeUnits {
@@ -89,8 +90,31 @@ where
     let now = Instant::now();
     let res = f(data);
     let (whole, frac, units) = elapsed_parts(now.elapsed())?;
-    println!("Answer:  {res}");
-    println!("Elapsed: {whole}.{frac}{units}");
+    warn!("Answer: {res} (Elapsed: {whole}.{frac}{units})");
+    Ok(res)
+}
+
+pub(crate) fn run_setup_solution<S, T>(
+    year: AoCYear,
+    day: AoCDay,
+    setup: fn(BufReader<File>) -> S,
+    solution: fn(S) -> T,
+) -> Result<T>
+where
+    T: fmt::Display,
+{
+    let data_load_now = Instant::now();
+    let data = load_data(year, day)?;
+    let (whole, frac, units) = elapsed_parts(data_load_now.elapsed())?;
+    warn!("Load   ({whole:3}.{frac:03}{units})");
+    let setup_load_now = Instant::now();
+    let sol_setup = setup(data);
+    let (whole, frac, units) = elapsed_parts(setup_load_now.elapsed())?;
+    warn!("Setup  ({whole:3}.{frac:03}{units})");
+    let now = Instant::now();
+    let res = solution(sol_setup);
+    let (whole, frac, units) = elapsed_parts(now.elapsed())?;
+    warn!("Answer ({whole:3}.{frac:03}{units}) ** {res} **");
     Ok(res)
 }
 
@@ -127,6 +151,6 @@ where
 }
 
 pub(crate) fn print_err(e: Error) -> Error {
-    eprintln!("{e}");
+    error!("{e}");
     e
 }

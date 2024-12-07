@@ -16,21 +16,34 @@ mod header;
 use self::{
     cli::{AoC2Subcommand, Args, Command},
     fnmap::FN_MAP,
+    header::header,
 };
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use aoc2_sol::constants::{AoCDay, AoCYear};
 use clap::Parser;
-use std::{convert::TryFrom, io};
+use config::{load, ConfigAoc2};
+use std::convert::TryFrom;
+use tracing::trace;
+
+use crate::{
+    constants::HEADER_PREFIX,
+    error::Error::{ConfigLoad, TracingInit},
+    tracing::initialize,
+};
 
 pub(crate) fn run() -> Result<()> {
     // Parse the command line
     let matches = Args::try_parse()?;
 
     // Load the configuration
-    // let config = load(&matches)?;
+    let config =
+        load::<Args, ConfigAoc2<'_>, Args>(&matches, &matches).with_context(|| ConfigLoad)?;
+    initialize(&config, None).with_context(|| TracingInit)?;
+    trace!("configuration loaded - {}", config.env());
+    trace!("tracing initialized");
 
     // Output the pretty header
-    header::header(&mut io::stdout())?;
+    header(HEADER_PREFIX)?;
 
     let year = AoCYear::try_from(&matches.year()[..])?;
 

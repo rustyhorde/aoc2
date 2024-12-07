@@ -13,24 +13,101 @@ use aoc2_sol::constants::{
     DAY_20, DAY_21, DAY_22, DAY_23, DAY_24, DAY_25, DAY_3, DAY_4, DAY_5, DAY_6, DAY_7, DAY_8,
     DAY_9,
 };
-use clap::{error::ErrorKind, Args as ClapArgs, Error, FromArgMatches, Parser, Subcommand};
+use clap::{
+    error::ErrorKind, ArgAction::Count, Args as ClapArgs, Error, FromArgMatches, Parser, Subcommand,
+};
+use config::{ConfigError, Map, Source, Value, ValueKind};
 use getset::Getters;
+
+use super::config::PathDefaults;
 
 pub(crate) const DEFAULT_YEAR: &str = "2021";
 
-#[derive(Debug, Getters, Parser)]
+#[derive(Clone, Debug, Getters, Parser)]
 #[command(author, version, about = "Run Advent of Code daily problems", long_about = None)]
 #[getset(get = "pub(crate)")]
 pub(crate) struct Args {
+    /// Set logging verbosity.  More v's, more verbose.
+    #[clap(
+        short,
+        long,
+        action = Count,
+        help = "Turn up logging verbosity (multiple will turn it up more)",
+        conflicts_with = "quiet",
+    )]
+    verbose: u8,
+    /// Set logging quietness.  More q's, more quiet.
+    #[clap(
+        short,
+        long,
+        action = Count,
+        help = "Turn down logging verbosity (multiple will turn it down more)",
+        conflicts_with = "verbose",
+    )]
+    quiet: u8,
     #[arg(name = "year", short = 'y', long, help = "Specify the year you wish to work with", default_value_t = DEFAULT_YEAR.to_string())]
     year: String,
     #[arg(name = "time", short = 't', long, help = "Generate benchmark time")]
     time: bool,
+    #[clap(short, long, help = "Specify a path to the config file")]
+    config_path: Option<String>,
     #[command(subcommand)]
     command: Command,
 }
 
-#[derive(Debug)]
+impl Source for Args {
+    fn clone_into_box(&self) -> Box<dyn Source + Send + Sync> {
+        Box::new((*self).clone())
+    }
+
+    fn collect(&self) -> Result<Map<String, Value>, ConfigError> {
+        let mut map = Map::new();
+        let origin = String::from("command line");
+        let _old = map.insert(
+            "verbose".to_string(),
+            Value::new(Some(&origin), ValueKind::U64(u8::into(self.verbose))),
+        );
+        let _old = map.insert(
+            "quiet".to_string(),
+            Value::new(Some(&origin), ValueKind::U64(u8::into(self.quiet))),
+        );
+        let _old = map.insert(
+            "year".to_string(),
+            Value::new(Some(&origin), ValueKind::String(self.year.clone())),
+        );
+        let _old = map.insert(
+            "time".to_string(),
+            Value::new(Some(&origin), ValueKind::Boolean(self.time)),
+        );
+        if let Some(config_path) = &self.config_path() {
+            let _old = map.insert(
+                "config_path".to_string(),
+                Value::new(Some(&origin), ValueKind::String(config_path.clone())),
+            );
+        }
+        Ok(map)
+    }
+}
+
+impl PathDefaults for Args {
+    fn env_prefix(&self) -> String {
+        env!("CARGO_PKG_NAME").to_ascii_uppercase()
+    }
+
+    fn config_file_path(&self) -> Option<String> {
+        self.config_path.clone()
+    }
+
+    fn default_file_path(&self) -> String {
+        env!("CARGO_PKG_NAME").to_string()
+    }
+
+    fn default_file_name(&self) -> String {
+        env!("CARGO_PKG_NAME").to_string()
+    }
+}
+
+#[derive(Clone, Debug)]
 pub(crate) enum Command {
     Day01(AoC2Subcommand),
     Day02(AoC2Subcommand),
@@ -228,7 +305,7 @@ impl Subcommand for Command {
     }
 }
 
-#[derive(Debug, Getters, Parser)]
+#[derive(Clone, Debug, Getters, Parser)]
 #[getset(get = "pub(crate)")]
 pub(crate) struct AoC2Subcommand {
     #[arg(name = "file", short, long, default_value_t = String::from("data_file"))]
