@@ -153,7 +153,9 @@ where
         .collect();
     let total_duration = durs_as_f64_vec.iter().sum::<f64>();
     let avg = total_duration / f64::from(u32::try_from(durs_as_f64_vec.len())?);
-    warn!("Average Duration: {avg:0.3}{}", TimeUnits::Microseconds);
+    let avg_dur = Duration::from_secs_f64(avg / 1_000_000.);
+    let (whole, frac, units) = elapsed_parts(avg_dur)?;
+    warn!("Average Duration ({whole:3}.{frac:03}{units})");
     Ok(res)
 }
 #[inline]
