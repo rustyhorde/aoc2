@@ -19,7 +19,7 @@ use std::{
     str::FromStr,
     time::{Duration, Instant},
 };
-use tracing::{error, warn};
+use tracing::{error, info, warn};
 
 #[derive(Clone, Copy, Debug)]
 pub(crate) enum TimeUnits {
@@ -118,6 +118,44 @@ where
     Ok(res)
 }
 
+pub(crate) fn run_bench_solution<S, T>(
+    bench: u16,
+    year: AoCYear,
+    day: AoCDay,
+    setup: fn(BufReader<File>) -> S,
+    solution: fn(S) -> T,
+) -> Result<T>
+where
+    S: Clone,
+    T: fmt::Display,
+{
+    let data = load_data(year, day)?;
+    let sol_setup = setup(data);
+    let loop_setup = sol_setup.clone();
+
+    let res = solution(sol_setup);
+    let mut elapsed_vec = vec![];
+
+    for i in 0..bench {
+        if i % 100 == 0 && i != 0 {
+            info!("Processed {i} iterations");
+        }
+        let now = Instant::now();
+        let _res = solution(loop_setup.clone());
+        elapsed_vec.push(now.elapsed());
+    }
+    info!("Processed {bench} iterations");
+    let durs_as_f64_vec: Vec<f64> = elapsed_vec
+        .iter()
+        .map(|x| u32::try_from(x.as_micros()))
+        .filter_map(Result::ok)
+        .map(f64::from)
+        .collect();
+    let total_duration = durs_as_f64_vec.iter().sum::<f64>();
+    let avg = total_duration / f64::from(u32::try_from(durs_as_f64_vec.len())?);
+    info!("Average Duration: {avg:0.3}{}", TimeUnits::Microseconds);
+    Ok(res)
+}
 #[inline]
 pub(crate) fn valid_lines<T>(reader: T) -> impl Iterator<Item = String>
 where

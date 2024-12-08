@@ -66,7 +66,7 @@
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::{run_setup_solution, valid_lines},
+    utils::{run_bench_solution, run_setup_solution, valid_lines},
 };
 use anyhow::Result;
 use std::{
@@ -83,6 +83,21 @@ use std::{
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<Vec<(usize, Vec<usize>)>, usize>(
+        AoCYear::AOC2024,
+        AoCDay::AOCD07,
+        setup,
+        find,
+    )
+    .map(|_| 0)
+}
+
+/// Benchmark handler for Solution to Part 1
+///
+/// # Errors
+///
+pub fn part_1_bench(bench: u16) -> Result<u32> {
+    run_bench_solution::<Vec<(usize, Vec<usize>)>, usize>(
+        bench,
         AoCYear::AOC2024,
         AoCDay::AOCD07,
         setup,
@@ -146,6 +161,21 @@ fn find(data: Vec<(usize, Vec<usize>)>) -> usize {
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<Vec<(usize, Vec<usize>)>, usize>(
+        AoCYear::AOC2024,
+        AoCDay::AOCD07,
+        setup,
+        find2,
+    )
+    .map(|_| 0)
+}
+
+/// Benchmark handler for Solution to Part 2
+///
+/// # Errors
+///
+pub fn part_2_bench(bench: u16) -> Result<u32> {
+    run_bench_solution::<Vec<(usize, Vec<usize>)>, usize>(
+        bench,
         AoCYear::AOC2024,
         AoCDay::AOCD07,
         setup,

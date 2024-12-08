@@ -14,6 +14,7 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 pub(crate) type FnMap = HashMap<(AoCYear, AoCDay, bool), fn() -> Result<u32>>;
+pub(crate) type BenchMap = HashMap<(AoCYear, AoCDay, bool), fn(u16) -> Result<u32>>;
 
 macro_rules! aoc_ins {
     ($fnmap:ident, $year:expr, $day:expr, $y:ident, $d:ident) => {
@@ -22,7 +23,23 @@ macro_rules! aoc_ins {
     };
 }
 
+macro_rules! bench_ins {
+    ($fnmap:ident, $year:expr, $day:expr, $y:ident, $d:ident) => {
+        _ = $fnmap.insert(($year, $day, false), aoc2_sol::$y::$d::part_1_bench);
+        _ = $fnmap.insert(($year, $day, true), aoc2_sol::$y::$d::part_2_bench);
+    };
+}
+
 lazy_static! {
+    pub(crate) static ref BENCH_MAP: BenchMap = {
+        let mut bench_map: BenchMap = HashMap::new();
+
+        // 2024
+        bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD07, year2024, day07);
+        bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD08, year2024, day08);
+
+        bench_map
+    };
     pub(crate) static ref FN_MAP: FnMap = {
         let mut fn_map: FnMap = HashMap::new();
 

@@ -45,6 +45,8 @@ pub(crate) struct Args {
         conflicts_with = "verbose",
     )]
     quiet: u8,
+    #[clap(short, long, help = "Run benchmark over the given amount of runs")]
+    bench: Option<u16>,
     #[arg(name = "year", short = 'y', long, help = "Specify the year you wish to work with", default_value_t = DEFAULT_YEAR.to_string())]
     year: String,
     #[arg(name = "time", short = 't', long, help = "Generate benchmark time")]
@@ -71,6 +73,12 @@ impl Source for Args {
             "quiet".to_string(),
             Value::new(Some(&origin), ValueKind::U64(u8::into(self.quiet))),
         );
+        if let Some(bench) = self.bench {
+            let _old = map.insert(
+                "bench".to_string(),
+                Value::new(Some(&origin), ValueKind::U64(u16::into(bench))),
+            );
+        }
         let _old = map.insert(
             "year".to_string(),
             Value::new(Some(&origin), ValueKind::String(self.year.clone())),

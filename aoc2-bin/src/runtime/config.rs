@@ -40,6 +40,8 @@ pub(crate) struct ConfigAoc2<'a> {
     #[getset(get_copy = "pub(crate)")]
     quiet: u8,
     #[getset(get = "pub(crate)")]
+    bench: Option<u16>,
+    #[getset(get = "pub(crate)")]
     #[serde(borrow)]
     env: Cow<'a, str>,
     #[getset(get_copy = "pub(crate)")]

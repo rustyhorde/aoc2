@@ -22,6 +22,7 @@ use anyhow::{anyhow, Context, Result};
 use aoc2_sol::constants::{AoCDay, AoCYear};
 use clap::Parser;
 use config::{load, ConfigAoc2};
+use fnmap::BENCH_MAP;
 use std::convert::TryFrom;
 use tracing::trace;
 
@@ -75,16 +76,27 @@ pub(crate) fn run() -> Result<()> {
         Command::Day25(command) => (command, AoCDay::AOCD25),
     };
 
-    _ = find_solution(match_tuple.0, year, match_tuple.1)?;
+    _ = find_solution(&config, match_tuple.0, year, match_tuple.1)?;
 
     Ok(())
 }
 
 /// Find the solution.
-fn find_solution(matches: &AoC2Subcommand, year: AoCYear, day: AoCDay) -> Result<u32> {
+fn find_solution(
+    config: &ConfigAoc2<'_>,
+    matches: &AoC2Subcommand,
+    year: AoCYear,
+    day: AoCDay,
+) -> Result<u32> {
     let is_second_star = matches.second();
 
-    if let Some(f) = (*FN_MAP).get(&(year, day, *is_second_star)) {
+    if let Some(bench) = config.bench() {
+        if let Some(f) = (*BENCH_MAP).get(&(year, day, *is_second_star)) {
+            f(*bench)
+        } else {
+            Err(anyhow!("Unable to find year and day to run!"))
+        }
+    } else if let Some(f) = (*FN_MAP).get(&(year, day, *is_second_star)) {
         f()
     } else {
         Err(anyhow!("Unable to find year and day to run!"))
