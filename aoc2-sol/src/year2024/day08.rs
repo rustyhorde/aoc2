@@ -10,7 +10,7 @@
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::{run_solution, valid_lines},
+    utils::{run_setup_solution, valid_lines},
 };
 use anyhow::Result;
 use std::{
@@ -25,18 +25,24 @@ use std::{
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2024, AoCDay::AOCD08, find).map(|_| 0)
+    run_setup_solution::<Vec<usize>, usize>(AoCYear::AOC2024, AoCDay::AOCD08, setup, find)
+        .map(|_| 0)
 }
 
-fn find(reader: BufReader<File>) -> usize {
-    find_br(reader)
+fn setup(reader: BufReader<File>) -> Vec<usize> {
+    setup_br(reader).unwrap_or_default()
 }
 
-fn find_br<T>(reader: T) -> usize
+#[allow(clippy::unnecessary_wraps)]
+fn setup_br<T>(reader: T) -> Result<Vec<usize>>
 where
     T: BufRead,
 {
     for _line in valid_lines(reader) {}
+    Ok(vec![])
+}
+
+fn find(_data: Vec<usize>) -> usize {
     0
 }
 
@@ -47,45 +53,42 @@ where
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2024, AoCDay::AOCD08, find2).map(|_| 0)
+    run_setup_solution::<Vec<usize>, usize>(AoCYear::AOC2024, AoCDay::AOCD08, setup, find2)
+        .map(|_| 0)
 }
 
-fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
-}
-
-fn find2_br<T>(reader: T) -> usize
-where
-    T: BufRead,
-{
-    for _line in valid_lines(reader) {}
+fn find2(_data: Vec<usize>) -> usize {
     0
 }
 
 #[cfg(test)]
 mod one_star {
-    use super::find_br;
+    use super::{find, setup_br};
+    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r">";
 
     #[test]
-    fn solution() {
-        assert_eq!(find_br(Cursor::new(TEST_1)), 0);
+    fn solution() -> Result<()> {
+        let data = setup_br(Cursor::new(TEST_1))?;
+        assert_eq!(find(data), 0);
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
-    // use std::io::Cursor;
+    use super::{find2, setup_br};
+    use anyhow::Result;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"^v";
-    // const TEST_2: &str = r"^>v<";
-    // const TEST_3: &str = r"^v^v^v^v^v";
+    const TEST_1: &str = r">";
 
     #[test]
-    fn solution() {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 3);
+    fn solution() -> Result<()> {
+        let data = setup_br(Cursor::new(TEST_1))?;
+        assert_eq!(find2(data), 0);
+        Ok(())
     }
 }
