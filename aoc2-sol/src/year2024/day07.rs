@@ -193,12 +193,20 @@ fn find2(data: Vec<(usize, Vec<usize>)>) -> usize {
         for next_val in vals {
             let mut new_totals = vec![];
             while let Some(curr) = curr_totals.pop_front() {
-                new_totals.push(curr + next_val);
+                let next_plus = curr + next_val;
+                if next_plus <= total {
+                    new_totals.push(next_plus);
+                }
                 let mul = if !after_first && curr == 0 { 1 } else { curr };
-                new_totals.push(mul * next_val);
+                let next_mul = mul * next_val;
+                if next_mul <= total {
+                    new_totals.push(next_mul);
+                }
                 if after_first {
                     if let Ok(val) = format!("{curr}{next_val}").parse::<usize>() {
-                        new_totals.push(val);
+                        if val <= total {
+                            new_totals.push(val);
+                        }
                     }
                 }
             }
