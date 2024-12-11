@@ -81,6 +81,7 @@ use crate::{
 };
 use anyhow::Result;
 use std::{
+    collections::HashMap,
     fs::File,
     io::{BufRead, BufReader},
 };
@@ -166,7 +167,7 @@ fn find(data: (usize, Vec<usize>)) -> usize {
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_setup_solution::<(usize, Vec<(usize, usize)>), usize>(
+    run_setup_solution::<(usize, HashMap<usize, usize>), usize>(
         AoCYear::AOC2024,
         AoCDay::AOCD11,
         setup2,
@@ -180,7 +181,7 @@ pub fn part_2() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_2_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<(usize, Vec<(usize, usize)>), usize>(
+    run_bench_solution::<(usize, HashMap<usize, usize>), usize>(
         bench,
         AoCYear::AOC2024,
         AoCDay::AOCD11,
@@ -190,77 +191,69 @@ pub fn part_2_bench(bench: u16) -> Result<u32> {
     .map(|_| 0)
 }
 
-fn setup2(reader: BufReader<File>) -> (usize, Vec<(usize, usize)>) {
+fn setup2(reader: BufReader<File>) -> (usize, HashMap<usize, usize>) {
     setup_br2(75, reader).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn setup_br2<T>(blinks: usize, reader: T) -> Result<(usize, Vec<(usize, usize)>)>
+fn setup_br2<T>(blinks: usize, reader: T) -> Result<(usize, HashMap<usize, usize>)>
 where
     T: BufRead,
 {
-    let mut stones = vec![];
+    let mut stones = HashMap::new();
     for line in valid_lines(reader) {
-        stones = line
+        for stone in line
             .split(' ')
             .map(str::parse::<usize>)
             .filter_map(Result::ok)
-            .map(|x| (x, 1))
-            .collect();
+            .collect::<Vec<usize>>()
+        {
+            let _ = stones.entry(stone).and_modify(|x| *x += 1).or_insert(1);
+        }
     }
     Ok((blinks, stones))
 }
 
+fn insert_stone(stones: &mut HashMap<usize, usize>, stone: usize, amount: usize) {
+    let _ = stones
+        .entry(stone)
+        .and_modify(|x| *x += amount)
+        .or_insert(amount);
+}
+
 #[allow(clippy::needless_pass_by_value)]
-fn find2(data: (usize, Vec<(usize, usize)>)) -> usize {
-    let (blinks, stones) = data;
-    let mut curr_stones = stones;
+fn find2(data: (usize, HashMap<usize, usize>)) -> usize {
+    let (blinks, mut stones) = data;
 
     for _blink in 0..blinks {
-        curr_stones.sort_by(|l, r| r.0.cmp(&l.0));
-        let mut curr_idx = curr_stones.len() - 1;
+        let mut new_stones = HashMap::new();
 
-        while curr_idx > 0 {
-            let prev_idx = curr_idx - 1;
-            if curr_stones[curr_idx].0 == curr_stones[prev_idx].0 {
-                curr_stones[prev_idx].1 += curr_stones[curr_idx].1;
-                let _ = curr_stones.remove(curr_idx);
-            }
-            curr_idx -= 1;
-        }
-
-        let mut idx = 0;
-
-        while idx < curr_stones.len() {
-            if curr_stones[idx].0 == 0 {
-                curr_stones[idx].0 = 1;
-            } else if curr_stones[idx]
-                .0
-                .checked_ilog10()
-                .is_some_and(|x| (x + 1) % 2 == 0)
-            {
-                let count = curr_stones[idx].1;
-                let mut chars = curr_stones[idx]
-                    .0
-                    .to_string()
-                    .chars()
-                    .collect::<Vec<char>>();
-                let last = chars.split_off(chars.len() / 2);
-                if let Ok(first) = chars.into_iter().collect::<String>().parse::<usize>() {
-                    curr_stones[idx].0 = first;
-                }
-                if let Ok(last) = last.into_iter().collect::<String>().parse::<usize>() {
-                    curr_stones.insert(idx + 1, (last, count));
-                }
-                idx += 1;
+        for (stone, count) in &stones {
+            if *stone == 0 {
+                insert_stone(&mut new_stones, 1, *count);
             } else {
-                curr_stones[idx].0 *= 2024;
+                let mut val_str = stone.to_string();
+                let len = val_str.len();
+                if len % 2 == 0 {
+                    let last = val_str.split_off(len / 2);
+                    if let Some((first, last)) = val_str
+                        .parse::<usize>()
+                        .ok()
+                        .zip(last.parse::<usize>().ok())
+                    {
+                        insert_stone(&mut new_stones, first, *count);
+                        insert_stone(&mut new_stones, last, *count);
+                    }
+                } else {
+                    insert_stone(&mut new_stones, stone * 2024, *count);
+                }
             }
-            idx += 1;
         }
+
+        stones = new_stones;
     }
 
-    curr_stones.iter().map(|x| x.1).sum()
+    stones.values().sum()
 }
 
 #[cfg(test)]
