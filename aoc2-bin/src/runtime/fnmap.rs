@@ -38,6 +38,8 @@ lazy_static! {
         bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD07, year2024, day07);
         bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD08, year2024, day08);
         bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD09, year2024, day09);
+        bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD10, year2024, day10);
+        bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD11, year2024, day11);
 
         bench_map
     };
