@@ -103,16 +103,84 @@
 //! So, it has a total price of 1930.
 //!
 //! What is the total price of fencing all regions on your map?
+//!
+//! --- Part Two ---
+//!
+//! Fortunately, the Elves are trying to order so much fence that they qualify for a bulk discount!
+//!
+//! Under the bulk discount, instead of using the perimeter to calculate the price, you need to use the number of sides each region has. Each straight section of fence counts as a side, regardless of how long it is.
+//!
+//! Consider this example again:
+//!
+//! ```text
+//! AAAA
+//! BBCD
+//! BBCC
+//! EEEC
+//! ```
+//!
+//! The region containing type A plants has 4 sides, as does each of the regions containing plants of type B, D, and E. However, the more complex region containing the plants of type C has 8 sides!
+//!
+//! Using the new method of calculating the per-region price by multiplying the region's area by its number of sides, regions A through E have prices 16, 16, 32, 4, and 12, respectively, for a total price of 80.
+//!
+//! The second example above (full of type X and O plants) would have a total price of 436.
+//!
+//! Here's a map that includes an E-shaped region full of type E plants:
+//!
+//! ```text
+//! EEEEE
+//! EXXXX
+//! EEEEE
+//! EXXXX
+//! EEEEE
+//! ```
+//!
+//! The E-shaped region has an area of 17 and 12 sides for a price of 204. Including the two regions full of type X plants, this map has a total price of 236.
+//!
+//! This map has a total price of 368:
+//!
+//! ```text
+//! AAAAAA
+//! AAABBA
+//! AAABBA
+//! ABBAAA
+//! ABBAAA
+//! AAAAAA
+//! ```
+//!
+//! It includes two regions full of type B plants (each with 4 sides) and a single region full of type A plants (with 4 sides on the outside and 8 more sides on the inside, a total of 12 sides). Be especially careful when counting the fence around regions like the one full of type A plants; in particular, each section of fence has an in-side and an out-side, so the fence does not connect across the middle of the region (where the two B regions touch diagonally). (The Elves would have used the Möbius Fencing Company instead, but their contract terms were too one-sided.)
+//!
+//! The larger example from before now has the following updated prices:
+//!
+//! ```text
+//!     A region of R plants with price 12 * 10 = 120.
+//!     A region of I plants with price 4 * 4 = 16.
+//!     A region of C plants with price 14 * 22 = 308.
+//!     A region of F plants with price 10 * 12 = 120.
+//!     A region of V plants with price 13 * 10 = 130.
+//!     A region of J plants with price 11 * 12 = 132.
+//!     A region of C plants with price 1 * 4 = 4.
+//!     A region of E plants with price 13 * 8 = 104.
+//!     A region of I plants with price 14 * 16 = 224.
+//!     A region of M plants with price 5 * 6 = 30.
+//!     A region of S plants with price 3 * 6 = 18.
+//! ```
+//!
+//! Adding these together produces its new total price of 1206.
+//!
+//! What is the new total price of fencing all regions on your map?
 
 use crate::{
     constants::{AoCDay, AoCYear},
     utils::{run_bench_solution, run_setup_solution, valid_lines},
 };
 use anyhow::Result;
+use itertools::Itertools;
 use std::{
     collections::{BTreeMap, HashMap, VecDeque},
     fs::File,
     io::{BufRead, BufReader},
+    iter,
 };
 
 /// Solution for Part 1
@@ -157,29 +225,6 @@ where
     Ok(matrix)
 }
 
-// fn within_one(plots: &[(isize, isize)], plot_to_check: &(isize, isize)) -> bool {
-//     let mut close = false;
-//     let (ox, oy) = plot_to_check;
-//     for (x, y) in plots {
-//         if (x - ox).abs() + (y - oy).abs() == 1 {
-//             close = true;
-//             break;
-//         }
-//     }
-//     close
-// }
-
-// fn combine_touching_lots(left: &[(isize, isize)], right: &[(isize, isize)]) -> bool {
-//     let mut close = false;
-//     for ((x, y), (ox, oy)) in left.iter().cartesian_product(right) {
-//         if (x - ox).abs() + (y - oy).abs() == 1 {
-//             close = true;
-//             break;
-//         }
-//     }
-//     close
-// }
-
 fn search_neighbors(
     queue: &mut VecDeque<(isize, isize)>,
     plots: &mut Vec<(isize, isize)>,
@@ -210,8 +255,7 @@ fn search_neighbors(
     }
 }
 
-#[allow(clippy::needless_pass_by_value)]
-fn find(matrix: Vec<Vec<char>>) -> usize {
+fn create_garden_map(matrix: &[Vec<char>]) -> BTreeMap<char, Vec<(isize, isize)>> {
     let mut garden_map = BTreeMap::new();
     for (x, cols) in matrix.iter().enumerate() {
         for (y, col) in cols.iter().enumerate() {
@@ -223,75 +267,127 @@ fn find(matrix: Vec<Vec<char>>) -> usize {
             }
         }
     }
+    garden_map
+}
 
+fn find_regions(plots: Vec<(isize, isize)>) -> Vec<Vec<(isize, isize)>> {
+    let mut sorted_plots = plots;
+    sorted_plots.sort_unstable();
+
+    let mut queue: VecDeque<(isize, isize)> = VecDeque::new();
+    queue.extend(sorted_plots);
+
+    let mut plots_vec = vec![];
+
+    while let Some(initial_plot) = queue.pop_front() {
+        let mut plots = vec![];
+        search_neighbors(&mut queue, &mut plots, initial_plot);
+        plots_vec.push(plots);
+    }
+
+    plots_vec
+}
+
+fn create_plots_map(
+    garden_map: BTreeMap<char, Vec<(isize, isize)>>,
+) -> HashMap<char, Vec<Vec<(isize, isize)>>> {
     let mut plots_map: HashMap<char, Vec<Vec<(isize, isize)>>> = HashMap::new();
     for (plot_name, plots) in garden_map {
-        let mut sorted_plots = plots;
-        sorted_plots.sort_unstable();
-
-        let mut queue: VecDeque<(isize, isize)> = VecDeque::new();
-        queue.extend(sorted_plots);
-
-        let mut plots_vec = vec![];
-
-        while let Some(initial_plot) = queue.pop_front() {
-            let mut plots = vec![];
-            search_neighbors(&mut queue, &mut plots, initial_plot);
-            plots_vec.push(plots);
-        }
-
+        let plots_vec = find_regions(plots);
         let _res = plots_map.insert(plot_name, plots_vec);
     }
-    // eprintln!("plots_map: {plots_map:?}");
+    plots_map
+}
 
-    let mut total_cost = 0;
-    for (_k, plots) in plots_map {
-        for plot in plots {
-            let mut area = plot.len();
-            let mut perimeter = 0;
+fn find_edges(partner_dirs: &[char]) -> Vec<char> {
+    let pd_str: String = partner_dirs.iter().copied().collect();
+    let match_iter = "DLRU"
+        .chars()
+        .combinations(pd_str.len())
+        .zip(iter::repeat(pd_str.chars().collect::<Vec<char>>()));
+    let mut edges = vec![];
 
-            for (row, col) in &plot {
-                let mut my_partners = 0;
-                // Check up
-                if let Some(nrow) = row.checked_sub(1) {
-                    if plot.contains(&(nrow, *col)) {
-                        my_partners += 1;
-                    }
-                }
-
-                // Check down
-                if plot.contains(&(row + 1, *col)) {
-                    my_partners += 1;
-                }
-
-                // Check left
-                if let Some(ncol) = col.checked_sub(1) {
-                    if plot.contains(&(*row, ncol)) {
-                        my_partners += 1;
-                    }
-                }
-
-                // Check right
-                if plot.contains(&(*row, col + 1)) {
-                    my_partners += 1;
-                }
-
-                // if 1 partner perimeter += 3
-                // if 2 partners perimeter += 2
-                // if 3 partners perimeter += 1
-                // if 4 partners perimeter += 0
-                if my_partners == 0 {
-                    area = 1;
-                    perimeter += 4;
-                } else if my_partners == 1 {
-                    perimeter += 3;
-                } else if my_partners == 2 {
-                    perimeter += 2;
-                } else if my_partners == 3 {
-                    perimeter += 1;
+    for (left, right) in match_iter {
+        if left == right {
+            for char in "DLRU".chars() {
+                if !left.contains(&char) {
+                    edges.push(char);
                 }
             }
-            // eprintln!("{k}: Area {area}, Perimiter {perimeter}");
+        }
+    }
+    edges
+}
+
+fn area_perimeter_edges(
+    plot: &[(isize, isize)],
+) -> (usize, usize, BTreeMap<(isize, isize), Vec<char>>) {
+    let area = plot.len();
+    let mut perimeter = 0;
+    let mut edges = BTreeMap::new();
+
+    for (row, col) in plot {
+        let mut my_partners = 0;
+        let mut partners_dir = vec![];
+
+        // Check up
+        if let Some(nrow) = row.checked_sub(1) {
+            if plot.contains(&(nrow, *col)) {
+                my_partners += 1;
+                partners_dir.push('U');
+            }
+        }
+
+        // Check down
+        if plot.contains(&(row + 1, *col)) {
+            my_partners += 1;
+            partners_dir.push('D');
+        }
+
+        // Check left
+        if let Some(ncol) = col.checked_sub(1) {
+            if plot.contains(&(*row, ncol)) {
+                my_partners += 1;
+                partners_dir.push('L');
+            }
+        }
+
+        // Check right
+        if plot.contains(&(*row, col + 1)) {
+            my_partners += 1;
+            partners_dir.push('R');
+        }
+
+        // if 1 partner perimeter += 3
+        // if 2 partners perimeter += 2
+        // if 3 partners perimeter += 1
+        // if 4 partners perimeter += 0
+        if my_partners == 0 {
+            perimeter += 4;
+        } else if my_partners == 1 {
+            perimeter += 3;
+        } else if my_partners == 2 {
+            perimeter += 2;
+        } else if my_partners == 3 {
+            perimeter += 1;
+        }
+
+        partners_dir.sort_unstable();
+        let _d = edges.insert((*row, *col), find_edges(&partners_dir));
+    }
+
+    (area, perimeter, edges)
+}
+
+#[allow(clippy::needless_pass_by_value)]
+fn find(matrix: Vec<Vec<char>>) -> usize {
+    let garden_map = create_garden_map(&matrix);
+    let plots_map = create_plots_map(garden_map);
+    let mut total_cost = 0;
+
+    for plots in plots_map.values() {
+        for plot in plots {
+            let (area, perimeter, _edges) = area_perimeter_edges(plot);
             total_cost += area * perimeter;
         }
     }
@@ -324,9 +420,52 @@ pub fn part_2_bench(bench: u16) -> Result<u32> {
     .map(|_| 0)
 }
 
+fn count_regions(edges: &BTreeMap<(isize, isize), Vec<char>>, dir: Direction) -> usize {
+    let search_char = match dir {
+        Direction::Right => 'R',
+        Direction::Up => 'U',
+        Direction::Left => 'L',
+        Direction::Down => 'D',
+    };
+    let dirs = edges
+        .iter()
+        .filter_map(|(k, v)| {
+            if (*v).contains(&search_char) {
+                Some(*k)
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<(isize, isize)>>();
+    find_regions(dirs).len()
+}
+
 #[allow(clippy::needless_pass_by_value)]
-fn find2(_data: Vec<Vec<char>>) -> usize {
-    0
+fn find2(matrix: Vec<Vec<char>>) -> usize {
+    let garden_map = create_garden_map(&matrix);
+    let plots_map = create_plots_map(garden_map);
+    let mut total_cost = 0;
+
+    for plots in plots_map.values() {
+        for plot in plots {
+            let (area, _perimeter, edges) = area_perimeter_edges(plot);
+            let sides = count_regions(&edges, Direction::Up)
+                + count_regions(&edges, Direction::Down)
+                + count_regions(&edges, Direction::Left)
+                + count_regions(&edges, Direction::Right);
+            total_cost += area * sides;
+            // eprintln!("Cost for {plot_name}{}: {area} * {sides}", idx + 1);
+        }
+    }
+    total_cost
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum Direction {
+    Right,
+    Up,
+    Left,
+    Down,
 }
 
 #[cfg(test)]
@@ -373,12 +512,49 @@ mod two_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r">";
+    const TEST_1: &str = r"AAAA
+BBCD
+BBCC
+EEEC";
+    const TEST_2: &str = r"OOOOO
+OXOXO
+OOOOO
+OXOXO
+OOOOO";
+    const TEST_3: &str = r"EEEEE
+EXXXX
+EEEEE
+EXXXX
+EEEEE";
+    const TEST_4: &str = r"AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA";
+    const TEST_5: &str = r"RRRRIICCFF
+RRRRIICCCF
+VVRRRCCFFF
+VVRCCCJFFF
+VVVVCJJCFE
+VVIVCCJJEE
+VVIIICJJEE
+MIIIIIJJEE
+MIIISIJEEE
+MMMISSJEEE";
 
     #[test]
     fn solution() -> Result<()> {
         let data = setup_br(Cursor::new(TEST_1))?;
-        assert_eq!(find2(data), 0);
+        assert_eq!(find2(data), 80);
+        let data = setup_br(Cursor::new(TEST_2))?;
+        assert_eq!(find2(data), 436);
+        let data = setup_br(Cursor::new(TEST_3))?;
+        assert_eq!(find2(data), 236);
+        let data = setup_br(Cursor::new(TEST_4))?;
+        assert_eq!(find2(data), 368);
+        let data = setup_br(Cursor::new(TEST_5))?;
+        assert_eq!(find2(data), 1206);
         Ok(())
     }
 }
