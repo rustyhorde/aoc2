@@ -131,7 +131,6 @@ pub(crate) fn run_bench_solution<S, T>(
 ) -> Result<T>
 where
     S: Clone,
-    T: fmt::Display,
 {
     let data = load_data(year, day)?;
     let sol_setup = setup(data);
