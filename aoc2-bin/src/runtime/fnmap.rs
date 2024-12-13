@@ -47,6 +47,7 @@ lazy_static! {
         // 2017
         bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD09, year2017, day09);
         bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD10, year2017, day10);
+        bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD11, year2017, day11);
 
         bench_map
     };
