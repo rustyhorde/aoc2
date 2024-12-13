@@ -275,11 +275,10 @@ fn overlap(rect1: Rectangle, rect2: Rectangle) -> bool {
 mod one_star {
     use crate::year2018::day03::{check_points, contains_point, Point, Rectangle};
 
-    use anyhow::Result;
     use std::collections::BTreeMap;
 
     #[test]
-    fn solution() -> Result<()> {
+    fn solution() {
         let mut rectangles = BTreeMap::new();
         let rect1 = Rectangle {
             top_left: Point { x: 1, y: 3 },
@@ -312,7 +311,6 @@ mod one_star {
         assert!(!contains_point(rect2, outside));
 
         assert_eq!(check_points(&rectangles, 8, 8), 4);
-        Ok(())
     }
 }
 
