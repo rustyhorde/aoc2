@@ -101,11 +101,17 @@ fn setup(reader: BufReader<File>) -> Vec<Machine> {
 #[derive(Clone, Copy, CopyGetters, Debug, Default, PartialEq, Setters)]
 #[getset(get_copy = "pub(crate)", set = "pub(crate)")]
 struct Machine {
+    // button a, x value
     a: f64,
+    // button b, x value
     b: f64,
+    // button a, y value
     d: f64,
+    // button b, y value
     e: f64,
+    // x destination
     c: f64,
+    // y deatination
     f: f64,
 }
 
@@ -122,8 +128,12 @@ impl Machine {
         } else {
             self.f
         };
+        // Cramer's Method
+        // delta = (a * e) + (b * d)
         let delta = (self.a * self.e) - (self.b * self.d);
+        // num_x = (c * e) - (b * f)
         let num_x = (c * self.e) - (self.b * f);
+        // num_y = (a * f) - (c *  d)
         let num_y = (self.a * f) - (c * self.d);
         let x = num_x / delta;
         let y = num_y / delta;
