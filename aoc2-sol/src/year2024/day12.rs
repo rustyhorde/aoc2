@@ -190,8 +190,13 @@ use std::{
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_setup_solution::<Vec<Vec<char>>, usize>(AoCYear::AOC2024, AoCDay::AOCD12, setup, find)
-        .map(|_| 0)
+    run_setup_solution::<BTreeMap<char, Vec<(isize, isize)>>, usize>(
+        AoCYear::AOC2024,
+        AoCDay::AOCD12,
+        setup,
+        find,
+    )
+    .map(|_| 0)
 }
 
 /// Benchmark handler for Solution to Part 1
@@ -199,7 +204,7 @@ pub fn part_1() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_1_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<Vec<Vec<char>>, usize>(
+    run_bench_solution::<BTreeMap<char, Vec<(isize, isize)>>, usize>(
         bench,
         AoCYear::AOC2024,
         AoCDay::AOCD12,
@@ -209,12 +214,11 @@ pub fn part_1_bench(bench: u16) -> Result<u32> {
     .map(|_| 0)
 }
 
-fn setup(reader: BufReader<File>) -> Vec<Vec<char>> {
-    setup_br(reader).unwrap_or_default()
+fn setup(reader: BufReader<File>) -> BTreeMap<char, Vec<(isize, isize)>> {
+    setup_br(reader)
 }
 
-#[allow(clippy::unnecessary_wraps)]
-fn setup_br<T>(reader: T) -> Result<Vec<Vec<char>>>
+fn setup_br<T>(reader: T) -> BTreeMap<char, Vec<(isize, isize)>>
 where
     T: BufRead,
 {
@@ -222,7 +226,7 @@ where
     for row in valid_lines(reader) {
         matrix.push(row.chars().collect());
     }
-    Ok(matrix)
+    create_garden_map(&matrix)
 }
 
 fn search_neighbors(
@@ -380,8 +384,7 @@ fn area_perimeter_edges(
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find(matrix: Vec<Vec<char>>) -> usize {
-    let garden_map = create_garden_map(&matrix);
+fn find(garden_map: BTreeMap<char, Vec<(isize, isize)>>) -> usize {
     let plots_map = create_plots_map(garden_map);
     let mut total_cost = 0;
 
@@ -401,8 +404,13 @@ fn find(matrix: Vec<Vec<char>>) -> usize {
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_setup_solution::<Vec<Vec<char>>, usize>(AoCYear::AOC2024, AoCDay::AOCD12, setup, find2)
-        .map(|_| 0)
+    run_setup_solution::<BTreeMap<char, Vec<(isize, isize)>>, usize>(
+        AoCYear::AOC2024,
+        AoCDay::AOCD12,
+        setup,
+        find2,
+    )
+    .map(|_| 0)
 }
 
 /// Benchmark handler for Solution to Part 2
@@ -410,7 +418,7 @@ pub fn part_2() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_2_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<Vec<Vec<char>>, usize>(
+    run_bench_solution::<BTreeMap<char, Vec<(isize, isize)>>, usize>(
         bench,
         AoCYear::AOC2024,
         AoCDay::AOCD12,
@@ -441,8 +449,7 @@ fn count_regions(edges: &BTreeMap<(isize, isize), Vec<char>>, dir: Direction) ->
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find2(matrix: Vec<Vec<char>>) -> usize {
-    let garden_map = create_garden_map(&matrix);
+fn find2(garden_map: BTreeMap<char, Vec<(isize, isize)>>) -> usize {
     let plots_map = create_plots_map(garden_map);
     let mut total_cost = 0;
 
@@ -454,7 +461,6 @@ fn find2(matrix: Vec<Vec<char>>) -> usize {
                 + count_regions(&edges, Direction::Left)
                 + count_regions(&edges, Direction::Right);
             total_cost += area * sides;
-            // eprintln!("Cost for {plot_name}{}: {area} * {sides}", idx + 1);
         }
     }
     total_cost
@@ -471,7 +477,6 @@ enum Direction {
 #[cfg(test)]
 mod one_star {
     use super::{find, setup_br};
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"AAAA
@@ -495,21 +500,19 @@ MIIISIJEEE
 MMMISSJEEE";
 
     #[test]
-    fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+    fn solution() {
+        let data = setup_br(Cursor::new(TEST_1));
         assert_eq!(find(data), 140);
-        let data = setup_br(Cursor::new(TEST_2))?;
+        let data = setup_br(Cursor::new(TEST_2));
         assert_eq!(find(data), 772);
-        let data = setup_br(Cursor::new(TEST_3))?;
+        let data = setup_br(Cursor::new(TEST_3));
         assert_eq!(find(data), 1930);
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
     use super::{find2, setup_br};
-    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r"AAAA
@@ -544,17 +547,16 @@ MIIISIJEEE
 MMMISSJEEE";
 
     #[test]
-    fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+    fn solution() {
+        let data = setup_br(Cursor::new(TEST_1));
         assert_eq!(find2(data), 80);
-        let data = setup_br(Cursor::new(TEST_2))?;
+        let data = setup_br(Cursor::new(TEST_2));
         assert_eq!(find2(data), 436);
-        let data = setup_br(Cursor::new(TEST_3))?;
+        let data = setup_br(Cursor::new(TEST_3));
         assert_eq!(find2(data), 236);
-        let data = setup_br(Cursor::new(TEST_4))?;
+        let data = setup_br(Cursor::new(TEST_4));
         assert_eq!(find2(data), 368);
-        let data = setup_br(Cursor::new(TEST_5))?;
+        let data = setup_br(Cursor::new(TEST_5));
         assert_eq!(find2(data), 1206);
-        Ok(())
     }
 }

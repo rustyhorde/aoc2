@@ -140,6 +140,20 @@ where
     let res = solution(sol_setup);
     let mut elapsed_vec = vec![];
 
+    // let blah = move || -> Duration {
+    //     let now = Instant::now();
+    //     let _res = solution(sol_setup.clone());
+    //     now.elapsed()
+    // };
+    // let benches_iter = (0..bench).into_par_iter();
+    // let elapsed_vec = benches_iter
+    //     .map(|i| {
+    //         if i % 100 == 0 && i != 0 {
+    //             info!("Processed {i} iterations");
+    //         }
+    //         blah()
+    //     })
+    //     .collect::<Vec<Duration>>();
     for i in 0..bench {
         if i % 100 == 0 && i != 0 {
             info!("Processed {i} iterations");
