@@ -1,4 +1,4 @@
-// Copyright (c) 2021 aoc2 developers
+// Copyright (c) 2024 aoc2 developers
 //
 // Licensed under the Apache License, Version 2.0
 // <LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0> or the MIT
@@ -6,11 +6,11 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! Advent of Code - Day 1
+//! Advent of Code - Day 25
 
 use crate::{
     constants::{AoCDay, AoCYear},
-    utils::{run_solution, valid_lines},
+    utils::{run_bench_solution, run_setup_solution, valid_lines},
 };
 use anyhow::Result;
 use std::{
@@ -25,19 +25,43 @@ use std::{
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2024, AoCDay::AOCD25, find).map(|_| 0)
+    run_setup_solution::<Vec<String>, usize>(AoCYear::AOC2024, AoCDay::AOCD25, setup, find)
+        .map(|_| 0)
 }
 
-fn find(reader: BufReader<File>) -> usize {
-    find_br(reader)
+/// Benchmark handler for Solution to Part 1
+///
+/// # Errors
+///
+pub fn part_1_bench(bench: u16) -> Result<u32> {
+    run_bench_solution::<Vec<String>, usize>(bench, AoCYear::AOC2024, AoCDay::AOCD25, setup, find)
+        .map(|_| 0)
 }
 
-fn find_br<T>(reader: T) -> usize
+fn setup(reader: BufReader<File>) -> Vec<String> {
+    setup_br(reader).unwrap_or_default()
+}
+
+#[allow(clippy::unnecessary_wraps)]
+fn setup_br<T>(reader: T) -> Result<Vec<String>>
 where
     T: BufRead,
 {
-    for _line in valid_lines(reader) {}
-    0
+    let mut data = vec![];
+    for line in valid_lines(reader) {
+        data.push(line);
+    }
+    Ok(data)
+}
+
+#[allow(clippy::needless_pass_by_value)]
+fn find(data: Vec<String>) -> usize {
+    find_res(data, false).unwrap_or_default()
+}
+
+#[allow(clippy::unnecessary_wraps)]
+fn find_res(_data: Vec<String>, _second_star: bool) -> Result<usize> {
+    Ok(0)
 }
 
 /// Solution for Part 2
@@ -47,45 +71,52 @@ where
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_solution::<usize>(AoCYear::AOC2024, AoCDay::AOCD25, find2).map(|_| 0)
+    run_setup_solution::<Vec<String>, usize>(AoCYear::AOC2024, AoCDay::AOCD25, setup, find2)
+        .map(|_| 0)
 }
 
-fn find2(reader: BufReader<File>) -> usize {
-    find2_br(reader)
+/// Benchmark handler for Solution to Part 2
+///
+/// # Errors
+///
+pub fn part_2_bench(bench: u16) -> Result<u32> {
+    run_bench_solution::<Vec<String>, usize>(bench, AoCYear::AOC2024, AoCDay::AOCD25, setup, find2)
+        .map(|_| 0)
 }
 
-fn find2_br<T>(reader: T) -> usize
-where
-    T: BufRead,
-{
-    for _line in valid_lines(reader) {}
-    0
+#[allow(clippy::needless_pass_by_value)]
+fn find2(data: Vec<String>) -> usize {
+    find_res(data, true).unwrap_or_default()
 }
 
 #[cfg(test)]
 mod one_star {
-    use super::find_br;
+    use super::{find, setup_br};
+    use anyhow::Result;
     use std::io::Cursor;
 
     const TEST_1: &str = r">";
 
     #[test]
-    fn solution() {
-        assert_eq!(find_br(Cursor::new(TEST_1)), 0);
+    fn solution() -> Result<()> {
+        let data = setup_br(Cursor::new(TEST_1))?;
+        assert_eq!(find(data), 0);
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod two_star {
-    // use super::find2_br;
-    // use std::io::Cursor;
+    use super::{find2, setup_br};
+    use anyhow::Result;
+    use std::io::Cursor;
 
-    // const TEST_1: &str = r"^v";
-    // const TEST_2: &str = r"^>v<";
-    // const TEST_3: &str = r"^v^v^v^v^v";
+    const TEST_1: &str = r">";
 
     #[test]
-    fn solution() {
-        // assert_eq!(find2_br(Cursor::new(TEST_1))?, 3);
+    fn solution() -> Result<()> {
+        let data = setup_br(Cursor::new(TEST_1))?;
+        assert_eq!(find2(data), 0);
+        Ok(())
     }
 }

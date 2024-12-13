@@ -1,0 +1,10 @@
+[package]
+name = "aoc2-ft"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow.workspace = true
+clap = {version = "4.5.23", features = ["derive"] }
+getset.workspace = true
+tera = "1.20.0"
