@@ -10,6 +10,7 @@
 
 use crate::constants::{AoCDay, AoCYear};
 use anyhow::{anyhow, Context, Error, Result};
+use console::style;
 use regex::Captures;
 use std::{
     fmt,
@@ -114,7 +115,10 @@ where
     let now = Instant::now();
     let res = solution(sol_setup);
     let (whole, frac, units) = elapsed_parts(now.elapsed())?;
-    warn!("Answer ({whole:3}.{frac:03}{units}) ** {res} **");
+    warn!(
+        "Answer ({whole:3}.{frac:03}{units}) ** {} **",
+        style(&res).cyan()
+    );
     Ok(res)
 }
 

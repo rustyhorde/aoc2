@@ -22,9 +22,10 @@ use anyhow::{anyhow, Context, Result};
 use aoc2_sol::constants::{AoCDay, AoCYear};
 use clap::Parser;
 use config::{load, ConfigAoc2};
+use console::style;
 use fnmap::BENCH_MAP;
 use std::convert::TryFrom;
-use tracing::trace;
+use tracing::{trace, warn};
 
 use crate::{
     constants::HEADER_PREFIX,
@@ -81,6 +82,22 @@ pub(crate) fn run() -> Result<()> {
     Ok(())
 }
 
+fn run_day(year: AoCYear, day: AoCDay, part2: bool) -> Result<u32> {
+    if let Some(f) = (*FN_MAP).get(&(year, day, part2)) {
+        f()
+    } else {
+        Err(anyhow!("Unable to find year and day to run!"))
+    }
+}
+
+fn run_bench(year: AoCYear, day: AoCDay, part2: bool, bench: u16) -> Result<u32> {
+    if let Some(f) = (*BENCH_MAP).get(&(year, day, part2)) {
+        f(bench)
+    } else {
+        Err(anyhow!("Unable to find year and day to run!"))
+    }
+}
+
 /// Find the solution.
 fn find_solution(
     config: &ConfigAoc2<'_>,
@@ -89,16 +106,20 @@ fn find_solution(
     day: AoCDay,
 ) -> Result<u32> {
     let is_second_star = matches.second();
+    let is_both = matches.both();
 
-    if let Some(bench) = config.bench() {
-        if let Some(f) = (*BENCH_MAP).get(&(year, day, *is_second_star)) {
-            f(*bench)
-        } else {
-            Err(anyhow!("Unable to find year and day to run!"))
-        }
-    } else if let Some(f) = (*FN_MAP).get(&(year, day, *is_second_star)) {
-        f()
+    if *is_both {
+        warn!("{}", style("+++++ First Star +++++").green());
+        warn!("");
+        run_day(year, day, false).and_then(|_r1| {
+            warn!("");
+            warn!("{}", style("+++++ Second Star +++++").red());
+            warn!("");
+            run_day(year, day, true)
+        })
+    } else if let Some(bench) = config.bench() {
+        run_bench(year, day, *is_second_star, *bench)
     } else {
-        Err(anyhow!("Unable to find year and day to run!"))
+        run_day(year, day, *is_second_star)
     }
 }

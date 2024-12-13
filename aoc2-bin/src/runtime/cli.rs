@@ -322,7 +322,16 @@ pub(crate) struct AoC2Subcommand {
         name = "second",
         short,
         long,
-        help = "Run the algorithm to calculate the value for the 2nd star"
+        help = "Run the algorithm to calculate the value for the 2nd star",
+        conflicts_with = "both"
     )]
     second: bool,
+    #[arg(
+        name = "both",
+        short,
+        long,
+        help = "Run the algorithm to calculate the value for both stars",
+        conflicts_with = "second"
+    )]
+    both: bool,
 }
