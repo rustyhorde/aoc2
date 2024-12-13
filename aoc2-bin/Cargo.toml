@@ -3,11 +3,6 @@ name = "aoc2"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[features]
-unstable = []
-
 [dependencies]
 anyhow = { workspace = true }
 aoc2-sol = { path = "../aoc2-sol" }

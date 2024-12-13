@@ -26,10 +26,6 @@ pub(crate) enum Error {
 }
 
 #[allow(clippy::needless_pass_by_value)]
-#[cfg_attr(
-    all(feature = "unstable", nightly),
-    allow(non_exhaustive_omitted_patterns)
-)]
 pub(crate) fn clap_or_error(err: anyhow::Error) -> i32 {
     let disp_err = || {
         eprint!("{err:?}");

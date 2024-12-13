@@ -14,16 +14,6 @@
 //!
 
 // rustc lints
-#![cfg_attr(
-    all(feature = "unstable", nightly),
-    feature(
-        multiple_supertrait_upcastable,
-        must_not_suspend,
-        non_exhaustive_omitted_patterns_lint,
-        rustdoc_missing_doc_code_examples,
-        strict_provenance_lints,
-    )
-)]
 #![cfg_attr(nightly, allow(single_use_lifetimes))]
 #![cfg_attr(
     nightly,
@@ -176,28 +166,8 @@
         while_true,
     )
 )]
-// If nightly and unstable, allow `incomplete_features` and `unstable_features`
-#![cfg_attr(
-    all(feature = "unstable", nightly),
-    allow(incomplete_features, unstable_features)
-)]
 // If nightly and not unstable, deny `incomplete_features` and `unstable_features`
-#![cfg_attr(
-    all(not(feature = "unstable"), nightly),
-    deny(incomplete_features, unstable_features)
-)]
-// The unstable lints
-#![cfg_attr(
-    all(feature = "unstable", nightly),
-    deny(
-        fuzzy_provenance_casts,
-        lossy_provenance_casts,
-        multiple_supertrait_upcastable,
-        must_not_suspend,
-        non_exhaustive_omitted_patterns,
-        unfulfilled_lint_expectations,
-    )
-)]
+#![cfg_attr(nightly, deny(incomplete_features, unstable_features))]
 // clippy lints
 #![cfg_attr(nightly, deny(clippy::all, clippy::pedantic))]
 #![cfg_attr(nightly, allow(clippy::ref_option))]
@@ -214,13 +184,8 @@
         rustdoc::private_intra_doc_links,
     )
 )]
-#![cfg_attr(
-    all(nightly, feature = "unstable"),
-    deny(rustdoc::missing_doc_code_examples)
-)]
 #![cfg_attr(all(doc, nightly), feature(doc_auto_cfg))]
 #![cfg_attr(all(docsrs, nightly), feature(doc_cfg))]
-#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
 
 mod constants;
 mod error;
