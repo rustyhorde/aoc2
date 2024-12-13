@@ -18,8 +18,8 @@ dirs2 = "3.0.1"
 getset = { workspace = true }
 lazy_static = { workspace = true }
 rand = "0.8.5"
-serde = { version = "1.0.215", features = ["derive"] }
-thiserror = "2.0.4"
+serde = { version = "1.0.216", features = ["derive"] }
+thiserror = "2.0.6"
 tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_level_info"] }
 tracing-subscriber = { version = "0.3.19", features = [
   "env-filter",

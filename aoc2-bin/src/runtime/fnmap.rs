@@ -44,6 +44,9 @@ lazy_static! {
         bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD13, year2024, day13);
         bench_ins!(bench_map, AoCYear::AOC2024, AoCDay::AOCD14, year2024, day14);
 
+        // 2017
+        bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD09, year2017, day09);
+
         bench_map
     };
     pub(crate) static ref FN_MAP: FnMap = {
