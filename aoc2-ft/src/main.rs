@@ -1,4 +1,8 @@
-use std::{fs::OpenOptions, io::Write, path::Path};
+use std::{
+    fs::{OpenOptions, create_dir_all},
+    io::Write,
+    path::Path,
+};
 
 use anyhow::Result;
 use clap::Parser;
@@ -23,6 +27,7 @@ fn main() -> Result<()> {
     };
     let tera = Tera::new("templates/**/*.jinja")?;
     let base_path_str = format!("aoc2-sol/src/year{year}");
+    create_dir_all(&base_path_str)?;
     let base_path = Path::new(&base_path_str);
 
     for day in start_day..=end_day {

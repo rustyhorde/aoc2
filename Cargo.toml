@@ -5,6 +5,7 @@ members = ["aoc2-bin", "aoc2-ft", "aoc2-sol"]
 
 [workspace.dependencies]
 anyhow = "1.0.94"
+clap = {version = "4.5.23", features = ["derive"] }
 console = "0.15.8"
 getset = "0.1.3"
 indexmap = "2.7.0"
