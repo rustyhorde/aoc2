@@ -83,7 +83,7 @@ fn find2(_data: Vec<usize>) -> usize {
 
 #[cfg(test)]
 mod one_star {
-    use super::{setup_br, find};
+    use super::{find, setup_br};
     use anyhow::Result;
     use std::io::Cursor;
 
@@ -99,7 +99,7 @@ mod one_star {
 
 #[cfg(test)]
 mod two_star {
-    use super::{setup_br, find2};
+    use super::{find2, setup_br};
     use anyhow::Result;
     use std::io::Cursor;
 
