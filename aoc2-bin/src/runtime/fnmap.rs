@@ -50,6 +50,7 @@ lazy_static! {
         bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD11, year2017, day11);
         bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD12, year2017, day12);
         bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD13, year2017, day13);
+        bench_ins!(bench_map, AoCYear::AOC2017, AoCDay::AOCD14, year2017, day14);
 
         bench_map
     };
