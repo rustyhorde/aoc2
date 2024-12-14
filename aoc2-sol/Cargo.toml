@@ -12,6 +12,7 @@ unstable = []
 anyhow = { workspace = true }
 bitvec = "1.0.1"
 console = { workspace = true }
+crossterm = "0.28.1"
 getset = { workspace = true }
 indexmap = { workspace = true }
 itertools = "0.13.0"
