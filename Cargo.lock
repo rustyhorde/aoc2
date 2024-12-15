@@ -158,6 +158,7 @@ dependencies = [
  "regex",
  "rustversion",
  "serde_json",
+ "sliding_windows",
  "time",
  "tracing",
 ]
@@ -2457,6 +2458,12 @@ name = "siphasher"
 version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38b58827f4464d87d377d175e90bf58eb00fd8716ff0a62f80356b5e61555d0d"
+
+[[package]]
+name = "sliding_windows"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a830e5d74dce35884bac85ecdc68c1ae96b9451918cc484f39340049c7a55f5e"
 
 [[package]]
 name = "slug"
