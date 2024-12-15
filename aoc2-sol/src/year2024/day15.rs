@@ -265,8 +265,10 @@ use crate::{
     utils::{run_bench_solution, run_setup_solution, valid_lines},
 };
 use anyhow::{anyhow, Error, Result};
+use console::style;
 use crossterm::{
-    cursor::{Hide, MoveToNextLine, Show},
+    cursor::{Hide, MoveToNextLine, RestorePosition, SavePosition, Show},
+    terminal::{Clear, ClearType},
     ExecutableCommand, QueueableCommand,
 };
 use itertools::Itertools;
@@ -281,6 +283,8 @@ use std::{
 enum ElementKind {
     Wall,
     Box,
+    BigBoxLeft,
+    BigBoxRight,
     Robot,
     #[default]
     Empty,
@@ -295,6 +299,8 @@ impl TryFrom<char> for ElementKind {
             '#' => ElementKind::Wall,
             '@' => ElementKind::Robot,
             'O' => ElementKind::Box,
+            '[' => ElementKind::BigBoxLeft,
+            ']' => ElementKind::BigBoxRight,
             _ => return Err(anyhow!("invalid element kind: '{value}'")),
         })
     }
@@ -307,6 +313,8 @@ impl fmt::Display for ElementKind {
             ElementKind::Box => 'O',
             ElementKind::Robot => '@',
             ElementKind::Empty => '.',
+            ElementKind::BigBoxLeft => '[',
+            ElementKind::BigBoxRight => ']',
         };
         write!(f, "{ch}")
     }
@@ -323,10 +331,10 @@ enum Movement {
 impl fmt::Display for Movement {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let ch = match self {
-            Movement::Up => "UP",
-            Movement::Down => "DOWN",
-            Movement::Left => "LEFT",
-            Movement::Right => "RIGHT",
+            Movement::Up => '^',
+            Movement::Down => 'v',
+            Movement::Left => '<',
+            Movement::Right => '>',
         };
         write!(f, "{ch}")
     }
@@ -391,7 +399,7 @@ fn find(data: (Vec<String>, Vec<String>)) -> usize {
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(data: (Vec<String>, Vec<String>), _second_star: bool) -> Result<usize> {
+fn find_res(data: (Vec<String>, Vec<String>), second_star: bool) -> Result<usize> {
     let (warehouse_data, robot_moves_data) = data;
     let max_x = warehouse_data[0].len();
     let max_y = warehouse_data.len();
@@ -407,25 +415,70 @@ fn find_res(data: (Vec<String>, Vec<String>), _second_star: bool) -> Result<usiz
             _ => None,
         })
         .collect::<Vec<Movement>>();
-    let mut warehouse: Array2<ElementKind> = Array2::default((max_x, max_y));
+    let mut warehouse: Array2<ElementKind> = if second_star {
+        Array2::default((max_x * 2, max_y))
+    } else {
+        Array2::default((max_x, max_y))
+    };
 
     let mut curr_x = 0;
     let mut curr_y = 0;
     for (y, warehouse_row) in warehouse_data.iter().enumerate() {
         for (x, ch) in warehouse_row.chars().enumerate() {
             let elem: ElementKind = ch.try_into()?;
-            if elem == ElementKind::Robot {
-                curr_x = x;
-                curr_y = y;
+            if second_star {
+                let first_x = 2 * x;
+                let second_x = 2 * x + 1;
+                match elem {
+                    ElementKind::Wall | ElementKind::Empty => {
+                        warehouse[[first_x, y]] = elem;
+                        warehouse[[second_x, y]] = elem;
+                    }
+                    ElementKind::Box => {
+                        warehouse[[first_x, y]] = ElementKind::BigBoxLeft;
+                        warehouse[[second_x, y]] = ElementKind::BigBoxRight;
+                    }
+                    ElementKind::Robot => {
+                        warehouse[[first_x, y]] = ElementKind::Robot;
+                        warehouse[[second_x, y]] = ElementKind::Empty;
+                        curr_x = first_x;
+                        curr_y = y;
+                    }
+                    _ => {}
+                }
+            } else {
+                if elem == ElementKind::Robot {
+                    curr_x = x;
+                    curr_y = y;
+                }
+                warehouse[[x, y]] = elem;
             }
-            warehouse[[x, y]] = elem;
         }
     }
 
-    for robot_move in robot_moves {
-        try_move_robot(&mut warehouse, &mut curr_x, &mut curr_y, robot_move)?;
+    // disp_warehouse(&warehouse, "Initial State:");
+    display_warehouse(&warehouse, true, "Initial State:")?;
+    let len = robot_moves.len();
+    for (idx, robot_move) in robot_moves.iter().enumerate() {
+        if second_star {
+            if let Some((next_x, next_y)) =
+                can_move_robot(&mut warehouse, curr_x, curr_y, *robot_move)?
+            {
+                warehouse[[curr_x, curr_y]] = ElementKind::Empty;
+                curr_x = next_x;
+                curr_y = next_y;
+                warehouse[[curr_x, curr_y]] = ElementKind::Robot;
+            }
+            disp_warehouse(&warehouse, &format!("Move '{robot_move}'"));
+            // if idx > 0 {
+            //     break;
+            // }
+        } else {
+            try_move_robot(&mut warehouse, &mut curr_x, &mut curr_y, *robot_move)?;
+            display_warehouse(&warehouse, idx != len - 1, &format!("Move '{robot_move}'"))?;
+            // disp_warehouse(&warehouse, &format!("Move '{robot_move}'"));
+        }
     }
-    disp_warehouse(&warehouse);
 
     let mut gps_sum = 0;
     for ((x, y), elem) in warehouse.indexed_iter() {
@@ -434,6 +487,44 @@ fn find_res(data: (Vec<String>, Vec<String>), _second_star: bool) -> Result<usiz
         }
     }
     Ok(gps_sum)
+}
+
+fn can_move_robot(
+    warehouse: &mut Array2<ElementKind>,
+    curr_x: usize,
+    curr_y: usize,
+    movement: Movement,
+) -> Result<Option<(usize, usize)>> {
+    let mut next_loc = None;
+    let (check_x, check_y) = match movement {
+        Movement::Up => (curr_x, curr_y - 1),
+        Movement::Down => (curr_x, curr_y + 1),
+        Movement::Left => (curr_x - 1, curr_y),
+        Movement::Right => (curr_x + 1, curr_y),
+    };
+    let next_elem = warehouse[[check_x, check_y]];
+
+    match next_elem {
+        ElementKind::Wall => {}
+        ElementKind::Box => return Err(anyhow!("encountered a box in star two!")),
+        ElementKind::BigBoxLeft => {
+            if movement == Movement::Left {
+                return Err(anyhow!("trying to move left into a left box half"));
+            }
+            eprintln!("moving '{movement}' into {next_elem}");
+        }
+        ElementKind::BigBoxRight => {
+            if movement == Movement::Right {
+                return Err(anyhow!("trying to move right into a right box half"));
+            }
+            eprintln!("moving '{movement}' into {next_elem}");
+        }
+        ElementKind::Robot => return Err(anyhow!("encountered another robot!")),
+        ElementKind::Empty => {
+            next_loc = Some((check_x, check_y));
+        }
+    }
+    Ok(next_loc)
 }
 
 fn try_move_robot(
@@ -468,6 +559,9 @@ fn try_move_robot(
                 }
             }
             ElementKind::Robot => return Err(anyhow!("i've encountered another robot. Error!!!")),
+            ElementKind::BigBoxLeft | ElementKind::BigBoxRight => {
+                return Err(anyhow!("i've encountered a big box on one star. Error!!!"))
+            }
         }
     }
     Ok(())
@@ -508,7 +602,8 @@ fn can_move_boxes(slice: &ArrayBase<ViewRepr<&mut ElementKind>, Dim<[usize; 1]>>
     can_move_boxes
 }
 
-fn disp_warehouse(warehouse: &Array2<ElementKind>) {
+fn disp_warehouse(warehouse: &Array2<ElementKind>, header: &str) {
+    eprintln!("{header}");
     for row in warehouse.axis_iter(Axis(1)) {
         for elem in row {
             eprint!("{elem}");
@@ -518,18 +613,31 @@ fn disp_warehouse(warehouse: &Array2<ElementKind>) {
     eprintln!();
 }
 
-#[allow(dead_code)]
-fn display_warehouse(warehouse: &Array2<ElementKind>) -> Result<()> {
+fn display_warehouse(warehouse: &Array2<ElementKind>, restore: bool, header: &str) -> Result<()> {
     let mut stdout = stdout();
 
     let _ = stdout.execute(Hide)?;
-    // let _ = stdout.queue(SavePosition)?;
-
+    let _ = stdout.queue(SavePosition)?;
+    let _ = stdout.queue(Clear(ClearType::CurrentLine))?;
+    let _ = stdout.write(header.as_bytes())?;
+    let _ = stdout.queue(MoveToNextLine(1))?;
+    let _ = stdout.queue(MoveToNextLine(1))?;
     for row in warehouse.axis_iter(Axis(1)) {
         for elem in row {
-            let _ = stdout.write(format!("{elem}").as_bytes())?;
+            if *elem == ElementKind::Robot {
+                let _ = stdout.write(format!("{}", style(elem).bold().magenta()).as_bytes())?;
+            } else if *elem == ElementKind::Box {
+                let _ = stdout.write(format!("{}", style(elem).green()).as_bytes())?;
+            } else if *elem == ElementKind::Wall {
+                let _ = stdout.write(format!("{}", style(elem).red()).as_bytes())?;
+            } else {
+                let _ = stdout.write(format!("{elem}").as_bytes())?;
+            }
         }
         let _ = stdout.queue(MoveToNextLine(1))?;
+    }
+    if restore {
+        let _ = stdout.queue(RestorePosition)?;
     }
     let _ = stdout.execute(Show)?;
     Ok(())
@@ -622,25 +730,37 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^";
 
 #[cfg(test)]
 mod two_star {
-    //     use super::{find2, setup_br};
-    //     use anyhow::Result;
-    //     use std::io::Cursor;
+    use super::{find2, setup_br};
+    use anyhow::Result;
+    use std::io::Cursor;
 
-    //     const TEST_1: &str = r"########
-    // #..O.O.#
-    // ##@.O..#
-    // #...O..#
-    // #.#.O..#
-    // #...O..#
-    // #......#
-    // ########
+    //     const TEST_1: &str = r"#######
+    // #...#.#
+    // #.....#
+    // #..OO@#
+    // #..O..#
+    // #.....#
+    // #######
 
-    // <^^>>>vv<v>>v<<";
+    // <vv<<^^<<^^";
 
-    //     #[test]
-    //     fn solution() -> Result<()> {
-    //         let data = setup_br(Cursor::new(TEST_1))?;
-    //         assert_eq!(find2(data), 0);
-    //         Ok(())
-    //     }
+    const TEST_2: &str = r"
+#######
+#...#.#
+#.....#
+#....@#
+#.....#
+#.....#
+#######
+
+^^^^vv<<<<<^>>>>>";
+
+    #[test]
+    fn solution() -> Result<()> {
+        // let data = setup_br(Cursor::new(TEST_1))?;
+        // assert_eq!(find2(data), 0);
+        let data = setup_br(Cursor::new(TEST_2))?;
+        assert_eq!(find2(data), 0);
+        Ok(())
+    }
 }
