@@ -340,6 +340,8 @@ impl fmt::Display for Movement {
     }
 }
 
+type WarehouseData = (Vec<String>, Vec<String>, bool, bool);
+
 /// Solution for Part 1
 ///
 /// # Errors
@@ -347,13 +349,8 @@ impl fmt::Display for Movement {
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_setup_solution::<(Vec<String>, Vec<String>), usize>(
-        AoCYear::AOC2024,
-        AoCDay::AOCD15,
-        setup,
-        find,
-    )
-    .map(|_| 0)
+    run_setup_solution::<WarehouseData, usize>(AoCYear::AOC2024, AoCDay::AOCD15, setup, find)
+        .map(|_| 0)
 }
 
 /// Benchmark handler for Solution to Part 1
@@ -361,22 +358,16 @@ pub fn part_1() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_1_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<(Vec<String>, Vec<String>), usize>(
-        bench,
-        AoCYear::AOC2024,
-        AoCDay::AOCD15,
-        setup,
-        find,
-    )
-    .map(|_| 0)
+    run_bench_solution::<WarehouseData, usize>(bench, AoCYear::AOC2024, AoCDay::AOCD15, setup, find)
+        .map(|_| 0)
 }
 
-fn setup(reader: BufReader<File>) -> (Vec<String>, Vec<String>) {
-    setup_br(reader).unwrap_or_default()
+fn setup(reader: BufReader<File>) -> WarehouseData {
+    setup_br(reader, true, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn setup_br<T>(reader: T) -> Result<(Vec<String>, Vec<String>)>
+fn setup_br<T>(reader: T, display: bool, test: bool) -> Result<WarehouseData>
 where
     T: BufRead,
 {
@@ -390,17 +381,17 @@ where
             robot_moves.push(line);
         }
     }
-    Ok((warehouse, robot_moves))
+    Ok((warehouse, robot_moves, display, test))
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find(data: (Vec<String>, Vec<String>)) -> usize {
+fn find(data: WarehouseData) -> usize {
     find_res(data, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(data: (Vec<String>, Vec<String>), second_star: bool) -> Result<usize> {
-    let (warehouse_data, robot_moves_data) = data;
+fn find_res(data: WarehouseData, second_star: bool) -> Result<usize> {
+    let (warehouse_data, robot_moves_data, display, test) = data;
     let max_x = warehouse_data[0].len();
     let max_y = warehouse_data.len();
 
@@ -456,8 +447,10 @@ fn find_res(data: (Vec<String>, Vec<String>), second_star: bool) -> Result<usize
         }
     }
 
-    // disp_warehouse(&warehouse, "Initial State:");
-    display_warehouse(&warehouse, true, "Initial State:")?;
+    if test {
+        disp_warehouse(&warehouse, "Initial State:");
+    }
+    display_warehouse(&warehouse, true, "Initial State:", display)?;
     let len = robot_moves.len();
     for (idx, robot_move) in robot_moves.iter().enumerate() {
         if second_star {
@@ -469,13 +462,20 @@ fn find_res(data: (Vec<String>, Vec<String>), second_star: bool) -> Result<usize
                 curr_y = next_y;
                 warehouse[[curr_x, curr_y]] = ElementKind::Robot;
             }
-            disp_warehouse(&warehouse, &format!("Move '{robot_move}'"));
+            if test {
+                disp_warehouse(&warehouse, &format!("Move '{robot_move}'"));
+            }
             // if idx > 0 {
             //     break;
             // }
         } else {
             try_move_robot(&mut warehouse, &mut curr_x, &mut curr_y, *robot_move)?;
-            display_warehouse(&warehouse, idx != len - 1, &format!("Move '{robot_move}'"))?;
+            display_warehouse(
+                &warehouse,
+                idx != len - 1,
+                &format!("Move '{robot_move}'"),
+                display,
+            )?;
             // disp_warehouse(&warehouse, &format!("Move '{robot_move}'"));
         }
     }
@@ -613,33 +613,40 @@ fn disp_warehouse(warehouse: &Array2<ElementKind>, header: &str) {
     eprintln!();
 }
 
-fn display_warehouse(warehouse: &Array2<ElementKind>, restore: bool, header: &str) -> Result<()> {
-    let mut stdout = stdout();
+fn display_warehouse(
+    warehouse: &Array2<ElementKind>,
+    restore: bool,
+    header: &str,
+    display: bool,
+) -> Result<()> {
+    if display {
+        let mut stdout = stdout();
 
-    let _ = stdout.execute(Hide)?;
-    let _ = stdout.queue(SavePosition)?;
-    let _ = stdout.queue(Clear(ClearType::CurrentLine))?;
-    let _ = stdout.write(format!("{}", style(header).bold().yellow()).as_bytes())?;
-    let _ = stdout.queue(MoveToNextLine(1))?;
-    let _ = stdout.queue(MoveToNextLine(1))?;
-    for row in warehouse.axis_iter(Axis(1)) {
-        for elem in row {
-            if *elem == ElementKind::Robot {
-                let _ = stdout.write(format!("{}", style(elem).bold().magenta()).as_bytes())?;
-            } else if *elem == ElementKind::Box {
-                let _ = stdout.write(format!("{}", style(elem).green()).as_bytes())?;
-            } else if *elem == ElementKind::Wall {
-                let _ = stdout.write(format!("{}", style(elem).red()).as_bytes())?;
-            } else {
-                let _ = stdout.write(format!("{elem}").as_bytes())?;
-            }
-        }
+        let _ = stdout.execute(Hide)?;
+        let _ = stdout.queue(SavePosition)?;
+        let _ = stdout.queue(Clear(ClearType::CurrentLine))?;
+        let _ = stdout.write(format!("{}", style(header).bold().yellow()).as_bytes())?;
         let _ = stdout.queue(MoveToNextLine(1))?;
+        let _ = stdout.queue(MoveToNextLine(1))?;
+        for row in warehouse.axis_iter(Axis(1)) {
+            for elem in row {
+                if *elem == ElementKind::Robot {
+                    let _ = stdout.write(format!("{}", style(elem).bold().magenta()).as_bytes())?;
+                } else if *elem == ElementKind::Box {
+                    let _ = stdout.write(format!("{}", style(elem).green()).as_bytes())?;
+                } else if *elem == ElementKind::Wall {
+                    let _ = stdout.write(format!("{}", style(elem).red()).as_bytes())?;
+                } else {
+                    let _ = stdout.write(format!("{elem}").as_bytes())?;
+                }
+            }
+            let _ = stdout.queue(MoveToNextLine(1))?;
+        }
+        if restore {
+            let _ = stdout.queue(RestorePosition)?;
+        }
+        let _ = stdout.execute(Show)?;
     }
-    if restore {
-        let _ = stdout.queue(RestorePosition)?;
-    }
-    let _ = stdout.execute(Show)?;
     Ok(())
 }
 
@@ -650,13 +657,8 @@ fn display_warehouse(warehouse: &Array2<ElementKind>, restore: bool, header: &st
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_setup_solution::<(Vec<String>, Vec<String>), usize>(
-        AoCYear::AOC2024,
-        AoCDay::AOCD15,
-        setup,
-        find2,
-    )
-    .map(|_| 0)
+    run_setup_solution::<WarehouseData, usize>(AoCYear::AOC2024, AoCDay::AOCD15, setup, find2)
+        .map(|_| 0)
 }
 
 /// Benchmark handler for Solution to Part 2
@@ -664,7 +666,7 @@ pub fn part_2() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_2_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<(Vec<String>, Vec<String>), usize>(
+    run_bench_solution::<WarehouseData, usize>(
         bench,
         AoCYear::AOC2024,
         AoCDay::AOCD15,
@@ -675,7 +677,7 @@ pub fn part_2_bench(bench: u16) -> Result<u32> {
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find2(data: (Vec<String>, Vec<String>)) -> usize {
+fn find2(data: WarehouseData) -> usize {
     find_res(data, true).unwrap_or_default()
 }
 
@@ -720,9 +722,9 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^";
 
     #[test]
     fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+        let data = setup_br(Cursor::new(TEST_1), false, false)?;
         assert_eq!(find(data), 2028);
-        let data = setup_br(Cursor::new(TEST_2))?;
+        let data = setup_br(Cursor::new(TEST_2), false, false)?;
         assert_eq!(find(data), 10092);
         Ok(())
     }
@@ -759,7 +761,7 @@ mod two_star {
     fn solution() -> Result<()> {
         // let data = setup_br(Cursor::new(TEST_1))?;
         // assert_eq!(find2(data), 0);
-        let data = setup_br(Cursor::new(TEST_2))?;
+        let data = setup_br(Cursor::new(TEST_2), false, true)?;
         assert_eq!(find2(data), 0);
         Ok(())
     }
