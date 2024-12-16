@@ -619,7 +619,7 @@ fn display_warehouse(warehouse: &Array2<ElementKind>, restore: bool, header: &st
     let _ = stdout.execute(Hide)?;
     let _ = stdout.queue(SavePosition)?;
     let _ = stdout.queue(Clear(ClearType::CurrentLine))?;
-    let _ = stdout.write(header.as_bytes())?;
+    let _ = stdout.write(format!("{}", style(header).bold().yellow()).as_bytes())?;
     let _ = stdout.queue(MoveToNextLine(1))?;
     let _ = stdout.queue(MoveToNextLine(1))?;
     for row in warehouse.axis_iter(Axis(1)) {
