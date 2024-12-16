@@ -271,11 +271,14 @@ use crossterm::{
     terminal::{Clear, ClearType},
     ExecutableCommand, QueueableCommand,
 };
+use getset::{CopyGetters, Setters};
 use itertools::Itertools;
 use ndarray::{s, Array2, ArrayBase, Axis, Dim, ViewRepr};
 use std::{
+    collections::HashSet,
     fmt,
     fs::File,
+    hash::{Hash, Hasher},
     io::{stdout, BufRead, BufReader, Write},
 };
 
@@ -389,7 +392,7 @@ fn find(data: WarehouseData) -> usize {
     find_res(data, false).unwrap_or_default()
 }
 
-#[allow(clippy::unnecessary_wraps)]
+#[allow(clippy::unnecessary_wraps, clippy::too_many_lines)]
 fn find_res(data: WarehouseData, second_star: bool) -> Result<usize> {
     let (warehouse_data, robot_moves_data, display, test) = data;
     let max_x = warehouse_data[0].len();
@@ -454,10 +457,31 @@ fn find_res(data: WarehouseData, second_star: bool) -> Result<usize> {
     let len = robot_moves.len();
     for (idx, robot_move) in robot_moves.iter().enumerate() {
         if second_star {
-            if let Some((next_x, next_y)) =
+            if let Some((next_x, next_y, move_boxes, box_tree)) =
                 can_move_robot(&mut warehouse, curr_x, curr_y, *robot_move)?
             {
                 warehouse[[curr_x, curr_y]] = ElementKind::Empty;
+                if move_boxes && box_tree.is_empty() {
+                    move_boxes_lr(&mut warehouse, curr_x, curr_y, *robot_move)?;
+                } else if move_boxes {
+                    // Move tree
+                    // Find min y
+                    if let Some(min_y) = box_tree
+                        .iter()
+                        .flat_map(|x| vec![x.left().1, x.right().1])
+                        .min()
+                    {
+                        eprintln!("min_y: {min_y:?}");
+                        let moving = box_tree
+                            .iter()
+                            .copied()
+                            .filter(|x| x.left().1 == min_y || x.right().1 == min_y)
+                            .collect::<Vec<Box>>();
+                        for bxx in moving {
+                            bxx.move_up(&mut warehouse);
+                        }
+                    }
+                }
                 curr_x = next_x;
                 curr_y = next_y;
                 warehouse[[curr_x, curr_y]] = ElementKind::Robot;
@@ -465,9 +489,6 @@ fn find_res(data: WarehouseData, second_star: bool) -> Result<usize> {
             if test {
                 disp_warehouse(&warehouse, &format!("Move '{robot_move}'"));
             }
-            // if idx > 0 {
-            //     break;
-            // }
         } else {
             try_move_robot(&mut warehouse, &mut curr_x, &mut curr_y, *robot_move)?;
             display_warehouse(
@@ -476,7 +497,6 @@ fn find_res(data: WarehouseData, second_star: bool) -> Result<usize> {
                 &format!("Move '{robot_move}'"),
                 display,
             )?;
-            // disp_warehouse(&warehouse, &format!("Move '{robot_move}'"));
         }
     }
 
@@ -489,12 +509,94 @@ fn find_res(data: WarehouseData, second_star: bool) -> Result<usize> {
     Ok(gps_sum)
 }
 
+#[derive(Clone, Copy, CopyGetters, Debug, Default, Setters)]
+#[getset(get_copy = "pub(crate)", set = "pub(crate)")]
+struct Box {
+    left: (usize, usize),
+    right: (usize, usize),
+    can_move: bool,
+}
+
+impl Hash for Box {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.left.hash(state);
+        self.right.hash(state);
+    }
+}
+
+impl PartialEq for Box {
+    fn eq(&self, other: &Self) -> bool {
+        self.left == other.left && self.right == other.right
+    }
+}
+
+impl Eq for Box {}
+
+impl fmt::Display for Box {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Box {{ ({},{}),({},{}) }} => can_move = {}",
+            self.left.0, self.left.1, self.right.0, self.right.1, self.can_move
+        )
+    }
+}
+
+impl Box {
+    fn move_up(&self, warehouse: &mut Array2<ElementKind>) {
+        let new_left_y = self.left.1 - 1;
+        let new_right_y = self.right.1 - 1;
+        warehouse[[self.left.0, self.left.1]] = ElementKind::Empty;
+        warehouse[[self.right.0, self.right.1]] = ElementKind::Empty;
+        warehouse[[self.left.0, new_left_y]] = ElementKind::BigBoxLeft;
+        warehouse[[self.right.0, new_right_y]] = ElementKind::BigBoxRight;
+    }
+
+    #[allow(clippy::nonminimal_bool)]
+    fn can_move_up(&self, warehouse: &Array2<ElementKind>, boxes: &HashSet<Box>) -> Option<Box> {
+        let up_left = (self.left.0, self.left.1 - 1);
+        let up_right = (self.right.0, self.right.1 - 1);
+        let boxes_has_up_left = boxes
+            .iter()
+            .flat_map(|bxx| vec![bxx.left(), bxx.right()])
+            .contains(&up_left);
+        let boxes_has_up_right = boxes
+            .iter()
+            .flat_map(|bxx| vec![bxx.left(), bxx.right()])
+            .contains(&up_right);
+        let mut updated_box = None;
+        let mut can_move = false;
+
+        if boxes_has_up_right && boxes_has_up_left {
+            can_move = true;
+        } else if let Some((above_left, above_right)) =
+            warehouse.get(up_left).zip(warehouse.get(up_right))
+        {
+            if (*above_left == ElementKind::Empty && *above_right == ElementKind::Empty)
+                || (*above_left == ElementKind::Empty && boxes_has_up_right)
+                || (*above_right == ElementKind::Empty && boxes_has_up_left)
+            {
+                can_move = true;
+            }
+        }
+
+        if can_move {
+            let mut new_box = *self;
+            let _ = new_box.set_can_move(true);
+            updated_box = Some(new_box);
+        }
+        updated_box
+    }
+}
+
+type MoveData = Option<(usize, usize, bool, HashSet<Box>)>;
+
 fn can_move_robot(
     warehouse: &mut Array2<ElementKind>,
     curr_x: usize,
     curr_y: usize,
     movement: Movement,
-) -> Result<Option<(usize, usize)>> {
+) -> Result<MoveData> {
     let mut next_loc = None;
     let (check_x, check_y) = match movement {
         Movement::Up => (curr_x, curr_y - 1),
@@ -503,6 +605,7 @@ fn can_move_robot(
         Movement::Right => (curr_x + 1, curr_y),
     };
     let next_elem = warehouse[[check_x, check_y]];
+    let box_tree = HashSet::new();
 
     match next_elem {
         ElementKind::Wall => {}
@@ -511,20 +614,162 @@ fn can_move_robot(
             if movement == Movement::Left {
                 return Err(anyhow!("trying to move left into a left box half"));
             }
-            eprintln!("moving '{movement}' into {next_elem}");
+            match movement {
+                Movement::Up | Movement::Down => {
+                    // Move Down or Up
+                }
+                Movement::Right => {
+                    let slice = warehouse.slice(s![curr_x + 1.., curr_y]);
+                    if let Some(next) = slice.iter().find(|x| {
+                        !(**x == ElementKind::BigBoxLeft || **x == ElementKind::BigBoxRight)
+                    }) {
+                        if *next == ElementKind::Empty {
+                            next_loc = Some((check_x, check_y, true, box_tree));
+                        }
+                    }
+                }
+                Movement::Left => unreachable!(),
+            }
         }
         ElementKind::BigBoxRight => {
             if movement == Movement::Right {
                 return Err(anyhow!("trying to move right into a right box half"));
             }
-            eprintln!("moving '{movement}' into {next_elem}");
+            match movement {
+                Movement::Up | Movement::Down => {
+                    let mut boxes = HashSet::new();
+                    let mut initial_box = Box::default();
+                    let _ = initial_box.set_right((check_x, check_y));
+                    let _ = initial_box.set_left((check_x - 1, check_y));
+                    let _ = boxes.insert(initial_box);
+                    traverse_box_tree(warehouse, &mut boxes, initial_box, movement);
+                    if can_box_tree_move(warehouse, &mut boxes, movement) {
+                        next_loc = Some((check_x, check_y, true, boxes.clone()));
+                    }
+                    for bxx in boxes {
+                        eprintln!("{bxx}");
+                    }
+                }
+                Movement::Left => {
+                    let slice = warehouse.slice(s![..curr_x;-1, curr_y]);
+                    if let Some(next) = slice.iter().find(|x| {
+                        !(**x == ElementKind::BigBoxLeft || **x == ElementKind::BigBoxRight)
+                    }) {
+                        if *next == ElementKind::Empty {
+                            next_loc = Some((check_x, check_y, true, box_tree));
+                        }
+                    }
+                }
+                Movement::Right => unreachable!(),
+            }
         }
         ElementKind::Robot => return Err(anyhow!("encountered another robot!")),
         ElementKind::Empty => {
-            next_loc = Some((check_x, check_y));
+            next_loc = Some((check_x, check_y, false, box_tree));
         }
     }
     Ok(next_loc)
+}
+
+fn can_box_tree_move(
+    warehouse: &Array2<ElementKind>,
+    boxes: &mut HashSet<Box>,
+    _movement: Movement,
+) -> bool {
+    let mut replace = vec![];
+    for bxx in boxes.iter() {
+        if let Some(bxx) = bxx.can_move_up(warehouse, boxes) {
+            replace.push(bxx);
+        }
+    }
+
+    for bxx in replace {
+        let _ = boxes.replace(bxx);
+    }
+
+    boxes.iter().all(Box::can_move)
+}
+
+fn traverse_box_tree(
+    warehouse: &Array2<ElementKind>,
+    boxes: &mut HashSet<Box>,
+    bxx: Box,
+    movement: Movement,
+) {
+    if movement == Movement::Up {
+        if let Some(bxx) = has_up_left(warehouse, &bxx) {
+            let _ = boxes.insert(bxx);
+            traverse_box_tree(warehouse, boxes, bxx, movement);
+        }
+        if let Some(bxx) = has_up_right(warehouse, &bxx) {
+            let _ = boxes.insert(bxx);
+            traverse_box_tree(warehouse, boxes, bxx, movement);
+        }
+    }
+}
+
+fn has_up_left(warehouse: &Array2<ElementKind>, bxx: &Box) -> Option<Box> {
+    let check_x = bxx.left().0 - 1;
+    let check_y = bxx.left().1 - 1;
+    let mut box_opt = None;
+    if let Some(elem) = warehouse.get([check_x, check_y]) {
+        if *elem == ElementKind::BigBoxLeft {
+            let mut bxx = Box::default();
+            let _ = bxx.set_left((check_x, check_y));
+            let _ = bxx.set_right((check_x + 1, check_y));
+            box_opt = Some(bxx);
+        }
+    }
+    box_opt
+}
+
+fn has_up_right(warehouse: &Array2<ElementKind>, bxx: &Box) -> Option<Box> {
+    let check_x = bxx.right().0 + 1;
+    let check_y = bxx.right().1 - 1;
+    let mut box_opt = None;
+    if let Some(elem) = warehouse.get([check_x, check_y]) {
+        if *elem == ElementKind::BigBoxRight {
+            let mut bxx = Box::default();
+            let _ = bxx.set_left((check_x - 1, check_y));
+            let _ = bxx.set_right((check_x, check_y));
+            box_opt = Some(bxx);
+        }
+    }
+    box_opt
+}
+
+fn move_boxes_lr(
+    warehouse: &mut Array2<ElementKind>,
+    from_x: usize,
+    from_y: usize,
+    movement: Movement,
+) -> Result<()> {
+    let mut slice = match movement {
+        Movement::Left => warehouse.slice_mut(s![..from_x;-1, from_y]),
+        Movement::Right => warehouse.slice_mut(s![from_x + 1.., from_y]),
+        _ => return Err(anyhow!("invalid movement type for left or right")),
+    };
+
+    let mut prev = ElementKind::Empty;
+
+    for next in &mut slice {
+        if *next == ElementKind::BigBoxLeft {
+            prev = ElementKind::BigBoxRight;
+            *next = ElementKind::BigBoxRight;
+        } else if *next == ElementKind::BigBoxRight {
+            prev = ElementKind::BigBoxLeft;
+            *next = ElementKind::BigBoxLeft;
+        } else if *next == ElementKind::Empty {
+            if prev == ElementKind::BigBoxRight {
+                *next = ElementKind::BigBoxLeft;
+            } else if prev == ElementKind::BigBoxLeft {
+                *next = ElementKind::BigBoxRight;
+            }
+            break;
+        }
+    }
+
+    Ok(())
 }
 
 fn try_move_robot(
@@ -736,14 +981,17 @@ mod two_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    //     const TEST_1: &str = r"#######
-    // #...#.#
-    // #.....#
-    // #..OO@#
-    // #..O..#
-    // #.....#
-    // #######
+    const TEST_1: &str = r"
+########
+#....#.#
+#......#
+#...OO.#
+#...OO@#
+#..OO..#
+#......#
+########
 
+<vv<<^";
     // <vv<<^^<<^^";
 
     const TEST_2: &str = r"
@@ -759,9 +1007,9 @@ mod two_star {
 
     #[test]
     fn solution() -> Result<()> {
-        // let data = setup_br(Cursor::new(TEST_1))?;
-        // assert_eq!(find2(data), 0);
-        let data = setup_br(Cursor::new(TEST_2), false, true)?;
+        let data = setup_br(Cursor::new(TEST_1), false, true)?;
+        assert_eq!(find2(data), 0);
+        let data = setup_br(Cursor::new(TEST_2), false, false)?;
         assert_eq!(find2(data), 0);
         Ok(())
     }
