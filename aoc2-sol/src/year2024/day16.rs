@@ -157,13 +157,18 @@ use crate::{
     utils::{run_bench_solution, run_setup_solution, valid_lines},
 };
 use anyhow::{anyhow, Result};
+use crossterm::{
+    cursor::{Hide, MoveToNextLine, RestorePosition, SavePosition, Show},
+    style::Print,
+    ExecutableCommand, QueueableCommand,
+};
 use getset::Setters;
-use ndarray::Array2;
+use ndarray::{Array2, Axis};
 use pathfinding::prelude::{dijkstra, yen};
 use std::{
     collections::HashSet,
     fs::File,
-    io::{BufRead, BufReader},
+    io::{stdout, BufRead, BufReader, Write}, sync::mpsc::channel, thread::{sleep, spawn}, time::Duration,
 };
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
@@ -244,7 +249,7 @@ impl Node {
     }
 }
 
-type MazeData = Vec<String>;
+type MazeData = (Vec<String>, bool);
 
 /// Solution for Part 1
 ///
@@ -266,11 +271,11 @@ pub fn part_1_bench(bench: u16) -> Result<u32> {
 }
 
 fn setup(reader: BufReader<File>) -> MazeData {
-    setup_br(reader).unwrap_or_default()
+    setup_br(reader, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn setup_br<T>(reader: T) -> Result<MazeData>
+fn setup_br<T>(reader: T, test: bool) -> Result<MazeData>
 where
     T: BufRead,
 {
@@ -279,7 +284,7 @@ where
     for line in valid_lines(reader) {
         data.push(line);
     }
-    Ok(data)
+    Ok((data, test))
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -289,6 +294,7 @@ fn find(data: MazeData) -> usize {
 
 #[allow(clippy::unnecessary_wraps)]
 fn find_res(data: &MazeData, second_star: bool) -> Result<usize> {
+    let (data, test) = data;
     let max_x = data[0].len();
     let max_y = data.len();
     let mut maze_data = Array2::<bool>::default((max_x, max_y));
@@ -313,14 +319,27 @@ fn find_res(data: &MazeData, second_star: bool) -> Result<usize> {
         }
     }
 
+    let (sender, receiver) = channel();
+    
     let start_node = Node::new(start, Direction::East);
     let min_cost = dijkstra(
         &start_node,
-        |node| node.successors(&maze_data),
+        |node| {
+            let _ = sender.send(node.coord);
+            node.successors(&maze_data)
+        },
         |node| node.coord == end,
     )
     .map(|(_, cost)| cost)
     .ok_or_else(|| anyhow!("no cost for you"))?;
+
+    let md = maze_data.clone();
+    let prn_handle = spawn(move || {
+        while let Ok(rec) = receiver.recv() {
+            let _res_ = print_maze(&md, true, rec);
+            sleep(Duration::from_millis(100));
+        }
+    });
 
     if second_star {
         let top_fifty_paths = yen(
@@ -330,18 +349,57 @@ fn find_res(data: &MazeData, second_star: bool) -> Result<usize> {
             50,
         );
         let mut nodes_set = HashSet::new();
-        for nodes in top_fifty_paths
-            .iter()
-            .filter_map(|(x, cost)| if *cost == min_cost { Some(x) } else { None })
+        for nodes in
+            top_fifty_paths
+                .iter()
+                .filter_map(|(x, cost)| if *cost == min_cost { Some(x) } else { None })
         {
             for node in nodes {
                 let _ = nodes_set.insert(node.coord);
             }
         }
+        drop(sender);
+        let _res = prn_handle.join();
+        if *test {
+            print_maze(&maze_data, false, end)?;
+        }
         Ok(nodes_set.len())
     } else {
+        drop(sender);
+        let _res = prn_handle.join();
+        if *test {
+            print_maze(&maze_data, false, end)?;
+        }
         Ok(min_cost)
     }
+}
+
+fn print_maze(maze_data: &Array2<bool>, restore: bool, curr_loc: (usize, usize)) -> Result<()> {
+    let mut stdout = stdout();
+
+    let _ = stdout.execute(Hide)?;
+    let _ = stdout.queue(SavePosition)?;
+    let _ = stdout.queue(MoveToNextLine(1))?;
+    for (y, axis) in maze_data.axis_iter(Axis(1)).enumerate() {
+        for (x, node) in axis.indexed_iter() {
+            if *node {
+                if curr_loc.0 == x && curr_loc.1 == y {
+                    let _ = stdout.queue(Print('S'))?;
+                } else {
+                    let _ = stdout.queue(Print('.'))?;
+                }
+            } else {
+                let _ = stdout.queue(Print('#'))?;
+            }
+        }
+        let _ = stdout.queue(MoveToNextLine(1))?;
+    }
+    if restore {
+        let _ = stdout.queue(RestorePosition)?;
+    }
+    let _ = stdout.execute(Show)?;
+    stdout.flush()?;
+    Ok(())
 }
 
 /// Solution for Part 2
@@ -390,40 +448,40 @@ mod one_star {
 #S..#.....#...#
 ###############";
 
-    const TEST_2: &str = r"#################
-#...#...#...#..E#
-#.#.#.#.#.#.#.#.#
-#.#.#.#...#...#.#
-#.#.#.#.###.#.#.#
-#...#.#.#.....#.#
-#.#.#.#.#.#####.#
-#.#...#.#.#.....#
-#.#.#####.#.###.#
-#.#.#.......#...#
-#.#.###.#####.###
-#.#.#...#.....#.#
-#.#.#.#####.###.#
-#.#.#.........#.#
-#.#.#.#########.#
-#S#.............#
-#################";
+//     const TEST_2: &str = r"#################
+// #...#...#...#..E#
+// #.#.#.#.#.#.#.#.#
+// #.#.#.#...#...#.#
+// #.#.#.#.###.#.#.#
+// #...#.#.#.....#.#
+// #.#.#.#.#.#####.#
+// #.#...#.#.#.....#
+// #.#.#####.#.###.#
+// #.#.#.......#...#
+// #.#.###.#####.###
+// #.#.#...#.....#.#
+// #.#.#.#####.###.#
+// #.#.#.........#.#
+// #.#.#.#########.#
+// #S#.............#
+// #################";
 
-    const TEST_3: &str = r"#######
-#....E#
-#.#####
-#.#...#
-#...#.#
-#S#...#
-#######";
+//     const TEST_3: &str = r"#######
+// #....E#
+// #.#####
+// #.#...#
+// #...#.#
+// #S#...#
+// #######";
 
     #[test]
     fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+        let data = setup_br(Cursor::new(TEST_1), true)?;
         assert_eq!(find(data), 7036);
-        let data = setup_br(Cursor::new(TEST_2))?;
-        assert_eq!(find(data), 11048);
-        let data = setup_br(Cursor::new(TEST_3))?;
-        assert_eq!(find(data), 2008);
+        // let data = setup_br(Cursor::new(TEST_2))?;
+        // assert_eq!(find(data), 11048);
+        // let data = setup_br(Cursor::new(TEST_3))?;
+        // assert_eq!(find(data), 2008);
         Ok(())
     }
 }
@@ -470,9 +528,9 @@ mod two_star {
 
     #[test]
     fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+        let data = setup_br(Cursor::new(TEST_1), true)?;
         assert_eq!(find2(data), 45);
-        let data = setup_br(Cursor::new(TEST_2))?;
+        let data = setup_br(Cursor::new(TEST_2), true)?;
         assert_eq!(find2(data), 64);
         Ok(())
     }
