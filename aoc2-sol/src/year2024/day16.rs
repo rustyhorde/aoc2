@@ -103,17 +103,146 @@
 //! Note that the path shown above includes one 90 degree turn as the very first move, rotating the Reindeer from facing East to facing North.
 //!
 //! Analyze your map carefully. What is the lowest score a Reindeer could possibly get?
+//!
+//! **--- Part Two ---**
+//!
+//! Now that you know what the best paths look like, you can figure out the best spot to sit.
+//!
+//! Every non-wall tile (S, ., or E) is equipped with places to sit along the edges of the tile. While determining which of these tiles would be the best spot to sit depends on a whole bunch of factors (how comfortable the seats are, how far away the bathrooms are, whether there's a pillar blocking your view, etc.), the most important factor is whether the tile is on one of the best paths through the maze. If you sit somewhere else, you'd miss all the action!
+//!
+//! So, you'll need to determine which tiles are part of any best path through the maze, including the S and E tiles.
+//!
+//! In the first example, there are 45 tiles (marked O) that are part of at least one of the various best paths through the maze:
+//!
+//! ###############
+//! #.......#....O#
+//! #.#.###.#.###O#
+//! #.....#.#...#O#
+//! #.###.#####.#O#
+//! #.#.#.......#O#
+//! #.#.#####.###O#
+//! #..OOOOOOOOO#O#
+//! ###O#O#####O#O#
+//! #OOO#O....#O#O#
+//! #O#O#O###.#O#O#
+//! #OOOOO#...#O#O#
+//! #O###.#.#.#O#O#
+//! #O..#.....#OOO#
+//! ###############
+//!
+//! In the second example, there are 64 tiles that are part of at least one of the best paths:
+//!
+//! #################
+//! #...#...#...#..O#
+//! #.#.#.#.#.#.#.#O#
+//! #.#.#.#...#...#O#
+//! #.#.#.#.###.#.#O#
+//! #OOO#.#.#.....#O#
+//! #O#O#.#.#.#####O#
+//! #O#O..#.#.#OOOOO#
+//! #O#O#####.#O###O#
+//! #O#O#..OOOOO#OOO#
+//! #O#O###O#####O###
+//! #O#O#OOO#..OOO#.#
+//! #O#O#O#####O###.#
+//! #O#O#OOOOOOO..#.#
+//! #O#O#O#########.#
+//! #O#OOO..........#
+//! #################
+//!
+//! Analyze your map further. How many tiles are part of at least one of the best paths through the maze?
 
 use crate::{
     constants::{AoCDay, AoCYear},
     utils::{run_bench_solution, run_setup_solution, valid_lines},
 };
 use anyhow::{anyhow, Result};
+use getset::Setters;
 use ndarray::Array2;
+use pathfinding::prelude::{dijkstra, yen};
 use std::{
+    collections::HashSet,
     fs::File,
     io::{BufRead, BufReader},
 };
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+enum Direction {
+    West,
+    #[default]
+    East,
+    North,
+    South,
+}
+
+#[derive(Clone, Debug, Default, Eq, Hash, PartialEq, Setters)]
+struct Node {
+    coord: (usize, usize),
+    initial_dir: Direction,
+}
+
+impl Node {
+    fn new(coord: (usize, usize), initial_dir: Direction) -> Self {
+        Self { coord, initial_dir }
+    }
+
+    fn successors(&self, maze_data: &Array2<bool>) -> Vec<(Node, usize)> {
+        let mut succ = vec![];
+        let (x, y) = self.coord;
+        if y > 0 {
+            if let Some(has_north) = maze_data.get((x, y - 1)) {
+                if *has_north {
+                    match self.initial_dir {
+                        Direction::East | Direction::West => {
+                            succ.push((Node::new(self.coord, Direction::North), 1000));
+                        }
+                        Direction::North => succ.push((Node::new((x, y - 1), Direction::North), 1)),
+                        Direction::South => {}
+                    }
+                }
+            }
+        }
+
+        if let Some(has_east) = maze_data.get((x + 1, y)) {
+            if *has_east {
+                match self.initial_dir {
+                    Direction::West => {}
+                    Direction::East => succ.push((Node::new((x + 1, y), Direction::East), 1)),
+                    Direction::North | Direction::South => {
+                        succ.push((Node::new(self.coord, Direction::East), 1000));
+                    }
+                }
+            }
+        }
+
+        if x > 0 {
+            if let Some(has_west) = maze_data.get((x - 1, y)) {
+                if *has_west {
+                    match self.initial_dir {
+                        Direction::West => succ.push((Node::new((x - 1, y), Direction::West), 1)),
+                        Direction::East => {}
+                        Direction::North | Direction::South => {
+                            succ.push((Node::new(self.coord, Direction::West), 1000));
+                        }
+                    }
+                }
+            }
+        }
+
+        if let Some(has_south) = maze_data.get((x, y + 1)) {
+            if *has_south {
+                match self.initial_dir {
+                    Direction::West | Direction::East => {
+                        succ.push((Node::new(self.coord, Direction::South), 1000));
+                    }
+                    Direction::North => {}
+                    Direction::South => succ.push((Node::new((x, y + 1), Direction::South), 1)),
+                }
+            }
+        }
+        succ
+    }
+}
 
 type MazeData = Vec<String>;
 
@@ -159,19 +288,16 @@ fn find(data: MazeData) -> usize {
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(data: &MazeData, _second_star: bool) -> Result<usize> {
+fn find_res(data: &MazeData, second_star: bool) -> Result<usize> {
     let max_x = data[0].len();
     let max_y = data.len();
     let mut maze_data = Array2::<bool>::default((max_x, max_y));
-    let mut visited = Array2::<bool>::default((max_x, max_y));
     let mut start = (0, 0);
     let mut end = (0, 0);
-    let mut min_dist = usize::MAX;
 
     for (y, line) in data.iter().enumerate() {
         for (x, ch) in line.chars().enumerate() {
             match ch {
-                // maze data is already false
                 '#' => {}
                 '.' => maze_data[[x, y]] = true,
                 'S' => {
@@ -187,147 +313,37 @@ fn find_res(data: &MazeData, _second_star: bool) -> Result<usize> {
         }
     }
 
-    find_shortest_path(
-        &maze_data,
-        &mut visited,
-        start,
-        end,
-        &mut min_dist,
-        0,
-        Direction::East,
-    );
-    Ok(min_dist)
-}
+    let start_node = Node::new(start, Direction::East);
+    let min_cost = dijkstra(
+        &start_node,
+        |node| node.successors(&maze_data),
+        |node| node.coord == end,
+    )
+    .map(|(_, cost)| cost)
+    .ok_or_else(|| anyhow!("no cost for you"))?;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-enum Direction {
-    West,
-    East,
-    North,
-    South,
-}
-
-fn find_shortest_path(
-    maze: &Array2<bool>,
-    visited: &mut Array2<bool>,
-    start: (usize, usize),
-    end: (usize, usize),
-    min_dist: &mut usize,
-    dist: usize,
-    my_dir: Direction,
-) {
-    if start == end {
-        *min_dist = dist.min(*min_dist);
-    } else {
-        visited[start] = true;
-
-        // visit to the east
-        if let Some(next_start) = is_valid_path(maze, visited, start, Direction::East) {
-            let next_dist = add_points(my_dir, Direction::East) + dist + 1;
-            find_shortest_path(
-                maze,
-                visited,
-                next_start,
-                end,
-                min_dist,
-                next_dist,
-                Direction::East,
-            );
-        }
-        // visit to the left
-        if let Some(next_start) = is_valid_path(maze, visited, start, Direction::West) {
-            let next_dist = add_points(my_dir, Direction::West) + dist + 1;
-            find_shortest_path(
-                maze,
-                visited,
-                next_start,
-                end,
-                min_dist,
-                next_dist,
-                Direction::West,
-            );
-        }
-        // visit up
-        if let Some(next_start) = is_valid_path(maze, visited, start, Direction::North) {
-            let next_dist = add_points(my_dir, Direction::North) + dist + 1;
-            find_shortest_path(
-                maze,
-                visited,
-                next_start,
-                end,
-                min_dist,
-                next_dist,
-                Direction::North,
-            );
-        }
-        // visit down
-        if let Some(next_start) = is_valid_path(maze, visited, start, Direction::South) {
-            let next_dist = add_points(my_dir, Direction::South) + dist + 1;
-            find_shortest_path(
-                maze,
-                visited,
-                next_start,
-                end,
-                min_dist,
-                next_dist,
-                Direction::South,
-            );
-        }
-
-        visited[start] = false;
-    }
-}
-
-fn add_points(curr_dir: Direction, next_dir: Direction) -> usize {
-    match curr_dir {
-        Direction::West => match next_dir {
-            Direction::West => 0,
-            Direction::East => 2000,
-            Direction::North | Direction::South => 1000,
-        },
-        Direction::East => match next_dir {
-            Direction::West => 2000,
-            Direction::East => 0,
-            Direction::North | Direction::South => 1000,
-        },
-        Direction::North => match next_dir {
-            Direction::West | Direction::East => 1000,
-            Direction::North => 0,
-            Direction::South => 2000,
-        },
-        Direction::South => match next_dir {
-            Direction::West | Direction::East => 1000,
-            Direction::North => 2000,
-            Direction::South => 0,
-        },
-    }
-}
-
-fn is_valid_path(
-    maze: &Array2<bool>,
-    visited: &mut Array2<bool>,
-    loc: (usize, usize),
-    direction: Direction,
-) -> Option<(usize, usize)> {
-    let mut next_loc = None;
-    let next_opt = match direction {
-        Direction::West => loc.0.checked_sub(1).map(|x| (x, loc.1)),
-        Direction::East => Some((loc.0 + 1, loc.1)),
-        Direction::North => loc.1.checked_sub(1).map(|x| (loc.0, x)),
-        Direction::South => Some((loc.0, loc.1 + 1)),
-    };
-
-    if let Some((next_x, next_y)) = next_opt {
-        if let Some(safe) = maze.get((next_x, next_y)) {
-            if let Some(visited) = visited.get((next_x, next_y)) {
-                if *safe && !visited {
-                    next_loc = Some((next_x, next_y));
-                }
+    if second_star {
+        let top_fifty_paths = yen(
+            &start_node,
+            |node| node.successors(&maze_data),
+            |node| node.coord == end,
+            50,
+        );
+        let mut nodes_set = HashSet::new();
+        for nodes in top_fifty_paths
+            .iter()
+            .filter_map(|(x, cost)| if *cost == min_cost { Some(x) } else { None })
+        {
+            for node in nodes {
+                let _ = nodes_set.insert(node.coord);
             }
         }
+        Ok(nodes_set.len())
+    } else {
+        Ok(min_cost)
     }
-    next_loc
 }
+
 /// Solution for Part 2
 ///
 /// # Errors
@@ -418,12 +434,46 @@ mod two_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r">";
+    const TEST_1: &str = r"###############
+#.......#....E#
+#.#.###.#.###.#
+#.....#.#...#.#
+#.###.#####.#.#
+#.#.#.......#.#
+#.#.#####.###.#
+#...........#.#
+###.#.#####.#.#
+#...#.....#.#.#
+#.#.#.###.#.#.#
+#.....#...#.#.#
+#.###.#.#.#.#.#
+#S..#.....#...#
+###############";
+
+    const TEST_2: &str = r"#################
+#...#...#...#..E#
+#.#.#.#.#.#.#.#.#
+#.#.#.#...#...#.#
+#.#.#.#.###.#.#.#
+#...#.#.#.....#.#
+#.#.#.#.#.#####.#
+#.#...#.#.#.....#
+#.#.#####.#.###.#
+#.#.#.......#...#
+#.#.###.#####.###
+#.#.#...#.....#.#
+#.#.#.#####.###.#
+#.#.#.........#.#
+#.#.#.#########.#
+#S#.............#
+#################";
 
     #[test]
     fn solution() -> Result<()> {
         let data = setup_br(Cursor::new(TEST_1))?;
-        assert_eq!(find2(data), 0);
+        assert_eq!(find2(data), 45);
+        let data = setup_br(Cursor::new(TEST_2))?;
+        assert_eq!(find2(data), 64);
         Ok(())
     }
 }
