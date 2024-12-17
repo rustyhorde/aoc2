@@ -168,7 +168,7 @@ use pathfinding::prelude::{dijkstra, yen};
 use std::{
     collections::HashSet,
     fs::File,
-    io::{stdout, BufRead, BufReader, Write}, sync::mpsc::channel, thread::{sleep, spawn}, time::Duration,
+    io::{stdout, BufRead, BufReader, Write},
 };
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
@@ -294,7 +294,7 @@ fn find(data: MazeData) -> usize {
 
 #[allow(clippy::unnecessary_wraps)]
 fn find_res(data: &MazeData, second_star: bool) -> Result<usize> {
-    let (data, test) = data;
+    let (data, _test) = data;
     let max_x = data[0].len();
     let max_y = data.len();
     let mut maze_data = Array2::<bool>::default((max_x, max_y));
@@ -319,27 +319,14 @@ fn find_res(data: &MazeData, second_star: bool) -> Result<usize> {
         }
     }
 
-    let (sender, receiver) = channel();
-    
     let start_node = Node::new(start, Direction::East);
     let min_cost = dijkstra(
         &start_node,
-        |node| {
-            let _ = sender.send(node.coord);
-            node.successors(&maze_data)
-        },
+        |node| node.successors(&maze_data),
         |node| node.coord == end,
     )
     .map(|(_, cost)| cost)
     .ok_or_else(|| anyhow!("no cost for you"))?;
-
-    let md = maze_data.clone();
-    let prn_handle = spawn(move || {
-        while let Ok(rec) = receiver.recv() {
-            let _res_ = print_maze(&md, true, rec);
-            sleep(Duration::from_millis(100));
-        }
-    });
 
     if second_star {
         let top_fifty_paths = yen(
@@ -358,22 +345,13 @@ fn find_res(data: &MazeData, second_star: bool) -> Result<usize> {
                 let _ = nodes_set.insert(node.coord);
             }
         }
-        drop(sender);
-        let _res = prn_handle.join();
-        if *test {
-            print_maze(&maze_data, false, end)?;
-        }
         Ok(nodes_set.len())
     } else {
-        drop(sender);
-        let _res = prn_handle.join();
-        if *test {
-            print_maze(&maze_data, false, end)?;
-        }
         Ok(min_cost)
     }
 }
 
+#[allow(dead_code)]
 fn print_maze(maze_data: &Array2<bool>, restore: bool, curr_loc: (usize, usize)) -> Result<()> {
     let mut stdout = stdout();
 
@@ -448,31 +426,31 @@ mod one_star {
 #S..#.....#...#
 ###############";
 
-//     const TEST_2: &str = r"#################
-// #...#...#...#..E#
-// #.#.#.#.#.#.#.#.#
-// #.#.#.#...#...#.#
-// #.#.#.#.###.#.#.#
-// #...#.#.#.....#.#
-// #.#.#.#.#.#####.#
-// #.#...#.#.#.....#
-// #.#.#####.#.###.#
-// #.#.#.......#...#
-// #.#.###.#####.###
-// #.#.#...#.....#.#
-// #.#.#.#####.###.#
-// #.#.#.........#.#
-// #.#.#.#########.#
-// #S#.............#
-// #################";
+    //     const TEST_2: &str = r"#################
+    // #...#...#...#..E#
+    // #.#.#.#.#.#.#.#.#
+    // #.#.#.#...#...#.#
+    // #.#.#.#.###.#.#.#
+    // #...#.#.#.....#.#
+    // #.#.#.#.#.#####.#
+    // #.#...#.#.#.....#
+    // #.#.#####.#.###.#
+    // #.#.#.......#...#
+    // #.#.###.#####.###
+    // #.#.#...#.....#.#
+    // #.#.#.#####.###.#
+    // #.#.#.........#.#
+    // #.#.#.#########.#
+    // #S#.............#
+    // #################";
 
-//     const TEST_3: &str = r"#######
-// #....E#
-// #.#####
-// #.#...#
-// #...#.#
-// #S#...#
-// #######";
+    //     const TEST_3: &str = r"#######
+    // #....E#
+    // #.#####
+    // #.#...#
+    // #...#.#
+    // #S#...#
+    // #######";
 
     #[test]
     fn solution() -> Result<()> {
