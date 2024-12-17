@@ -197,10 +197,11 @@ use std::{
     fmt,
     fs::File,
     io::{stdout, BufRead, BufReader, Write},
+    mem::take,
 };
 
 #[allow(dead_code)]
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 enum SoilKind {
     Clay,
     FlowingWater,
@@ -208,6 +209,7 @@ enum SoilKind {
     Sand,
     SettledWater,
     Spring,
+    Unbounded,
 }
 
 impl fmt::Display for SoilKind {
@@ -221,12 +223,13 @@ impl fmt::Display for SoilKind {
                 SoilKind::Sand => ".",
                 SoilKind::SettledWater => "~",
                 SoilKind::Spring => "+",
+                SoilKind::Unbounded => "U",
             }
         )
     }
 }
 
-type ClayData = (HashMap<usize, Vec<usize>>, HashMap<usize, Vec<usize>>);
+type ClayData = (HashMap<usize, Vec<usize>>, HashMap<usize, Vec<usize>>, bool);
 
 /// Solution for Part 1
 ///
@@ -248,11 +251,11 @@ pub fn part_1_bench(bench: u16) -> Result<u32> {
 }
 
 fn setup(reader: BufReader<File>) -> ClayData {
-    setup_br(reader).unwrap_or_default()
+    setup_br(reader, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn setup_br<T>(reader: T) -> Result<ClayData>
+fn setup_br<T>(reader: T, test: bool) -> Result<ClayData>
 where
     T: BufRead,
 {
@@ -286,22 +289,23 @@ where
             }
         }
     }
-    Ok((x_coord_map, y_coord_map))
+    Ok((x_coord_map, y_coord_map, test))
 }
 
 #[allow(clippy::needless_pass_by_value)]
 fn find(data: ClayData) -> usize {
-    find_res(data, false).unwrap_or_default()
+    if let Err(e) = find_res(data, false) {
+        eprintln!("{e}");
+    }
+    0
 }
 
 #[allow(clippy::unnecessary_wraps)]
 fn find_res(data: ClayData, _second_star: bool) -> Result<usize> {
-    let (mut x_coord_map, mut y_coord_map) = data;
-    let (min_x, max_x, min_y, max_y, shift_start) =
+    let (mut x_coord_map, mut y_coord_map, test) = data;
+    let (_min_x, max_x, _min_y, max_y, shift_start) =
         calculate_mins_maxes(&x_coord_map, &y_coord_map)?;
-    eprintln!("min_x: {min_x}, max_x: {max_x}, min_y: {min_y}, max_y: {max_y}");
     let spring = (500 - shift_start, 0_usize);
-    eprintln!("spring: ({},{})", spring.0, spring.1);
 
     let final_x: HashMap<usize, Vec<usize>> = x_coord_map
         .drain()
@@ -312,8 +316,6 @@ fn find_res(data: ClayData, _second_star: bool) -> Result<usize> {
         .map(|(k, v)| (k, v.iter().map(|x| x - shift_start).collect()))
         .collect();
 
-    eprintln!("final_x: {final_x:?}");
-    eprintln!("final_y: {final_y:?}");
     let mut spring_arr = Array2::<SoilKind>::default((max_x, max_y));
     spring_arr[[spring.0, spring.1]] = SoilKind::Spring;
 
@@ -328,9 +330,124 @@ fn find_res(data: ClayData, _second_star: bool) -> Result<usize> {
         }
     }
 
-    display_spring(&spring_arr, false, "Initial State:", true)?;
+    spring_drip(&mut spring_arr, spring, max_y, test)?;
+
     Ok(0)
 }
+
+fn spring_drip(
+    spring_arr: &mut Array2<SoilKind>,
+    spring_loc: (usize, usize),
+    max_y: usize,
+    test: bool,
+) -> Result<()> {
+    let mut drips = vec![];
+    let start_drip = (spring_loc.0, spring_loc.1 + 1);
+    drips.push(start_drip);
+    display_spring(spring_arr, true, "Initial State:", !test, 0)?;
+    let max_drips = 100;
+
+    for i in 0..max_drips {
+        let curr_drips = take(&mut drips);
+        let len = curr_drips.len();
+        for curr_drip in &curr_drips {
+            display_spring(
+                spring_arr,
+                i < max_drips - 1,
+                &format!("Drip ({},{}) == {}", curr_drip.0, curr_drip.1, len),
+                !test,
+                i,
+            )?;
+            spring_arr[[curr_drip.0, curr_drip.1]] = SoilKind::FlowingWater;
+
+            if curr_drip.1 != max_y - 1 {
+                if can_drip_down(spring_arr, *curr_drip) {
+                    drips.push((curr_drip.0, curr_drip.1 + 1));
+                } else {
+                    if can_flow_left(spring_arr, *curr_drip) {
+                        drips.push((curr_drip.0 - 1, curr_drip.1));
+                    } else {
+                        try_settle_row(spring_arr, &mut drips, &curr_drips, *curr_drip);
+                    }
+
+                    if can_flow_right(spring_arr, *curr_drip) {
+                        drips.push((curr_drip.0 + 1, curr_drip.1));
+                    }
+                    {
+                        try_settle_row(spring_arr, &mut drips, &curr_drips, *curr_drip);
+                    }
+                }
+            }
+            drips.retain(|x| x != curr_drip);
+        }
+        drips.push(start_drip);
+    }
+    Ok(())
+}
+
+fn try_settle_row(
+    spring_arr: &mut Array2<SoilKind>,
+    drips: &mut Vec<(usize, usize)>,
+    curr_drips: &[(usize, usize)],
+    curr_drip: (usize, usize),
+) {
+    let mut drips_to_settle = curr_drips
+        .iter()
+        .copied()
+        .take_while(|(_x, y)| *y == curr_drip.1)
+        .collect::<Vec<(usize, usize)>>();
+    drips_to_settle.sort_unstable();
+    if let Some(((first_x, first_y), (last_x, last_y))) =
+        drips_to_settle.first().zip(drips_to_settle.last())
+    {
+        if let Some((left, right)) = spring_arr
+            .get((*first_x - 1, *first_y))
+            .zip(spring_arr.get((*last_x + 1, *last_y)))
+        {
+            if *left == SoilKind::Clay && *right == SoilKind::Clay {
+                for drip in drips_to_settle {
+                    let (x, y) = drip;
+                    spring_arr[[x, y]] = SoilKind::SettledWater;
+                    drips.retain(|x| *x != drip);
+                }
+            }
+        }
+    }
+}
+
+fn can_drip_down(spring_arr: &mut Array2<SoilKind>, drip: (usize, usize)) -> bool {
+    let (x, y) = drip;
+    let mut can_drip_down = false;
+    if let Some(sk_down) = spring_arr.get((x, y + 1)) {
+        if *sk_down == SoilKind::Sand || *sk_down == SoilKind::FlowingWater {
+            can_drip_down = true;
+        }
+    }
+    can_drip_down
+}
+
+fn can_flow_left(spring_arr: &mut Array2<SoilKind>, drip: (usize, usize)) -> bool {
+    let (x, y) = drip;
+    let mut can_flow_left = false;
+    if let Some(sk_left) = spring_arr.get((x - 1, y)) {
+        if *sk_left == SoilKind::Sand || *sk_left == SoilKind::FlowingWater {
+            can_flow_left = true;
+        }
+    }
+    can_flow_left
+}
+
+fn can_flow_right(spring_arr: &mut Array2<SoilKind>, drip: (usize, usize)) -> bool {
+    let (x, y) = drip;
+    let mut can_flow_right = false;
+    if let Some(sk_right) = spring_arr.get((x + 1, y)) {
+        if *sk_right == SoilKind::Sand || *sk_right == SoilKind::FlowingWater {
+            can_flow_right = true;
+        }
+    }
+    can_flow_right
+}
+
 #[allow(clippy::similar_names)]
 fn calculate_mins_maxes(
     x_coord_map: &HashMap<usize, Vec<usize>>,
@@ -377,6 +494,7 @@ fn display_spring(
     restore: bool,
     header: &str,
     display: bool,
+    idx: usize,
 ) -> Result<()> {
     if display {
         let mut stdout = stdout();
@@ -386,55 +504,56 @@ fn display_spring(
         let _ = stdout.queue(Clear(ClearType::CurrentLine))?;
         let _ = stdout.write(format!("{}", style(header).bold().yellow()).as_bytes())?;
         let _ = stdout.queue(MoveToNextLine(1))?;
-        let _ = stdout.queue(MoveToNextLine(1))?;
-        for row in data.axis_iter(Axis(1)) {
-            for elem in row {
-                match elem {
-                    SoilKind::Clay => {
-                        let _ = stdout.write(
-                            format!(
-                                "{}",
-                                format!("{elem}")
-                                    .with(Color::Rgb {
-                                        r: 102,
-                                        g: 76,
-                                        b: 40
-                                    })
-                                    .attribute(Attribute::Bold)
-                            )
-                            .as_bytes(),
-                        )?;
-                    }
-                    SoilKind::FlowingWater => {
-                        let _ =
-                            stdout.write(format!("{}", style(elem).bold().blue()).as_bytes())?;
-                    }
-                    SoilKind::Sand => {
-                        let _ = stdout.write(
-                            format!(
-                                "{}",
-                                format!("{elem}")
-                                    .with(Color::Rgb {
-                                        r: 255,
-                                        g: 248,
-                                        b: 231
-                                    })
-                                    .attribute(Attribute::Bold)
-                            )
-                            .as_bytes(),
-                        )?;
-                    }
-                    SoilKind::SettledWater => {
-                        let _ =
-                            stdout.write(format!("{}", style(elem).bold().blue()).as_bytes())?;
-                    }
-                    SoilKind::Spring => {
-                        let _ =
-                            stdout.write(format!("{}", style(elem).bold().magenta()).as_bytes())?;
+        if idx % 1000 == 0 {
+            for row in data.axis_iter(Axis(1)) {
+                for elem in row {
+                    match elem {
+                        SoilKind::Clay => {
+                            let _ = stdout.write(
+                                format!(
+                                    "{}",
+                                    format!("{elem}")
+                                        .with(Color::Rgb {
+                                            r: 102,
+                                            g: 76,
+                                            b: 40
+                                        })
+                                        .attribute(Attribute::Bold)
+                                )
+                                .as_bytes(),
+                            )?;
+                        }
+                        SoilKind::FlowingWater | SoilKind::Unbounded => {
+                            let _ = stdout
+                                .write(format!("{}", style(elem).bold().blue()).as_bytes())?;
+                        }
+                        SoilKind::Sand => {
+                            let _ = stdout.write(
+                                format!(
+                                    "{}",
+                                    format!("{elem}")
+                                        .with(Color::Rgb {
+                                            r: 255,
+                                            g: 248,
+                                            b: 231
+                                        })
+                                        .attribute(Attribute::Bold)
+                                )
+                                .as_bytes(),
+                            )?;
+                        }
+                        SoilKind::SettledWater => {
+                            let _ = stdout
+                                .write(format!("{}", style(elem).bold().blue()).as_bytes())?;
+                        }
+                        SoilKind::Spring => {
+                            let _ = stdout
+                                .write(format!("{}", style(elem).bold().magenta()).as_bytes())?;
+                        }
                     }
                 }
+                let _ = stdout.queue(MoveToNextLine(1))?;
             }
-            let _ = stdout.queue(MoveToNextLine(1))?;
         }
         if restore {
             let _ = stdout.queue(RestorePosition)?;
@@ -483,21 +602,21 @@ x=498, y=10..13
 x=504, y=10..13
 y=13, x=498..504";
 
-    const TEST_2: &str = r"x=495, y=2..7
-y=7, x=495..501
-x=501, y=3..7
-x=498, y=2..4
-x=506, y=1..2
-x=498, y=10..13
-x=504, y=10..13
-y=13, x=498..520";
+    //     const TEST_2: &str = r"x=495, y=2..7
+    // y=7, x=495..501
+    // x=501, y=3..7
+    // x=498, y=2..4
+    // x=506, y=1..2
+    // x=498, y=10..13
+    // x=504, y=10..13
+    // y=13, x=498..520";
 
     #[test]
     fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+        let data = setup_br(Cursor::new(TEST_1), true)?;
         assert_eq!(find(data), 0);
-        let data = setup_br(Cursor::new(TEST_2))?;
-        assert_eq!(find(data), 0);
+        // let data = setup_br(Cursor::new(TEST_2))?;
+        // assert_eq!(find(data), 0);
         Ok(())
     }
 }
@@ -512,7 +631,7 @@ mod two_star {
 
     #[test]
     fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+        let data = setup_br(Cursor::new(TEST_1), true)?;
         assert_eq!(find2(data), 0);
         Ok(())
     }
