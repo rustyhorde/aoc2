@@ -95,6 +95,8 @@ use regex::Regex;
 use std::{
     fs::File,
     io::{stdout, BufRead, BufReader, Write},
+    thread::sleep,
+    time::Duration,
 };
 
 #[derive(Clone, Copy, CopyGetters, Debug, Default, Eq, PartialEq, Setters)]
@@ -105,7 +107,7 @@ struct Registers {
     c: usize,
 }
 
-type ThreeBitData = (Registers, Vec<u8>);
+type ThreeBitData = (Registers, Vec<u8>, bool);
 
 /// Solution for Part 1
 ///
@@ -127,11 +129,11 @@ pub fn part_1_bench(bench: u16) -> Result<u32> {
 }
 
 fn setup(reader: BufReader<File>) -> ThreeBitData {
-    setup_br(reader).unwrap_or_default()
+    setup_br(reader, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn setup_br<T>(reader: T) -> Result<ThreeBitData>
+fn setup_br<T>(reader: T, test: bool) -> Result<ThreeBitData>
 where
     T: BufRead,
 {
@@ -161,7 +163,7 @@ where
                 .collect();
         }
     }
-    Ok((registers, program))
+    Ok((registers, program, test))
 }
 
 #[allow(clippy::needless_pass_by_value)]
@@ -171,58 +173,72 @@ fn find(data: ThreeBitData) -> String {
 
 #[allow(clippy::unnecessary_wraps)]
 fn find_res(data: ThreeBitData, second_star: bool) -> Result<String> {
-    let (mut regs, program) = data;
+    let (mut regs, program, test) = data;
     let cmp_prog: Vec<usize> = program.iter().copied().map(usize::from).collect();
-    eprintln!("cmp_prg: {cmp_prog:?}");
     let mut out = vec![];
     let len = cmp_prog.len();
+    let mut a = 0;
 
-    // display_regs(&regs, &out, true, "")?;
     if second_star {
-        let mut a = 0;
         let mut ind = cmp_prog.len() - 1;
         loop {
             let _ = regs.set_a(a);
-            run_program(&mut regs, &program, &mut out, second_star)?;
+            run_program(&mut regs, &program, &mut out, second_star, test)?;
 
             if out.len() == len && out[ind] == cmp_prog[ind] {
                 if ind == 0 {
-                    eprintln!("{a}");
                     break;
-                } else {
-                    ind -= 1;
                 }
+                ind -= 1;
             } else {
                 a += 8_usize.pow(u32::try_from(ind)?);
             }
             out.clear();
         }
     } else {
-        run_program(&mut regs, &program, &mut out, second_star)?;
+        if !test {
+            display_regs(&regs, &out, true, "")?;
+        }
+        run_program(&mut regs, &program, &mut out, second_star, test)?;
     }
 
-    Ok(out.iter().map(ToString::to_string).join(","))
+    Ok(if second_star {
+        a.to_string()
+    } else {
+        out.iter().map(ToString::to_string).join(",")
+    })
 }
 
-fn run_program(regs: &mut Registers, program: &[u8], out: &mut Vec<usize>, second_star: bool) -> Result<()> {
+fn run_program(
+    regs: &mut Registers,
+    program: &[u8],
+    out: &mut Vec<usize>,
+    second_star: bool,
+    test: bool,
+) -> Result<()> {
     let len = program.len();
     let mut ptr = 0;
     while ptr < len {
-        if second_star && out.len() > 16 {
-            break;
-        }
-        let (opcode, operand) = read_instruction(&program, &mut ptr)?;
+        let (opcode, operand) = read_instruction(program, &mut ptr)?;
         match opcode {
             0 => adv(regs, operand, &mut ptr)?,
-            1 => bxl(regs, operand, &mut ptr)?,
+            1 => bxl(regs, operand, &mut ptr),
             2 => bst(regs, operand, &mut ptr)?,
-            3 => jnz(regs, operand, &mut ptr)?,
+            3 => jnz(regs, operand, &mut ptr),
             4 => bxc(regs, operand, &mut ptr),
             5 => outp(regs, operand, &mut ptr, out)?,
             6 => bdv(regs, operand, &mut ptr)?,
             7 => cdv(regs, operand, &mut ptr)?,
             _ => {}
         }
+
+        if !second_star && !test {
+            display_regs(regs, out, true, "")?;
+            sleep(Duration::from_millis(200));
+        }
+    }
+    if !second_star && !test {
+        display_regs(regs, out, false, "")?;
     }
     Ok(())
 }
@@ -246,10 +262,9 @@ fn adv(regs: &mut Registers, op: u8, ptr: &mut usize) -> Result<()> {
     Ok(())
 }
 
-fn bxl(regs: &mut Registers, op: u8, ptr: &mut usize) -> Result<()> {
+fn bxl(regs: &mut Registers, op: u8, ptr: &mut usize) {
     let _ = regs.set_b(regs.b() ^ usize::from(op));
     *ptr += 2;
-    Ok(())
 }
 
 fn bst(regs: &mut Registers, op: u8, ptr: &mut usize) -> Result<()> {
@@ -259,13 +274,12 @@ fn bst(regs: &mut Registers, op: u8, ptr: &mut usize) -> Result<()> {
     Ok(())
 }
 
-fn jnz(regs: &mut Registers, op: u8, ptr: &mut usize) -> Result<()> {
+fn jnz(regs: &mut Registers, op: u8, ptr: &mut usize) {
     if regs.a() > 0 {
         *ptr = usize::from(op);
     } else {
         *ptr += 2;
     }
-    Ok(())
 }
 
 fn outp(regs: &mut Registers, op: u8, ptr: &mut usize, out: &mut Vec<usize>) -> Result<()> {
@@ -308,7 +322,6 @@ fn get_op_val(regs: &mut Registers, op: u8) -> Result<usize> {
     })
 }
 
-#[allow(dead_code)]
 fn display_regs(regs: &Registers, out: &[usize], restore: bool, header: &str) -> Result<()> {
     let mut stdout = stdout();
 
@@ -407,15 +420,15 @@ Program: 1,7";
 
     #[test]
     fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
+        let data = setup_br(Cursor::new(TEST_1), true)?;
         assert_eq!(find(data), "4,6,3,5,6,3,5,2,1,0");
-        let data = setup_br(Cursor::new(TEST_2))?;
+        let data = setup_br(Cursor::new(TEST_2), true)?;
         assert_eq!(find(data), "");
-        let data = setup_br(Cursor::new(TEST_3))?;
+        let data = setup_br(Cursor::new(TEST_3), true)?;
         assert_eq!(find(data), "0,1,2");
-        let data = setup_br(Cursor::new(TEST_4))?;
+        let data = setup_br(Cursor::new(TEST_4), true)?;
         assert_eq!(find(data), "4,2,5,6,7,7,7,7,3,1,0");
-        let data = setup_br(Cursor::new(TEST_5))?;
+        let data = setup_br(Cursor::new(TEST_5), true)?;
         assert_eq!(find(data), "");
         Ok(())
     }
@@ -427,12 +440,16 @@ mod two_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r"";
+    const TEST_1: &str = r"Register A: 2024
+Register B: 0
+Register C: 0
+
+Program: 0,3,5,4,3,0";
 
     #[test]
     fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
-        assert_eq!(find2(data), "");
+        let data = setup_br(Cursor::new(TEST_1), true)?;
+        assert_eq!(find2(data), "117440");
         Ok(())
     }
 }
