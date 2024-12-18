@@ -492,9 +492,17 @@ fn disp_forest(
         for row in arr.axis_iter(Axis(1)) {
             for elem in row {
                 match elem.kind {
-                    AcreType::Empty => { let _ = stdout.queue(Print(elem.kind))?; },
-                    AcreType::Trees => { let _ = stdout.queue(Print(format!("{}", style(elem.kind).bold().red())))?; },
-                    AcreType::LumberYard => { let _ = stdout.queue(Print(format!("{}", style(elem.kind).bold().green())))?; },
+                    AcreType::Empty => {
+                        let _ = stdout.queue(Print(elem.kind))?;
+                    }
+                    AcreType::Trees => {
+                        let _ =
+                            stdout.queue(Print(format!("{}", style(elem.kind).bold().red())))?;
+                    }
+                    AcreType::LumberYard => {
+                        let _ =
+                            stdout.queue(Print(format!("{}", style(elem.kind).bold().green())))?;
+                    }
                 }
             }
             let _ = stdout.queue(MoveToNextLine(1))?;
