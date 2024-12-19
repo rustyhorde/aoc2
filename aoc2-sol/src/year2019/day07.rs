@@ -478,7 +478,7 @@ fn find_res(intcodes: &IntcodeData, second_star: bool) -> Result<usize> {
 
         // Start the chaos
         send_a.send(I256::ZERO)?;
-        
+
         let _res = amp_a_handle.join();
         let _res = amp_b_handle.join();
         let _res = amp_c_handle.join();
