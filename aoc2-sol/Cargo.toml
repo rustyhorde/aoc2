@@ -11,6 +11,7 @@ unstable = []
 [dependencies]
 anyhow = { workspace = true }
 bitvec = "1.0.1"
+bnum = "0.12.0"
 console = { workspace = true }
 crossterm = "0.28.1"
 getset = { workspace = true }
