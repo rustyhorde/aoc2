@@ -120,14 +120,14 @@ fn parse_command(command: &str) -> Result<(String, String, Option<Value>)> {
 
 #[allow(clippy::needless_pass_by_value)]
 fn find(data: CoData) -> usize {
-    find_res(data, false).unwrap_or_default()
+    find_res(&data, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(commands: CoData, second_star: bool) -> Result<usize> {
+fn find_res(commands: &CoData, second_star: bool) -> Result<usize> {
     let mut register_map: HashMap<String, i64> = HashMap::new();
 
-    initialize_register_map(&commands, &mut register_map)?;
+    initialize_register_map(commands, &mut register_map);
 
     let mul_count = if second_star {
         let b = 106_700;
@@ -135,7 +135,7 @@ fn find_res(commands: CoData, second_star: bool) -> Result<usize> {
         let mut h = 0;
         for b in (b..=c).step_by(17) {
             if !primal::is_prime(b) {
-                h += 1
+                h += 1;
             }
         }
         h
@@ -143,7 +143,7 @@ fn find_res(commands: CoData, second_star: bool) -> Result<usize> {
         let mut id = 0;
         let mut count = 0;
         loop {
-            if id < 0 || id == commands.len() as i64 {
+            if id < 0 || id == i64::try_from(commands.len())? {
                 break;
             }
             let next_command = commands.get(&id).ok_or(anyhow!("invalid command"))?;
@@ -162,11 +162,10 @@ fn find_res(commands: CoData, second_star: bool) -> Result<usize> {
 fn initialize_register_map(
     commands: &HashMap<i64, (String, String, Option<Value>)>,
     register_map: &mut HashMap<String, i64>,
-) -> Result<()> {
-    for (_, command) in commands.iter() {
+) {
+    for command in commands.values() {
         let _ = register_map.entry(command.1.clone()).or_insert(0);
     }
-    Ok(())
 }
 
 /// Run a command
@@ -267,7 +266,7 @@ pub fn part_2_bench(bench: u16) -> Result<u32> {
 
 #[allow(clippy::needless_pass_by_value)]
 fn find2(data: CoData) -> usize {
-    find_res(data, true).unwrap_or_default()
+    find_res(&data, true).unwrap_or_default()
 }
 
 #[cfg(test)]

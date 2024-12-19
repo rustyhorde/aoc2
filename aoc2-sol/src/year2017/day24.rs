@@ -126,6 +126,7 @@ where
 }
 
 /// Convert a String to a Component
+#[allow(clippy::needless_pass_by_value)]
 fn to_component(line: String) -> Component {
     let parts = line
         .split('/')
@@ -140,13 +141,13 @@ fn to_component(line: String) -> Component {
 
 #[allow(clippy::needless_pass_by_value)]
 fn find(data: CompData) -> usize {
-    find_res(data, false).unwrap_or_default()
+    find_res(&data, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(all: CompData, second_star: bool) -> Result<usize> {
+fn find_res(all: &CompData, second_star: bool) -> Result<usize> {
     let mut scores = Vec::new();
-    next(0, &[], &all, &mut scores);
+    next(0, &[], all, &mut scores);
 
     if second_star {
         let mut max_length = 0;
@@ -186,7 +187,7 @@ fn next(
     scores: &mut Vec<(usize, usize)>,
 ) {
     let mut found = false;
-    for c in components.iter() {
+    for c in components {
         if c.left == start || c.right == start {
             let mut new_components = components.clone();
             let _ = new_components.remove(c);
@@ -229,7 +230,7 @@ pub fn part_2_bench(bench: u16) -> Result<u32> {
 
 #[allow(clippy::needless_pass_by_value)]
 fn find2(data: CompData) -> usize {
-    find_res(data, true).unwrap_or_default()
+    find_res(&data, true).unwrap_or_default()
 }
 
 #[cfg(test)]
