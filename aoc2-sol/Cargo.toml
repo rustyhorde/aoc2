@@ -12,6 +12,7 @@ unstable = []
 anyhow = { workspace = true }
 bitvec = "1.0.1"
 bnum = "0.12.0"
+bytecount = "0.6.8"
 console = { workspace = true }
 crossterm = "0.28.1"
 getset = { workspace = true }
