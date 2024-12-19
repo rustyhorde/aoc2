@@ -458,6 +458,8 @@ fn find_res(data: VirusData, second_star: bool) -> Result<usize> {
             sleep(Duration::from_micros(900));
         }
     });
+    let mut stdout = stdout();
+    let _ = stdout.execute(Hide)?;
 
     for burst in 0..bursts {
         virus.work(&mut v_map)?;
@@ -475,6 +477,9 @@ fn find_res(data: VirusData, second_star: bool) -> Result<usize> {
                 .unwrap_or_default();
         }
     }
+
+    let _ = stdout.execute(Show)?;
+    stdout.flush()?;
 
     let _res = hdl.join();
     Ok(virus.infected_count)
@@ -544,7 +549,6 @@ fn display_virus(
     if restore {
         let _ = stdout.queue(RestorePosition)?;
     }
-    let _ = stdout.execute(Show)?;
     stdout.flush()?;
 
     Ok(())
