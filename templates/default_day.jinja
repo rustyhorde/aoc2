@@ -6,7 +6,8 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! Advent of Code - Day {{ day }}
+//! **--- Advent of Code {{ year }} ---**
+//!
 
 use crate::{
     constants::{AoCDay, AoCYear},
@@ -18,6 +19,8 @@ use std::{
     io::{BufRead, BufReader},
 };
 
+type AoCData = Vec<String>;
+
 /// Solution for Part 1
 ///
 /// # Errors
@@ -25,7 +28,7 @@ use std::{
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_setup_solution::<Vec<String>, usize>(AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find)
+    run_setup_solution::<AoCData, usize>(AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find)
         .map(|_| 0)
 }
 
@@ -34,16 +37,16 @@ pub fn part_1() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_1_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<Vec<String>, usize>(bench, AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find)
+    run_bench_solution::<AoCData, usize>(bench, AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find)
         .map(|_| 0)
 }
 
-fn setup(reader: BufReader<File>) -> Vec<String> {
+fn setup(reader: BufReader<File>) -> AoCData {
     setup_br(reader).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn setup_br<T>(reader: T) -> Result<Vec<String>>
+fn setup_br<T>(reader: T) -> Result<AoCData>
 where
     T: BufRead,
 {
@@ -55,12 +58,12 @@ where
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find(data: Vec<String>) -> usize {
+fn find(data: AoCData) -> usize {
     find_res(data, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(_data: Vec<String>, _second_star: bool) -> Result<usize> {
+fn find_res(_data: AoCData, _second_star: bool) -> Result<usize> {
     Ok(0)
 }
 
@@ -71,7 +74,7 @@ fn find_res(_data: Vec<String>, _second_star: bool) -> Result<usize> {
 ///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_setup_solution::<Vec<String>, usize>(AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find2)
+    run_setup_solution::<AoCData, usize>(AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find2)
         .map(|_| 0)
 }
 
@@ -80,12 +83,12 @@ pub fn part_2() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_2_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<Vec<String>, usize>(bench, AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find2)
+    run_bench_solution::<AoCData, usize>(bench, AoCYear::AOC{{ year }}, AoCDay::AOCD{{ zero_padded_day }}, setup, find2)
         .map(|_| 0)
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find2(data: Vec<String>) -> usize {
+fn find2(data: AoCData) -> usize {
     find_res(data, true).unwrap_or_default()
 }
 

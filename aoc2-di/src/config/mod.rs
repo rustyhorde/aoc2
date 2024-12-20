@@ -55,6 +55,8 @@ pub(crate) struct ConfigAoc2Di<'a> {
     tracing: Tracing,
     #[serde(borrow)]
     session: Cow<'a, str>,
+    #[serde(borrow)]
+    aoc2_path: Cow<'a, str>,
 }
 
 impl ConfigAoc2Di<'_> {
@@ -78,6 +80,10 @@ impl ConfigAoc2Di<'_> {
 
     pub(crate) fn session(&self) -> &str {
         &self.session
+    }
+
+    pub(crate) fn aoc2_path(&self) -> &str {
+        &self.aoc2_path
     }
 }
 

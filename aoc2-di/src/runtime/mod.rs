@@ -57,9 +57,12 @@ where
     trace!("reqwest client created");
 
     for day in day_range {
-        let base_path = Path::new("data").join(year).join(format!("day{:0>2}", day));
-        create_dir_all(&base_path)?;
-        let data_file_path = base_path.join("data_file");
+        let aoc2_path = Path::new(config.aoc2_path())
+            .join("data")
+            .join(year)
+            .join(format!("day{:0>2}", day));
+        create_dir_all(&aoc2_path)?;
+        let data_file_path = aoc2_path.join("data_file");
         info!(
             "Downloading input data for year {year} day {day} at path {}",
             data_file_path.display()
