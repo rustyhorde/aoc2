@@ -47,6 +47,8 @@ pub(crate) struct ConfigAoc2Di<'a> {
     verbose: u8,
     #[getset(get_copy = "pub(crate)")]
     quiet: u8,
+    #[getset(get_copy = "pub(crate)")]
+    wait: bool,
     #[serde(borrow)]
     year: Cow<'a, str>,
     start_day: Option<String>,

@@ -8,6 +8,8 @@ unstable = []
 
 [dependencies]
 anyhow.workspace = true
+chrono = "0.4.39"
+chrono-tz = "0.10.0"
 clap = { workspace = true, features = ["derive"] }
 config = { version = "0.15.3", default-features = false, features = ["toml"] }
 console.workspace = true
@@ -18,7 +20,7 @@ rand = "0.8.5"
 reqwest = { version = "0.12.9", features = ["cookies"] }
 serde = { version = "1.0.216", features = ["derive"] }
 thiserror = "2.0.8"
-tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread", "time"] }
 tracing = { version = "0.1.41", features = [
     "attributes",
     "max_level_trace",

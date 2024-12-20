@@ -41,7 +41,7 @@ where
         None => "info",
     };
     let directives = format!(
-        "{directives_base},actix_server=error,mio=error,rustls=error,h2=error,tokio_util=error,surf=error,isahc=error"
+        "{directives_base},actix_server=error,mio=error,rustls=error,h2=error,tokio_util=error,surf=error,isahc=error,cookie_store=error"
     );
     let stdout_filter = EnvFilter::builder()
         .with_default_directive(stdout_level_filter.into())
@@ -51,9 +51,9 @@ where
         .with_filter(stdout_filter);
 
     let directives = format!(
-        "{directives_base},actix_server=error,mio=error,rustls=error,h2=error,tokio_util=error,surf=error,isahc=error,vergen_pretty=error"
+        "{directives_base},actix_server=error,mio=error,rustls=error,h2=error,tokio_util=error,surf=error,isahc=error,vergen_pretty=error,cookie_store=error"
     );
-    let file_appender = rolling::daily(config_dir_path(defaults)?, "krocov.log");
+    let file_appender = rolling::daily(config_dir_path(defaults)?, "aoc2-di.log");
     let file_filter = EnvFilter::builder()
         .with_default_directive(file_level_filter.into())
         .parse_lossy(directives);

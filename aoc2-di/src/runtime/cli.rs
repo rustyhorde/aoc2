@@ -36,11 +36,25 @@ pub(crate) struct Args {
         conflicts_with = "verbose",
     )]
     quiet: u8,
-    #[arg(name = "year", short = 'y', long, help = "Specify the year you wish to work with", default_value_t = DEFAULT_YEAR.to_string())]
+    #[arg(name = "wait", short = 'w', long, help = "Wait for the next day to start a download", conflicts_with_all = &["start_day", "end_day", "year"])]
+    wait: bool,
+    #[arg(name = "year", short = 'y', long, help = "Specify the year you wish to work with", default_value_t = DEFAULT_YEAR.to_string(), conflicts_with = "wait")]
     year: String,
-    #[arg(name = "start_day", short = 's', long, help = "Specify the start day")]
+    #[arg(
+        name = "start_day",
+        short = 's',
+        long,
+        help = "Specify the start day",
+        conflicts_with = "wait"
+    )]
     start_day: Option<String>,
-    #[arg(name = "end_day", short = 'e', long, help = "Specify the end day")]
+    #[arg(
+        name = "end_day",
+        short = 'e',
+        long,
+        help = "Specify the end day",
+        conflicts_with = "wait"
+    )]
     end_day: Option<String>,
     /// Config file path
     #[clap(short, long, help = "Specify a path to the config file")]
@@ -62,6 +76,10 @@ impl Source for Args {
         let _old = map.insert(
             "quiet".to_string(),
             Value::new(Some(&origin), ValueKind::U64(u8::into(self.quiet))),
+        );
+        let _old = map.insert(
+            "wait".to_string(),
+            Value::new(Some(&origin), ValueKind::Boolean(self.wait)),
         );
         let _old = map.insert(
             "year".to_string(),
