@@ -1,0 +1,39 @@
+[package]
+name = "aoc2-di"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+unstable = []
+
+[dependencies]
+anyhow.workspace = true
+clap = { workspace = true, features = ["derive"] }
+config = { version = "0.15.3", default-features = false, features = ["toml"] }
+console.workspace = true
+cookie = "0.18.1"
+dirs2 = "3.0.1"
+getset.workspace = true
+rand = "0.8.5"
+reqwest = { version = "0.12.9", features = ["cookies"] }
+serde = { version = "1.0.216", features = ["derive"] }
+thiserror = "2.0.8"
+tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread"] }
+tracing = { version = "0.1.41", features = [
+    "attributes",
+    "max_level_trace",
+    "release_max_level_info",
+] }
+tracing-appender = "0.2.3"
+tracing-subscriber = { version = "0.3.19", features = [
+    "env-filter",
+    "fmt",
+    "time",
+] }
+tracing-subscriber-init = { version = "0.1.3", features = ["tstime"] }
+vergen-pretty = { version = "0.3.6", features = ["color", "trace"] }
+
+[build-dependencies]
+anyhow.workspace = true
+rustversion.workspace = true
+vergen-gix = { version = "1.0.3", features = ["build", "cargo", "rustc", "si"] }

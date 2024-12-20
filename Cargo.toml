@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-members = ["aoc2-bin", "aoc2-ft", "aoc2-sol"]
+members = ["aoc2-bin", "aoc2-di", "aoc2-ft", "aoc2-sol"]
 
 [workspace.dependencies]
 anyhow = "1.0.94"
