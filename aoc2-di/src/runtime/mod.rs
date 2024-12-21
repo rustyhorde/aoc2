@@ -63,7 +63,7 @@ where
         if let MappedLocalTime::Single(tomorrow_midnight_eastern) = now_eastern
             .date_naive()
             .succ_opt()
-            .and_then(|d| d.and_hms_opt(0, 0, 0))
+            .and_then(|d| d.and_hms_opt(0, 0, 5))
             .ok_or_else(|| anyhow!("Cannot determine tomorrow's date"))?
             .and_local_timezone(Eastern)
         {
