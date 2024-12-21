@@ -118,7 +118,7 @@ async fn check_time_to_download(
 
     let elapsed = message_now.elapsed();
     if elapsed > Duration::from_secs(20) {
-        info!("Waiting for the next day to start a download");
+        trace!("Waiting for the next day to start a download");
         *message_now = Instant::now();
     }
     Ok(done)
