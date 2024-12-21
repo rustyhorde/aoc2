@@ -223,43 +223,6 @@ use std::{
     io::{BufRead, BufReader},
 };
 
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-enum NodeKind {
-    #[default]
-    Wall,
-    Empty,
-}
-
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-struct Node {
-    loc: (usize, usize),
-    kind: NodeKind,
-}
-
-impl Node {
-    fn succ(&self, maze: &Array2<Node>) -> Vec<Node> {
-        let mut succ = vec![];
-        let (x, y) = self.loc;
-        if x > 0 {
-            if let Some(NodeKind::Empty) = maze.get((x - 1, y)).map(|x| x.kind) {
-                succ.push(maze[[x - 1, y]]);
-            }
-        }
-        if y > 0 {
-            if let Some(NodeKind::Empty) = maze.get((x, y - 1)).map(|x| x.kind) {
-                succ.push(maze[[x, y - 1]]);
-            }
-        }
-        if let Some(NodeKind::Empty) = maze.get((x + 1, y)).map(|x| x.kind) {
-            succ.push(maze[[x + 1, y]]);
-        }
-        if let Some(NodeKind::Empty) = maze.get((x, y + 1)).map(|x| x.kind) {
-            succ.push(maze[[x, y + 1]]);
-        }
-        succ
-    }
-}
-
 type MazeData = (Vec<Vec<char>>, usize);
 
 /// Solution for Part 1
@@ -313,38 +276,24 @@ fn find_res(data: MazeData, second_star: bool) -> Result<usize> {
     let (data, least_save) = data;
     let max_x = data[0].len();
     let max_y = data.len();
-    let mut maze = Array2::<Node>::default((max_x, max_y));
-    let mut start = Node::default();
-    let mut end = Node::default();
+    let mut maze = Array2::<bool>::default((max_x, max_y));
+    let mut start = (0, 0);
+    let mut end = (0, 0);
 
     for (y, row) in data.iter().enumerate() {
         for (x, &cell) in row.iter().enumerate() {
             match cell {
-                '#' => {
-                    maze[[x, y]] = Node {
-                        loc: (x, y),
-                        kind: NodeKind::Wall,
-                    }
-                }
+                '#' => {}
                 '.' => {
-                    maze[[x, y]] = Node {
-                        loc: (x, y),
-                        kind: NodeKind::Empty,
-                    }
+                    maze[[x, y]] = true;
                 }
                 'S' => {
-                    start = Node {
-                        loc: (x, y),
-                        kind: NodeKind::Empty,
-                    };
-                    maze[[x, y]] = start;
+                    start = (x, y);
+                    maze[[x, y]] = true;
                 }
                 'E' => {
-                    end = Node {
-                        loc: (x, y),
-                        kind: NodeKind::Empty,
-                    };
-                    maze[[x, y]] = end;
+                    end = (x, y);
+                    maze[[x, y]] = true;
                 }
                 _ => return Err(anyhow!("Invalid cell")),
             }
@@ -352,41 +301,55 @@ fn find_res(data: MazeData, second_star: bool) -> Result<usize> {
     }
 
     let dist = if second_star { 20 } else { 2 };
-    let mut count = 0;
+    let locs = dfs(start, |loc| succ(*loc, &maze), |node| *node == end).unwrap_or_default();
 
-    let parents =
-        dfs(start, |node| node.succ(&maze), |node| node.loc == end.loc).unwrap_or_default();
-    let locs = parents.into_iter().map(|node| node.loc).collect::<Vec<_>>();
-
-    for (from_idx, from_loc) in locs.iter().enumerate() {
-        let dist_vec = md(*from_loc, &locs, dist)?;
-        for (to_loc, adist) in &dist_vec {
-            let to_pos = locs.iter().position(|x| x == to_loc).unwrap_or_default();
-            if to_pos > from_idx
-                && to_pos - from_idx > *adist
-                && to_pos - from_idx - adist >= least_save
-            {
-                count += 1;
-            }
-        }
-    }
+    let count = locs
+        .iter()
+        .enumerate()
+        .filter_map(|(from_pos, from_loc)| {
+            locs.iter()
+                .enumerate()
+                .try_fold(0, |acc, (to_pos, to_loc)| -> Result<usize> {
+                    let mut n_acc = acc;
+                    if to_pos > from_pos {
+                        let md = manhattan_distance(*from_loc, *to_loc)?;
+                        if md > 1
+                            && md <= dist
+                            && to_pos - from_pos > md
+                            && to_pos - from_pos - md >= least_save
+                        {
+                            n_acc += 1;
+                        }
+                    }
+                    Ok(n_acc)
+                })
+                .ok()
+        })
+        .sum();
 
     Ok(count)
 }
 
-fn md(
-    me: (usize, usize),
-    others: &[(usize, usize)],
-    dist: usize,
-) -> Result<Vec<((usize, usize), usize)>> {
-    let mut paths = vec![];
-    for other in others {
-        let md = manhattan_distance(me, *other)?;
-        if md > 1 && md <= dist {
-            paths.push((*other, md));
-        }
+fn succ(loc: (usize, usize), maze: &Array2<bool>) -> Vec<(usize, usize)> {
+    let mut succ = vec![];
+    let (x, y) = loc;
+    if x > 0 && maze_at_loc((x - 1, y), maze) {
+        succ.push((x - 1, y));
     }
-    Ok(paths)
+    if y > 0 && maze_at_loc((x, y - 1), maze) {
+        succ.push((x, y - 1));
+    }
+    if maze_at_loc((x + 1, y), maze) {
+        succ.push((x + 1, y));
+    }
+    if maze_at_loc((x, y + 1), maze) {
+        succ.push((x, y + 1));
+    }
+    succ
+}
+
+fn maze_at_loc(loc: (usize, usize), maze: &Array2<bool>) -> bool {
+    maze.get(loc).copied().unwrap_or_default()
 }
 
 /// Calculate the manhattan distance between two (x,y) tuples.
