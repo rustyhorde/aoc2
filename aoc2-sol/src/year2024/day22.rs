@@ -148,18 +148,18 @@
 //!  
 //!  Figure out the best sequence to tell the monkey so that by looking for that same sequence of changes in every buyer's future prices, you get the most bananas in total. What is the most bananas you can get?
 
-use rayon::iter::ParallelIterator;
 use crate::{
     constants::{AoCDay, AoCYear},
     utils::{run_bench_solution, run_setup_solution, valid_lines},
 };
 use anyhow::Result;
+use rayon::iter::ParallelIterator;
+use rayon::prelude::IntoParallelRefMutIterator;
 use std::{
     collections::HashMap,
     fs::File,
     io::{BufRead, BufReader},
 };
-use rayon::prelude::IntoParallelRefMutIterator;
 
 type MonkeySecrets = (Vec<usize>, usize);
 
@@ -207,37 +207,47 @@ fn find(data: MonkeySecrets) -> usize {
 #[allow(clippy::unnecessary_wraps)]
 fn find_res(ini_secrets: MonkeySecrets, second_star: bool) -> Result<usize> {
     let (mut ini_secrets, secret_count) = ini_secrets;
-    // let diffs_map = Arc::new(Mutex::new(HashMap::<usize, Vec<(usize, isize)>>::new()));
 
     let gen_s = ini_secrets
         .par_iter_mut()
-        .filter_map(|secret| generate_secrets(secret, secret_count, second_star).map(|gs| (*secret, gs)).ok())
+        .filter_map(|secret| {
+            generate_secrets(secret, secret_count, second_star)
+                .map(|gs| (*secret, gs))
+                .ok()
+        })
         .collect::<HashMap<usize, Vec<(usize, isize)>>>();
 
     if second_star {
         let mut totals_hm = HashMap::new();
-        gen_s.values().map(|price_diffs| {
-            let mut hm = HashMap::new();
-            price_diffs.windows(4).for_each(|seq_price| {
-                let seq = seq_price.iter().map(|(_, diff)| *diff).collect::<Vec<_>>();
-                let _ = hm.entry(seq).or_insert(seq_price[3].0);
+        gen_s
+            .values()
+            .map(|price_diffs| {
+                let mut hm = HashMap::new();
+                price_diffs.windows(4).for_each(|seq_price| {
+                    let seq = seq_price.iter().map(|(_, diff)| *diff).collect::<Vec<_>>();
+                    let _ = hm.entry(seq).or_insert(seq_price[3].0);
+                });
+                hm
+            })
+            .for_each(|hm| {
+                for (seq, price) in hm {
+                    let _ = totals_hm
+                        .entry(seq)
+                        .and_modify(|p| *p += price)
+                        .or_insert(price);
+                }
             });
-            hm
-        }).for_each(|hm| {
-            for (seq, price) in hm {
-                let _ = totals_hm
-                    .entry(seq)
-                    .and_modify(|p| *p += price)
-                    .or_insert(price);
-            }
-        });
         Ok(totals_hm.values().copied().max().unwrap_or_default())
     } else {
         Ok(gen_s.keys().sum())
     }
 }
 
-fn generate_secrets(secret: &mut usize, secret_count: usize, second_star: bool) -> Result<Vec<(usize, isize)>> {
+fn generate_secrets(
+    secret: &mut usize,
+    secret_count: usize,
+    second_star: bool,
+) -> Result<Vec<(usize, isize)>> {
     let mut prev_price = 0;
     let mut price_diffs = vec![];
     for i in 0..secret_count {
@@ -261,7 +271,7 @@ fn ones_digit(n: usize) -> usize {
 }
 
 fn step_1(secret: &mut usize) {
-    mix_and_prune(secret,  *secret << 6);
+    mix_and_prune(secret, *secret << 6);
 }
 
 fn step_2(secret: &mut usize) {
