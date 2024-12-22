@@ -83,7 +83,9 @@ use anyhow::Result;
 use itertools::Itertools;
 use ndarray::{Array3, Axis};
 use std::{
-    collections::HashMap, fs::File, io::{BufRead, BufReader}
+    collections::HashMap,
+    fs::File,
+    io::{BufRead, BufReader},
 };
 
 type SifData = (Vec<Vec<u32>>, usize, usize);
@@ -170,7 +172,8 @@ fn find_res(sif_data: SifData, second_star: bool) -> Result<usize> {
                 for val in chunk {
                     if *val == 2 {
                         continue;
-                    } else if *val == 0 {
+                    }
+                    if *val == 0 {
                         let _ = image.entry((curr_x, curr_y)).or_insert(' ');
                         break;
                     } else if *val == 1 {
