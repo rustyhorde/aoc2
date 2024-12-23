@@ -148,11 +148,11 @@ where
 
 #[allow(clippy::needless_pass_by_value)]
 fn find(data: IntcodeData) -> usize {
-    find_res(data, false).unwrap_or_default()
+    find_res(&data, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(intcodes: IntcodeData, second_star: bool) -> Result<usize> {
+fn find_res(intcodes: &IntcodeData, second_star: bool) -> Result<usize> {
     let (sender, receiver) = channel();
     let (send_a, mut amp_a) = Intcode::new(intcodes.clone());
     let _ = amp_a.set_sender_opt(Some(sender));
@@ -188,12 +188,12 @@ fn find_res(intcodes: IntcodeData, second_star: bool) -> Result<usize> {
     }
 
     if second_star {
-        display_map(&paint_map)?;
+        display_map(&paint_map);
     }
     Ok(paint_map.keys().len())
 }
 
-fn display_map(paint_map: &HashMap<(isize, isize), char>) -> Result<()> {
+fn display_map(paint_map: &HashMap<(isize, isize), char>) {
     let min_x = paint_map.keys().map(|(x, _)| *x).min().unwrap_or_default();
     let max_x = paint_map.keys().map(|(x, _)| *x).max().unwrap_or_default();
     let min_y = paint_map.keys().map(|(_, y)| *y).min().unwrap_or_default();
@@ -202,12 +202,10 @@ fn display_map(paint_map: &HashMap<(isize, isize), char>) -> Result<()> {
     for y in min_y..=max_y {
         for x in min_x..=max_x {
             let ch = paint_map.get(&(x, y)).unwrap_or(&'.');
-            print!("{}", ch);
+            print!("{ch}");
         }
         println!();
     }
-
-    Ok(())
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -263,7 +261,7 @@ fn hpr(
         // eprint!("turned left to {curr_dir} and moved to {curr_loc:?}");
         let _ = paint_map.entry(*curr_loc).or_insert('.');
         let mut send = None;
-        if let Some(below) = paint_map.get(&curr_loc) {
+        if let Some(below) = paint_map.get(curr_loc) {
             match below {
                 '.' => send = Some(I256::ZERO),
                 '#' => send = Some(I256::ONE),
@@ -295,7 +293,7 @@ fn hpr(
         // eprint!("turned right to {curr_dir} and moved to {curr_loc:?}");
         let _ = paint_map.entry(*curr_loc).or_insert('.');
         let mut send = None;
-        if let Some(below) = paint_map.get(&curr_loc) {
+        if let Some(below) = paint_map.get(curr_loc) {
             match below {
                 '.' => send = Some(I256::ZERO),
                 '#' => send = Some(I256::ONE),
@@ -347,7 +345,7 @@ pub fn part_2_bench(bench: u16) -> Result<u32> {
 
 #[allow(clippy::needless_pass_by_value)]
 fn find2(data: IntcodeData) -> usize {
-    find_res(data, true).unwrap_or_default()
+    find_res(&data, true).unwrap_or_default()
 }
 
 #[cfg(test)]
@@ -358,6 +356,7 @@ mod one_star {
     use std::collections::HashMap;
 
     #[test]
+    #[allow(clippy::too_many_lines)]
     fn solution() -> Result<()> {
         let mut paint_map = HashMap::new();
         let mut curr_loc = (0, 0);
@@ -408,7 +407,7 @@ mod one_star {
             &mut curr_dir,
             &mut paint_map,
         )?;
-        assert_eq!(curr_loc, (-1, -1));
+        assert_eq!(curr_loc, (-1, 1));
         assert_eq!(paint_map.get(&curr_loc), Some(&'.'));
         assert!(paint);
         assert_eq!(curr_dir, Direction::Down);
@@ -421,7 +420,7 @@ mod one_star {
             &mut curr_dir,
             &mut paint_map,
         )?;
-        assert_eq!(curr_loc, (-1, -1));
+        assert_eq!(curr_loc, (-1, 1));
         assert_eq!(paint_map.get(&curr_loc), Some(&'#'));
         assert!(!paint);
         assert_eq!(curr_dir, Direction::Down);
@@ -433,7 +432,7 @@ mod one_star {
             &mut curr_dir,
             &mut paint_map,
         )?;
-        assert_eq!(curr_loc, (0, -1));
+        assert_eq!(curr_loc, (0, 1));
         assert_eq!(paint_map.get(&curr_loc), Some(&'.'));
         assert!(paint);
         assert_eq!(curr_dir, Direction::Right);
@@ -446,7 +445,7 @@ mod one_star {
             &mut curr_dir,
             &mut paint_map,
         )?;
-        assert_eq!(curr_loc, (0, -1));
+        assert_eq!(curr_loc, (0, 1));
         assert_eq!(paint_map.get(&curr_loc), Some(&'#'));
         assert!(!paint);
         assert_eq!(curr_dir, Direction::Right);
@@ -509,7 +508,7 @@ mod one_star {
             &mut curr_dir,
             &mut paint_map,
         )?;
-        assert_eq!(curr_loc, (1, 1));
+        assert_eq!(curr_loc, (1, -1));
         assert_eq!(paint_map.get(&curr_loc), Some(&'.'));
         assert!(paint);
         assert_eq!(curr_dir, Direction::Up);
@@ -522,7 +521,7 @@ mod one_star {
             &mut curr_dir,
             &mut paint_map,
         )?;
-        assert_eq!(curr_loc, (1, 1));
+        assert_eq!(curr_loc, (1, -1));
         assert_eq!(paint_map.get(&curr_loc), Some(&'#'));
         assert!(!paint);
         assert_eq!(curr_dir, Direction::Up);
@@ -534,7 +533,7 @@ mod one_star {
             &mut curr_dir,
             &mut paint_map,
         )?;
-        assert_eq!(curr_loc, (0, 1));
+        assert_eq!(curr_loc, (0, -1));
         assert_eq!(paint_map.get(&curr_loc), Some(&'.'));
         assert!(paint);
         assert_eq!(curr_dir, Direction::Left);
