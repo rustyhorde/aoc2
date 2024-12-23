@@ -225,9 +225,8 @@
 #![cfg_attr(all(docsrs, nightly), feature(doc_cfg))]
 #![cfg_attr(coverage_nightly, feature(coverage_attribute))]
 
-use pathfinding as _;
-
 pub mod constants;
+mod error;
 mod utils;
 pub mod year2015;
 pub mod year2016;

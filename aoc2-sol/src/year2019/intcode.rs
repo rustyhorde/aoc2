@@ -11,10 +11,10 @@ use std::{
     sync::mpsc::{channel, Receiver, Sender},
 };
 
+use crate::error::Error;
 use anyhow::{anyhow, Result};
 use bnum::types::I256;
 use getset::Setters;
-use itertools::Itertools;
 
 pub(crate) type IntcodeData = Vec<I256>;
 
@@ -88,29 +88,13 @@ impl Intcode {
         Ok(output)
     }
 
-    fn parse_op_code(&mut self, op_code_idx: usize) -> Result<((u8, u8, u8), usize)> {
+    fn parse_op_code(&mut self, op_code_idx: usize) -> Result<((u8, u8, u8), u8)> {
         let op_code_val = self.read_memory(op_code_idx)?;
-        let op_code_digits = self.to_five_digits(op_code_val)?;
-        let (modes, op_code_sl) = op_code_digits.split_at(3);
-        let op_code_str = op_code_sl.iter().map(ToString::to_string).join("");
-        let op_code = op_code_str.parse::<usize>()?;
-        Ok(((modes[2], modes[1], modes[0]), op_code))
-    }
-
-    #[allow(clippy::unused_self, clippy::same_item_push)]
-    fn to_five_digits(&self, mut v: I256) -> Result<Vec<u8>> {
-        let mut digits: Vec<u8> = Vec::with_capacity(20);
-
-        while v > I256::ZERO {
-            let n = u8::try_from(v % I256::TEN).map_err(|e| anyhow!("{e}"))?;
-            v /= I256::TEN;
-            digits.push(n);
-        }
-        for _ in digits.len()..5 {
-            digits.push(0);
-        }
-        digits.reverse();
-        Ok(digits)
+        let op_code_digits = to_op_code_vec(op_code_val)?;
+        Ok((
+            (op_code_digits[1], op_code_digits[2], op_code_digits[3]),
+            op_code_digits[0],
+        ))
     }
 
     fn handle_add(&mut self, idx: &mut usize, modes: (u8, u8, u8)) -> Result<()> {
@@ -118,10 +102,10 @@ impl Intcode {
         let idx_2 = self.read_memory(*idx + 2)?;
         let idx_3 = self.read_memory(*idx + 3)?;
 
-        let addend_1 = self.handle_mode_0(idx_1, modes)?;
-        let addend_2 = self.handle_mode_1(idx_2, modes)?;
+        let addend_1 = self.handle_read(idx_1, modes.0)?;
+        let addend_2 = self.handle_read(idx_2, modes.1)?;
 
-        self.handle_write_mode_2(idx_3, modes, addend_1 + addend_2)?;
+        self.handle_write(idx_3, modes.2, addend_1 + addend_2)?;
 
         if self.debug {
             eprintln!("ADD: write {} to {idx_3}", addend_1 + addend_2);
@@ -135,13 +119,13 @@ impl Intcode {
         let idx_2 = self.read_memory(*idx + 2)?;
         let idx_3 = self.read_memory(*idx + 3)?;
 
-        let factor_1 = self.handle_mode_0(idx_1, modes)?;
-        let factor_2 = self.handle_mode_1(idx_2, modes)?;
+        let factor_1 = self.handle_read(idx_1, modes.0)?;
+        let factor_2 = self.handle_read(idx_2, modes.1)?;
 
-        self.handle_write_mode_2(idx_3, modes, factor_1 * factor_2)?;
+        self.handle_write(idx_3, modes.2, factor_1 * factor_2)?;
 
         if self.debug {
-            eprintln!("MUL: write {} to {idx_3}", factor_1 + factor_2);
+            eprintln!("MUL: write {} to {idx_3}", factor_1 * factor_2);
         }
         *idx += 4;
         Ok(())
@@ -149,7 +133,7 @@ impl Intcode {
 
     fn handle_input(&mut self, idx: &mut usize, modes: (u8, u8, u8), input: I256) -> Result<()> {
         let idx_1 = self.read_memory(*idx + 1)?;
-        self.handle_write_mode_0(idx_1, modes, input)?;
+        self.handle_write(idx_1, modes.0, input)?;
         if self.debug {
             eprintln!("store {input}");
         }
@@ -164,7 +148,7 @@ impl Intcode {
         modes: (u8, u8, u8),
     ) -> Result<()> {
         let idx_1 = self.read_memory(*idx + 1)?;
-        *output = self.handle_mode_0(idx_1, modes)?;
+        *output = self.handle_read(idx_1, modes.0)?;
         if self.debug {
             eprintln!("OUT: output from {idx_1}");
         }
@@ -174,7 +158,7 @@ impl Intcode {
 
     fn handle_jump_if_true(&mut self, idx: &mut usize, modes: (u8, u8, u8)) -> Result<()> {
         let idx_1 = self.read_memory(*idx + 1)?;
-        let check_val = self.handle_mode_0(idx_1, modes)?;
+        let check_val = self.handle_read(idx_1, modes.0)?;
         if check_val == I256::ZERO {
             if self.debug {
                 eprintln!("JIT: check_val: {check_val} no jump");
@@ -182,7 +166,7 @@ impl Intcode {
             *idx += 3;
         } else {
             let next = self.read_memory(*idx + 2)?;
-            *idx = to_u(self.handle_mode_1(next, modes)?)?;
+            *idx = to_u(self.handle_read(next, modes.1)?)?;
             if self.debug {
                 eprintln!("JIT: check_val: {check_val} true jump to {idx}");
             }
@@ -192,10 +176,10 @@ impl Intcode {
 
     fn handle_jump_if_false(&mut self, idx: &mut usize, modes: (u8, u8, u8)) -> Result<()> {
         let idx_1 = self.read_memory(*idx + 1)?;
-        let check_val = self.handle_mode_0(idx_1, modes)?;
+        let check_val = self.handle_read(idx_1, modes.0)?;
         if check_val == I256::ZERO {
             let next = self.read_memory(*idx + 2)?;
-            *idx = to_u(self.handle_mode_1(next, modes)?)?;
+            *idx = to_u(self.handle_read(next, modes.1)?)?;
             if self.debug {
                 eprintln!("JIF: check_val: {check_val} true jump to {idx}");
             }
@@ -213,20 +197,21 @@ impl Intcode {
         let idx_2 = self.read_memory(*idx + 2)?;
         let idx_3 = self.read_memory(*idx + 3)?;
 
-        let val_1 = self.handle_mode_0(idx_1, modes)?;
-        let val_2 = self.handle_mode_1(idx_2, modes)?;
+        let val_1 = self.handle_read(idx_1, modes.0)?;
+        let val_2 = self.handle_read(idx_2, modes.1)?;
 
-        if val_1 < val_2 {
+        let res = if val_1 < val_2 {
             if self.debug {
                 eprintln!(" LT: {val_1} < {val_2} write 1 to {idx_3}");
             }
-            self.handle_write_mode_2(idx_3, modes, I256::ONE)?;
+            I256::ONE
         } else {
             if self.debug {
                 eprintln!(" LT: {val_1} >= {val_2} write 0 to {idx_3}");
             }
-            self.handle_write_mode_2(idx_3, modes, I256::ZERO)?;
-        }
+            I256::ZERO
+        };
+        self.handle_write(idx_3, modes.2, res)?;
         *idx += 4;
         Ok(())
     }
@@ -236,27 +221,28 @@ impl Intcode {
         let idx_2 = self.read_memory(*idx + 2)?;
         let idx_3 = self.read_memory(*idx + 3)?;
 
-        let val_1 = self.handle_mode_0(idx_1, modes)?;
-        let val_2 = self.handle_mode_1(idx_2, modes)?;
+        let val_1 = self.handle_read(idx_1, modes.0)?;
+        let val_2 = self.handle_read(idx_2, modes.1)?;
 
-        if val_1 == val_2 {
+        let res = if val_1 == val_2 {
             if self.debug {
                 eprintln!(" EQ: {val_1} == {val_2} write 1 to {idx_3}");
             }
-            self.handle_write_mode_2(idx_3, modes, I256::ONE)?;
+            I256::ONE
         } else {
             if self.debug {
                 eprintln!(" EQ: {val_1} != {val_2} write 0 to {idx_3}");
             }
-            self.handle_write_mode_2(idx_3, modes, I256::ZERO)?;
-        }
+            I256::ZERO
+        };
+        self.handle_write(idx_3, modes.2, res)?;
         *idx += 4;
         Ok(())
     }
 
     fn handle_arb(&mut self, idx: &mut usize, modes: (u8, u8, u8)) -> Result<()> {
         let idx_1 = self.read_memory(*idx + 1)?;
-        let val_1 = self.handle_mode_0(idx_1, modes)?;
+        let val_1 = self.handle_read(idx_1, modes.0)?;
         self.relative_base += val_1;
         if self.debug {
             eprintln!("ARB: add {val_1} to relative base: {}", self.relative_base);
@@ -265,60 +251,25 @@ impl Intcode {
         Ok(())
     }
 
-    fn handle_mode_0(&mut self, idx: I256, modes: (u8, u8, u8)) -> Result<I256> {
-        Ok(if modes.0 == 0 {
+    fn handle_read(&mut self, idx: I256, mode: u8) -> Result<I256> {
+        Ok(if mode == 0 {
             self.read_memory(to_u(idx)?)?
-        } else if modes.0 == 1 {
+        } else if mode == 1 {
             idx
         } else {
-            if self.debug {
-                eprint!("reading idx {}", self.relative_base + idx);
-            }
             self.read_memory(to_u(self.relative_base + idx)?)?
         })
     }
 
-    fn handle_write_mode_0(&mut self, idx: I256, modes: (u8, u8, u8), input: I256) -> Result<()> {
-        if modes.0 == 0 {
+    fn handle_write(&mut self, idx: I256, mode: u8, input: I256) -> Result<()> {
+        if mode == 0 {
             self.write_memory(to_u(idx)?, input)?;
-        } else if modes.0 == 1 {
+        } else if mode == 1 {
             return Err(anyhow!("immediate mode invalid for a write!"));
         } else {
             self.write_memory(to_u(self.relative_base + idx)?, input)?;
         }
         Ok(())
-    }
-
-    fn handle_write_mode_2(&mut self, idx: I256, modes: (u8, u8, u8), input: I256) -> Result<()> {
-        if modes.2 == 0 {
-            self.write_memory(to_u(idx)?, input)?;
-        } else if modes.2 == 1 {
-            return Err(anyhow!("immediate mode invalid for a write!"));
-        } else {
-            self.write_memory(to_u(self.relative_base + idx)?, input)?;
-        }
-        Ok(())
-    }
-
-    fn handle_mode_1(&mut self, idx: I256, modes: (u8, u8, u8)) -> Result<I256> {
-        Ok(if modes.1 == 0 {
-            self.read_memory(to_u(idx)?)?
-        } else if modes.1 == 1 {
-            idx
-        } else {
-            self.read_memory(to_u(self.relative_base + idx)?)?
-        })
-    }
-
-    #[allow(dead_code)]
-    fn handle_mode_2(&mut self, idx: I256, modes: (u8, u8, u8)) -> Result<I256> {
-        Ok(if modes.2 == 0 {
-            self.read_memory(to_u(idx)?)?
-        } else if modes.2 == 1 {
-            idx
-        } else {
-            self.read_memory(to_u(self.relative_base + idx)?)?
-        })
     }
 
     fn read_memory(&mut self, idx: usize) -> Result<I256> {
@@ -364,4 +315,35 @@ fn to_u(v: I256) -> Result<usize> {
 
 pub(crate) fn as_isize(x: &str) -> Option<I256> {
     x.parse::<I256>().ok()
+}
+
+fn to_op_code_vec(mut v: I256) -> Result<[u8; 4]> {
+    let mut digits = [0; 4];
+
+    // 21108 becomes [8, 1, 1, 2], 20110 becomes [10, 1, 0, 2]
+    let mut i = 0;
+    while v > I256::ZERO {
+        let factor = if i == 0 { I256::from(100) } else { I256::TEN };
+        let n = v % factor;
+        v /= factor;
+        digits[i] = u8::try_from(n).map_err(|_| Error::ParseInt)?;
+        i += 1;
+    }
+    Ok(digits)
+}
+
+#[cfg(test)]
+mod test {
+    use super::to_op_code_vec;
+    use anyhow::Result;
+    use bnum::types::I256;
+
+    #[test]
+    fn to_five_digits_works() -> Result<()> {
+        assert_eq!(to_op_code_vec(I256::from(4))?, [4, 0, 0, 0]);
+        assert_eq!(to_op_code_vec(I256::from(99))?, [99, 0, 0, 0]);
+        assert_eq!(to_op_code_vec(I256::from(21108))?, [8, 1, 1, 2]);
+        assert_eq!(to_op_code_vec(I256::from(20110))?, [10, 1, 0, 2]);
+        Ok(())
+    }
 }

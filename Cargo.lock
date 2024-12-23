@@ -210,6 +210,7 @@ dependencies = [
  "rustversion",
  "serde_json",
  "sliding_windows",
+ "thiserror 2.0.9",
  "time",
  "tracing",
 ]
