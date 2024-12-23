@@ -60,6 +60,7 @@ use crate::{
 };
 use anyhow::Result;
 use bnum::types::I256;
+use itertools::Itertools;
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 use std::{
@@ -74,7 +75,7 @@ use std::{
 ///   [`AoCDay`](AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
-    run_setup_solution::<IntcodeData, usize>(AoCYear::AOC2019, AoCDay::AOCD09, setup, find)
+    run_setup_solution::<IntcodeData, String>(AoCYear::AOC2019, AoCDay::AOCD09, setup, find)
         .map(|_| 0)
 }
 
@@ -83,7 +84,7 @@ pub fn part_1() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_1_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<IntcodeData, usize>(bench, AoCYear::AOC2019, AoCDay::AOCD09, setup, find)
+    run_bench_solution::<IntcodeData, String>(bench, AoCYear::AOC2019, AoCDay::AOCD09, setup, find)
         .map(|_| 0)
 }
 
@@ -104,12 +105,12 @@ where
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find(data: IntcodeData) -> usize {
+fn find(data: IntcodeData) -> String {
     find_res(&data, false).unwrap_or_default()
 }
 
 #[allow(clippy::unnecessary_wraps)]
-fn find_res(intcodes: &IntcodeData, _second_star: bool) -> Result<usize> {
+fn find_res(intcodes: &IntcodeData, second_star: bool) -> Result<String> {
     let (sender, receiver) = channel();
     let (send_a, mut amp_a) = Intcode::new(intcodes.clone());
     let _ = amp_a.set_sender_opt(Some(sender));
@@ -117,21 +118,27 @@ fn find_res(intcodes: &IntcodeData, _second_star: bool) -> Result<usize> {
     let amp_a_handle = spawn(move || amp_a.start());
 
     // Start the chaos
-    send_a.send(I256::ONE)?;
+    let input = if second_star {
+        I256::from(2)
+    } else {
+        I256::ONE
+    };
+    send_a.send(input)?;
 
+    let mut output = vec![];
     while let Ok(res) = receiver.recv() {
-        eprintln!("{res}");
+        output.push(res);
     }
 
     match amp_a_handle.join() {
         Ok(res) => match res {
-            Ok(r) => eprintln!("{r}"),
+            Ok(_r) => {}
             Err(e) => eprintln!("{e}"),
         },
         Err(e) => eprintln!("{e:?}"),
     }
 
-    Ok(0)
+    Ok(output.iter().map(I256::to_string).join(","))
 }
 
 /// Solution for Part 2
@@ -141,7 +148,7 @@ fn find_res(intcodes: &IntcodeData, _second_star: bool) -> Result<usize> {
 ///   [`AoCDay`](AoCDay) cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
-    run_setup_solution::<IntcodeData, usize>(AoCYear::AOC2019, AoCDay::AOCD09, setup, find2)
+    run_setup_solution::<IntcodeData, String>(AoCYear::AOC2019, AoCDay::AOCD09, setup, find2)
         .map(|_| 0)
 }
 
@@ -150,12 +157,12 @@ pub fn part_2() -> Result<u32> {
 /// # Errors
 ///
 pub fn part_2_bench(bench: u16) -> Result<u32> {
-    run_bench_solution::<IntcodeData, usize>(bench, AoCYear::AOC2019, AoCDay::AOCD09, setup, find2)
+    run_bench_solution::<IntcodeData, String>(bench, AoCYear::AOC2019, AoCDay::AOCD09, setup, find2)
         .map(|_| 0)
 }
 
 #[allow(clippy::needless_pass_by_value)]
-fn find2(data: IntcodeData) -> usize {
+fn find2(data: IntcodeData) -> String {
     find_res(&data, true).unwrap_or_default()
 }
 
@@ -165,18 +172,21 @@ mod one_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r"109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99 ";
+    const TEST_1: &str = r"109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99";
     const TEST_2: &str = r"1102,34915192,34915192,7,4,7,99,0 ";
     const TEST_3: &str = r"104,1125899906842624,99 ";
 
     #[test]
     fn solution() -> Result<()> {
         let data = setup_br(Cursor::new(TEST_1))?;
-        assert_eq!(find(data), 0);
+        assert_eq!(
+            find(data),
+            "109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99"
+        );
         let data = setup_br(Cursor::new(TEST_2))?;
-        assert_eq!(find(data), 0);
+        assert_eq!(find(data), "1219070632396864");
         let data = setup_br(Cursor::new(TEST_3))?;
-        assert_eq!(find(data), 0);
+        assert_eq!(find(data), "1125899906842624");
         Ok(())
     }
 }
@@ -187,12 +197,12 @@ mod two_star {
     use anyhow::Result;
     use std::io::Cursor;
 
-    const TEST_1: &str = r">";
+    const TEST_1: &str = r"";
 
     #[test]
     fn solution() -> Result<()> {
         let data = setup_br(Cursor::new(TEST_1))?;
-        assert_eq!(find2(data), 0);
+        assert_eq!(find2(data), "");
         Ok(())
     }
 }
