@@ -53,6 +53,8 @@
 //!
 //! Once your Intcode computer is fully functional, the BOOST program should report no malfunctioning opcodes when run in test mode; it should only output a single value, the BOOST keycode. What BOOST keycode does it produce?
 
+#[cfg(feature = "intcode_debug")]
+use crate::year2019::intcode::DebugMessage;
 use crate::year2019::intcode::{as_isize, Intcode, IntcodeData};
 use crate::{
     constants::{AoCDay, AoCYear},
@@ -67,6 +69,8 @@ use std::{
     fs::File,
     io::{BufRead, BufReader},
 };
+#[cfg(feature = "intcode_debug")]
+use tracing::info;
 
 /// Solution for Part 1
 ///
@@ -114,8 +118,24 @@ fn find_res(intcodes: &IntcodeData, second_star: bool) -> Result<String> {
     let (sender, receiver) = channel();
     let (send_a, mut amp_a) = Intcode::new(intcodes.clone());
     let _ = amp_a.set_sender_opt(Some(sender));
+    #[cfg(feature = "intcode_debug")]
+    let (d_sender, d_receiver) = channel();
+    #[cfg(feature = "intcode_debug")]
+    {
+        let _ = amp_a.set_debug_opt(Some(d_sender));
+        let _ = amp_a.set_debug(true);
+    }
 
     let amp_a_handle = spawn(move || amp_a.start());
+
+    #[cfg(feature = "intcode_debug")]
+    let _debug_handle = spawn(move || {
+        while let Ok(res) = d_receiver.recv() {
+            if let Ok(dm) = bincode::deserialize::<DebugMessage>(&res) {
+                info!("{dm:?}");
+            }
+        }
+    });
 
     // Start the chaos
     let input = if second_star {

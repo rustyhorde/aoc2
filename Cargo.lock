@@ -190,9 +190,11 @@ name = "aoc2-sol"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bincode",
  "bitvec",
  "bnum",
  "bytecount",
+ "cfg-if 1.0.0",
  "console",
  "crossterm",
  "getset",
@@ -208,6 +210,7 @@ dependencies = [
  "rayon",
  "regex",
  "rustversion",
+ "serde",
  "serde_json",
  "sliding_windows",
  "thiserror 2.0.9",
@@ -278,6 +281,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
+name = "bincode"
+version = "1.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -312,6 +324,10 @@ name = "bnum"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "50202def95bf36cb7d1d7a7962cea1c36a3f8ad42425e5d2b71d7acb8041b5b8"
+dependencies = [
+ "serde",
+ "serde-big-array",
+]
 
 [[package]]
 name = "bstr"
@@ -3086,6 +3102,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b9781016e935a97e8beecf0c933758c97a5520d32930e460142b4cd80c6338e"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-big-array"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11fc7cc2c76d73e0f27ee52abbd64eec84d46f370c88371120433196934e4b7f"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
