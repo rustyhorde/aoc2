@@ -3,6 +3,9 @@ name = "aoc2"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+intcode_debug = ["aoc2-sol/intcode_debug"]
+
 [dependencies]
 anyhow = { workspace = true }
 aoc2-sol = { path = "../aoc2-sol" }
