@@ -54,6 +54,8 @@ pub(crate) struct Intcode {
     receiver: Receiver<I256>,
     #[getset(set = "pub(crate)")]
     sender_opt: Option<Sender<I256>>,
+    #[getset(set = "pub(crate)")]
+    input_sender_opt: Option<Sender<bool>>,
     #[cfg(feature = "intcode_debug")]
     #[getset(set = "pub(crate)")]
     debug_opt: Option<Sender<Vec<u8>>>,
@@ -72,6 +74,7 @@ impl Intcode {
                 intcodes,
                 receiver,
                 sender_opt: None,
+                input_sender_opt: None,
                 #[cfg(feature = "intcode_debug")]
                 debug_opt: None,
                 relative_base: I256::ZERO,
@@ -105,7 +108,13 @@ impl Intcode {
             } else if op_code == 2 {
                 self.handle_mult(&mut op_code_idx, modes)?;
             } else if op_code == 3 {
+                if let Some(input_sender) = &self.input_sender_opt {
+                    input_sender.send(true)?;
+                }
                 let input = self.receiver.recv()?;
+                if let Some(input_sender) = &self.input_sender_opt {
+                    input_sender.send(false)?;
+                }
                 #[cfg(feature = "intcode_debug")]
                 self.send_debug_message(&DebugMessage::Input(input));
                 self.handle_input(&mut op_code_idx, modes, input)?;

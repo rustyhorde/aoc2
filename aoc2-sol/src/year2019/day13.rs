@@ -54,18 +54,15 @@ use crate::{
 use anyhow::{anyhow, Result};
 use bnum::types::I256;
 use console::style;
-use crossterm::cursor::{
-    Hide, MoveToColumn, MoveToNextLine, MoveToRow, RestorePosition, SavePosition, Show,
+use crossterm::{
+    cursor::{Hide, MoveToColumn, MoveToNextLine, MoveToRow, RestorePosition, SavePosition, Show},
+    style::Print,
+    ExecutableCommand, QueueableCommand,
 };
-use crossterm::style::Print;
-use crossterm::{ExecutableCommand, QueueableCommand};
-use std::io::{stdout, Write};
-use std::thread::sleep;
-use std::time::Duration;
 use std::{
     collections::BTreeMap,
     fs::File,
-    io::{BufRead, BufReader},
+    io::{stdout, BufRead, BufReader, Write},
     sync::mpsc::channel,
     thread::spawn,
 };
@@ -113,9 +110,10 @@ fn find(data: IntcodeData) -> usize {
     find_res(data, false).unwrap_or_default()
 }
 
-#[allow(clippy::unnecessary_wraps)]
+#[allow(clippy::unnecessary_wraps, clippy::too_many_lines)]
 fn find_res(mut intcodes: IntcodeData, second_star: bool) -> Result<usize> {
     let (sender, receiver) = channel();
+
     if second_star {
         intcodes[0] = I256::from(2);
     }
@@ -139,24 +137,13 @@ fn find_res(mut intcodes: IntcodeData, second_star: bool) -> Result<usize> {
     });
 
     let amp_a_handle = spawn(move || amp_a.start());
-    // Start the chaos
-    // let input = if second_star {
-    //     I256::from(2)
-    // } else {
-    //     I256::ZERO
-    // };
-    // send_a.send(input)?;
-    let input = vec![1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    for i in input {
-        send_a.send(I256::from(i)).unwrap_or_default();
-    }
 
     let mut grid_map = BTreeMap::new();
     let mut out_count = 0;
     let mut x = isize::MAX;
     let mut y = isize::MAX;
     let mut score = usize::MIN;
-    let mut after_initial = false;
+    let mut paddle_x = -1;
 
     while let Ok(res) = receiver.recv() {
         if out_count == 0 {
@@ -167,7 +154,7 @@ fn find_res(mut intcodes: IntcodeData, second_star: bool) -> Result<usize> {
             out_count += 1;
         } else if out_count == 2 {
             if x == -1 && y == 0 {
-                score += usize::try_from(res).unwrap_or_default();
+                score = usize::try_from(res).unwrap_or_default();
                 out_count = 0;
                 x = isize::MAX;
                 y = isize::MAX;
@@ -178,19 +165,22 @@ fn find_res(mut intcodes: IntcodeData, second_star: bool) -> Result<usize> {
                 0 => ' ',
                 1 => '#',
                 2 => '-',
-                3 => '_',
-                4 => 'O',
+                3 => {
+                    paddle_x = x;
+                    '_'
+                }
+                4 => {
+                    let _ = send_a.send(match x.cmp(&paddle_x) {
+                        std::cmp::Ordering::Less => I256::from(-1),
+                        std::cmp::Ordering::Equal => I256::ZERO,
+                        std::cmp::Ordering::Greater => I256::ONE,
+                    });
+                    'O'
+                }
                 _ => return Err(anyhow!("Invalid id: {}", id)),
             };
             let _ = grid_map.entry((x, y)).and_modify(|x| *x = ch).or_insert(ch);
-
             screen(&grid_map, true, score).unwrap_or_default();
-            if after_initial {
-                sleep(Duration::from_millis(100));
-            }
-            if x == 37 && y == 21 {
-                after_initial = true;
-            }
             x = isize::MAX;
             y = isize::MAX;
             out_count = 0;
@@ -208,7 +198,11 @@ fn find_res(mut intcodes: IntcodeData, second_star: bool) -> Result<usize> {
         },
         Err(e) => eprintln!("{e:?}"),
     }
-    Ok(grid_map.values().filter(|x| **x == '-').count())
+    if second_star {
+        Ok(score)
+    } else {
+        Ok(grid_map.values().filter(|x| **x == '-').count())
+    }
 }
 
 fn screen(screen_data: &BTreeMap<(isize, isize), char>, restore: bool, score: usize) -> Result<()> {
@@ -216,12 +210,11 @@ fn screen(screen_data: &BTreeMap<(isize, isize), char>, restore: bool, score: us
 
     let _ = stdout.execute(Hide)?;
     let _ = stdout.queue(SavePosition)?;
-    let _ = stdout.queue(MoveToNextLine(1))?;
     let _ = stdout.queue(Print(format!("Score: {score}")))?;
     let _ = stdout.queue(MoveToNextLine(1))?;
     for ((x, y), ch) in screen_data {
         let _ = stdout.queue(MoveToColumn(u16::try_from(*x)?))?;
-        let _ = stdout.queue(MoveToRow(u16::try_from(*y + 5)?))?;
+        let _ = stdout.queue(MoveToRow(u16::try_from(*y + 4)?))?;
         match ch {
             '#' => {
                 let _ = stdout.queue(Print(style(ch.to_string()).green().bold()))?;
