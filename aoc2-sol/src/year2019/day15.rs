@@ -261,7 +261,7 @@ fn find_res(intcodes: IntcodeData, _second_star: bool) -> Result<usize> {
                     return Err(anyhow!("Invalid direction"));
                 };
                 let _ = room_map.insert(oxy_coord, CoordKind::Oxygen);
-                eprintln!("Found oxygen at {:?}", oxy_coord);
+                eprintln!("Found oxygen at {oxy_coord:?}");
                 break;
             }
             _ => return Err(anyhow!("Invalid response from Intcode")),
