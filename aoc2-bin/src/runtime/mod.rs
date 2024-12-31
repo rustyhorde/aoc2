@@ -18,10 +18,10 @@ use self::{
     fnmap::FN_MAP,
     header::header,
 };
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use aoc2_sol::constants::{AoCDay, AoCYear};
 use clap::Parser;
-use config::{load, ConfigAoc2};
+use config::{ConfigAoc2, load};
 use console::style;
 use fnmap::BENCH_MAP;
 use std::convert::TryFrom;

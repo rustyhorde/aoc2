@@ -4,11 +4,27 @@ resolver = "2"
 members = ["aoc2-bin", "aoc2-di", "aoc2-ft", "aoc2-sol"]
 
 [workspace.dependencies]
-anyhow = "1.0.94"
-clap = {version = "4.5.23", features = ["derive"] }
-console = "0.15.8"
+anyhow = "1.0.95"
+clap = { version = "4.5.23", features = ["derive"] }
+config = "0.15.4"
+console = "0.15.10"
+dirs2 = "3.0.1"
 getset = "0.1.3"
-indexmap = "2.7.0"
 lazy_static = "1.5.0"
+rand = "0.8.5"
 regex = "1.11.1"
-rustversion = "1.0.18"
+rustversion = "1.0.19"
+serde = { version = "1.0.217", features = ["derive"] }
+thiserror = "2.0.9"
+tracing = { version = "0.1.41", features = [
+    "max_level_trace",
+    "release_max_level_info",
+] }
+tracing-subscriber = { version = "0.3.19", features = [
+    "env-filter",
+    "fmt",
+    "time",
+] }
+tracing-subscriber-init = { version = "0.1.3", features = ["tstime"] }
+vergen-gix = { version = "1.0.3", features = ["build", "cargo", "rustc", "si"] }
+vergen-pretty = { version = "0.3.6", features = ["color", "trace"] }

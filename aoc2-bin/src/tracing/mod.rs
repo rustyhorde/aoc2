@@ -14,7 +14,7 @@ use getset::CopyGetters;
 use serde::{Deserialize, Serialize};
 use tracing::Level;
 use tracing_subscriber::{EnvFilter, Registry};
-use tracing_subscriber_init::{compact, try_init, Iso8601, Layer, TracingConfig, UtcTime};
+use tracing_subscriber_init::{Iso8601, Layer, TracingConfig, UtcTime, compact, try_init};
 
 #[allow(clippy::struct_excessive_bools, clippy::struct_field_names)]
 #[derive(Clone, Copy, CopyGetters, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]

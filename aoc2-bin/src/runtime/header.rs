@@ -10,7 +10,7 @@
 use anyhow::Result;
 use console::Style;
 use rand::Rng;
-use vergen_pretty::{vergen_pretty_env, PrefixBuilder, PrettyBuilder};
+use vergen_pretty::{PrefixBuilder, PrettyBuilder, vergen_pretty_env};
 
 fn from_u8(val: u8) -> Style {
     let style = Style::new();

@@ -51,10 +51,10 @@ pub(crate) fn success((): ()) -> i32 {
 #[cfg(test)]
 mod test {
     use super::{clap_or_error, success};
-    use anyhow::{anyhow, Error};
+    use anyhow::{Error, anyhow};
     use clap::{
-        error::ErrorKind::{DisplayHelp, DisplayVersion},
         Command,
+        error::ErrorKind::{DisplayHelp, DisplayVersion},
     };
 
     #[test]
