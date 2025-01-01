@@ -2028,9 +2028,9 @@ checksum = "d75a2a4b1b190afb6f5425f10f6a8f959d2ea0b9c2b1d79553551850539e4674"
 
 [[package]]
 name = "jiff"
-version = "0.1.17"
+version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e997bf1906c6896eaa4b4086d4c9420b58ee2b2c7c23dcb99c616954c6bf6492"
+checksum = "d09ead9616bda43297ffc1fa32e01f5951c0f08cf5239a296a8d73f3b13fc2b6"
 dependencies = [
  "jiff-tzdb-platform",
  "log",
@@ -4238,9 +4238,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.6.20"
+version = "0.6.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36c1fec1a2bb5866f07c25f68c26e565c4c200aebb96d7e55710c19d3e8ac49b"
+checksum = "e6f5bb5257f2407a5425c6e749bfd9692192a73e70a6060516ac04f889087d68"
 dependencies = [
  "memchr",
 ]
