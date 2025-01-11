@@ -227,7 +227,6 @@ fn apply_moves(moves: &[Move], dancers: &mut [char]) {
                     if val == y {
                         idx_y = i;
                         found.1 = true;
-                        continue;
                     }
                 }
 

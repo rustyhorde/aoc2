@@ -287,8 +287,6 @@ fn get_next_neighbor(
                 if adj_row < max_row && adj_col < max_col && network_map[[adj_row, adj_col]] != 32 {
                     return Ok((adj_row, adj_col));
                 }
-            } else {
-                continue;
             }
         }
     }

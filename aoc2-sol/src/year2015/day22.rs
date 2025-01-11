@@ -377,14 +377,11 @@ fn play(state: &GameState, ms: &mut usize, hard_mode: bool) {
         }
 
         match boss_turn(&mut my_gs) {
-            EndTurn::PlayerKilled => {
-                continue;
-            }
+            EndTurn::PlayerKilled => {}
             EndTurn::BossKilled => {
                 if my_gs.mana_spent < *ms {
                     *ms = my_gs.mana_spent;
                 }
-                continue;
             }
             EndTurn::Continue => play(&my_gs, ms, hard_mode),
         }

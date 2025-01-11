@@ -153,12 +153,9 @@ fn process_line_as_chars(line: &str) -> Result<(u32, u32)> {
             '>' if in_garbage => {
                 in_garbage = false;
             }
-            ',' if current_nesting > 0 && !in_garbage => {
-                continue;
-            }
+            ',' if current_nesting > 0 && !in_garbage => {}
             _ if in_garbage => {
                 garbage_count += 1;
-                continue;
             }
             _ => return Err(anyhow!("Unknown character encountered!")),
         }

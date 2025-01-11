@@ -296,8 +296,6 @@ fn depth_first_search(
                 {
                     depth_first_search(adj_row, adj_col, disk_arr, visited)?;
                 }
-            } else {
-                continue;
             }
         }
     }

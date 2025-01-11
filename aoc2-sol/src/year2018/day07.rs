@@ -370,7 +370,6 @@ fn find_res2(data: SoiPData) -> Result<usize> {
                 if !consume_work(worker, &nx) {
                     let _ = ready.insert(nx);
                     ready.sort_by(|x, y| x.cmp(y).reverse());
-                    continue;
                 }
             }
         }
