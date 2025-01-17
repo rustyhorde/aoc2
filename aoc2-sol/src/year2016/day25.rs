@@ -83,8 +83,8 @@ enum Instructions {
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<isize>(AoCYear::AOC2016, AoCDay::AOCD25, find).map(|_| 0)
@@ -257,8 +257,8 @@ fn show_regs(regs: &BTreeMap<char, isize>, term: &mut Term) -> Result<()> {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<isize>(AoCYear::AOC2016, AoCDay::AOCD25, find2).map(|_| 0)

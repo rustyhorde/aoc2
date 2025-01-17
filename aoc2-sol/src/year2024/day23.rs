@@ -104,8 +104,8 @@ type ConnData = Vec<(String, String)>;
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
-///   [`AoCDay`](AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<ConnData, usize>(AoCYear::AOC2024, AoCDay::AOCD23, setup, find).map(|_| 0)
@@ -176,8 +176,8 @@ fn find_res(conn_data: &ConnData, _second_star: bool) -> Result<usize> {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
-///   [`AoCDay`](AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<ConnData, String>(AoCYear::AOC2024, AoCDay::AOCD23, setup, find2)
