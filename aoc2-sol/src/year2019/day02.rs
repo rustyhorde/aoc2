@@ -113,13 +113,7 @@ where
     for line in valid_lines(reader) {
         let mut csv: Vec<usize> = line
             .split(',')
-            .filter_map(|x| {
-                if let Ok(val) = x.parse::<usize>() {
-                    Some(val)
-                } else {
-                    None
-                }
-            })
+            .filter_map(|x| x.parse::<usize>().ok())
             .collect();
 
         if replace {
@@ -175,13 +169,7 @@ where
     for line in valid_lines(reader) {
         let initial: Vec<usize> = line
             .split(',')
-            .filter_map(|x| {
-                if let Ok(val) = x.parse::<usize>() {
-                    Some(val)
-                } else {
-                    None
-                }
-            })
+            .filter_map(|x| x.parse::<usize>().ok())
             .collect();
 
         let it = (0..100).permutations(2);

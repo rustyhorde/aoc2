@@ -89,12 +89,12 @@ use crate::{
 };
 use anyhow::{Context, Result};
 use itertools::Itertools;
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     fmt,
     fs::File,
     io::{BufRead, BufReader},
+    sync::LazyLock,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -265,118 +265,118 @@ impl fmt::Display for Boss {
     }
 }
 
-lazy_static! {
-    static ref WEAPONS: Vec<Weapon> = {
-        vec![
-            Weapon {
-                kind: WeaponKind::Dagger,
-                cost: 8,
-                damage: 4,
-                armor: 0,
-            },
-            Weapon {
-                kind: WeaponKind::Shortsword,
-                cost: 10,
-                damage: 5,
-                armor: 0,
-            },
-            Weapon {
-                kind: WeaponKind::Warhammer,
-                cost: 25,
-                damage: 6,
-                armor: 0,
-            },
-            Weapon {
-                kind: WeaponKind::Longsword,
-                cost: 40,
-                damage: 7,
-                armor: 0,
-            },
-            Weapon {
-                kind: WeaponKind::Greataxe,
-                cost: 74,
-                damage: 8,
-                armor: 0,
-            },
-        ]
-    };
-    static ref ARMORS: Vec<Option<Armor>> = {
-        vec![
-            None,
-            Some(Armor {
-                kind: ArmorKind::Leather,
-                cost: 13,
-                damage: 0,
-                armor: 1,
-            }),
-            Some(Armor {
-                kind: ArmorKind::Chainmail,
-                cost: 31,
-                damage: 0,
-                armor: 2,
-            }),
-            Some(Armor {
-                kind: ArmorKind::Splintmail,
-                cost: 53,
-                damage: 0,
-                armor: 3,
-            }),
-            Some(Armor {
-                kind: ArmorKind::Bandedmail,
-                cost: 75,
-                damage: 0,
-                armor: 4,
-            }),
-            Some(Armor {
-                kind: ArmorKind::Platemail,
-                cost: 102,
-                damage: 0,
-                armor: 5,
-            }),
-        ]
-    };
-    static ref RINGS: Vec<Option<Ring>> = {
-        vec![
-            None,
-            Some(Ring {
-                kind: RingKind::Damage1,
-                cost: 25,
-                damage: 1,
-                armor: 0,
-            }),
-            Some(Ring {
-                kind: RingKind::Damage2,
-                cost: 50,
-                damage: 2,
-                armor: 0,
-            }),
-            Some(Ring {
-                kind: RingKind::Damage3,
-                cost: 100,
-                damage: 3,
-                armor: 0,
-            }),
-            Some(Ring {
-                kind: RingKind::Defense1,
-                cost: 20,
-                damage: 0,
-                armor: 1,
-            }),
-            Some(Ring {
-                kind: RingKind::Defense2,
-                cost: 40,
-                damage: 0,
-                armor: 2,
-            }),
-            Some(Ring {
-                kind: RingKind::Defense3,
-                cost: 80,
-                damage: 0,
-                armor: 3,
-            }),
-        ]
-    };
-}
+static WEAPONS: LazyLock<Vec<Weapon>> = LazyLock::new(|| {
+    vec![
+        Weapon {
+            kind: WeaponKind::Dagger,
+            cost: 8,
+            damage: 4,
+            armor: 0,
+        },
+        Weapon {
+            kind: WeaponKind::Shortsword,
+            cost: 10,
+            damage: 5,
+            armor: 0,
+        },
+        Weapon {
+            kind: WeaponKind::Warhammer,
+            cost: 25,
+            damage: 6,
+            armor: 0,
+        },
+        Weapon {
+            kind: WeaponKind::Longsword,
+            cost: 40,
+            damage: 7,
+            armor: 0,
+        },
+        Weapon {
+            kind: WeaponKind::Greataxe,
+            cost: 74,
+            damage: 8,
+            armor: 0,
+        },
+    ]
+});
+
+static ARMORS: LazyLock<Vec<Option<Armor>>> = LazyLock::new(|| {
+    vec![
+        None,
+        Some(Armor {
+            kind: ArmorKind::Leather,
+            cost: 13,
+            damage: 0,
+            armor: 1,
+        }),
+        Some(Armor {
+            kind: ArmorKind::Chainmail,
+            cost: 31,
+            damage: 0,
+            armor: 2,
+        }),
+        Some(Armor {
+            kind: ArmorKind::Splintmail,
+            cost: 53,
+            damage: 0,
+            armor: 3,
+        }),
+        Some(Armor {
+            kind: ArmorKind::Bandedmail,
+            cost: 75,
+            damage: 0,
+            armor: 4,
+        }),
+        Some(Armor {
+            kind: ArmorKind::Platemail,
+            cost: 102,
+            damage: 0,
+            armor: 5,
+        }),
+    ]
+});
+
+static RINGS: LazyLock<Vec<Option<Ring>>> = LazyLock::new(|| {
+    vec![
+        None,
+        Some(Ring {
+            kind: RingKind::Damage1,
+            cost: 25,
+            damage: 1,
+            armor: 0,
+        }),
+        Some(Ring {
+            kind: RingKind::Damage2,
+            cost: 50,
+            damage: 2,
+            armor: 0,
+        }),
+        Some(Ring {
+            kind: RingKind::Damage3,
+            cost: 100,
+            damage: 3,
+            armor: 0,
+        }),
+        Some(Ring {
+            kind: RingKind::Defense1,
+            cost: 20,
+            damage: 0,
+            armor: 1,
+        }),
+        Some(Ring {
+            kind: RingKind::Defense2,
+            cost: 40,
+            damage: 0,
+            armor: 2,
+        }),
+        Some(Ring {
+            kind: RingKind::Defense3,
+            cost: 80,
+            damage: 0,
+            armor: 3,
+        }),
+    ]
+});
 
 /// Solution for Part 1
 ///

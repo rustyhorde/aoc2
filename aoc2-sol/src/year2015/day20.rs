@@ -84,7 +84,7 @@ where
     let mut house_count = 0;
     for line in valid_lines(reader) {
         let total = line.parse::<usize>()?;
-        let mut houses: Vec<usize> = iter::repeat(0).take(total).collect();
+        let mut houses: Vec<usize> = iter::repeat_n(0, total).collect();
 
         for i in 1..(total / 10) {
             for j in (i..(total / 10)).step_by(i) {
@@ -123,7 +123,7 @@ where
     let mut house_count = 0;
     for line in valid_lines(reader) {
         let total = line.parse::<usize>()?;
-        let mut houses: Vec<usize> = iter::repeat(0).take(total).collect();
+        let mut houses: Vec<usize> = iter::repeat_n(0, total).collect();
 
         for i in 1..(total / 10) {
             let mut k = 0;

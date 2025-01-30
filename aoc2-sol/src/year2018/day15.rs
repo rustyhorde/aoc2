@@ -711,7 +711,7 @@ fn take_turn(
         let curr_cell = &board[[i, j]];
 
         match curr_cell.kind {
-            ElementKind::Wall | ElementKind::Cavern {} => {}
+            ElementKind::Wall | ElementKind::Cavern => {}
             ElementKind::Unit => {
                 if let Some(ref unit) = curr_cell.unit {
                     let targets = find_enemy_targets(board, unit.kind);
@@ -767,7 +767,7 @@ fn take_turn(
         let j = if moved { next_coord[1] } else { j };
 
         match curr_cell.kind {
-            ElementKind::Wall | ElementKind::Cavern {} => {}
+            ElementKind::Wall | ElementKind::Cavern => {}
             ElementKind::Unit => {
                 if let Some(ref unit) = curr_cell.unit {
                     if !unit.has_attacked {

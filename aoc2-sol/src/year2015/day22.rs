@@ -158,7 +158,6 @@ use crate::{
     utils::{get_cap_x, run_solution, valid_lines},
 };
 use anyhow::{Context, Result};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -166,6 +165,7 @@ use std::{
     fs::File,
     hash::Hash,
     io::{BufRead, BufReader},
+    sync::LazyLock,
 };
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -231,8 +231,8 @@ struct Spell {
     effect_dur: usize,
 }
 
-lazy_static! {
-    static ref SPELLS: Vec<Spell> = vec![
+static SPELLS: LazyLock<Vec<Spell>> = LazyLock::new(|| {
+    vec![
         Spell {
             kind: SpellKind::MagicMissle,
             mana_cost: 53,
@@ -268,8 +268,8 @@ lazy_static! {
             healing: 0,
             effect_dur: 5,
         },
-    ];
-}
+    ]
+});
 
 /// Solution for Part 1
 ///

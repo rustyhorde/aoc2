@@ -117,10 +117,10 @@ fn find_res(data: Vec<String>) -> Result<usize> {
         let (has_two, has_three) = has_two_or_three(&line);
         if has_two {
             twos += 1;
-        };
+        }
         if has_three {
             threes += 1;
-        };
+        }
     }
 
     Ok(twos * threes)
