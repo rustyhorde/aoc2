@@ -115,7 +115,6 @@
         path_statements,
         private_bounds,
         private_interfaces,
-        ptr_cast_add_auto_to_object,
         ptr_to_integer_transmute_in_consts,
         redundant_imports,
         redundant_lifetimes,
