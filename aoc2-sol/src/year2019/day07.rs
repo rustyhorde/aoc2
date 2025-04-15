@@ -176,7 +176,7 @@ fn find(data: IntcodeData) -> usize {
     }
 }
 
-#[allow(clippy::similar_names, clippy::unnecessary_wraps)]
+#[allow(clippy::similar_names, clippy::unnecessary_wraps, tail_expr_drop_order)]
 fn find_res(intcodes: &IntcodeData, second_star: bool) -> Result<usize> {
     let mut max_thrust = I256::MIN;
 

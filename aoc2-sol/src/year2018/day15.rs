@@ -720,12 +720,13 @@ fn take_turn(
                         return Ok(0);
                     }
 
-                    if let Ok(Some(target)) =
-                        move_if_not_adjacent(board, &targets, unit, i, j, max_i, max_j)
-                    {
-                        move_vec.push((Action::Move([i, j]), target));
-                    } else {
-                        move_vec.push((Action::No, [0, 0]));
+                    match move_if_not_adjacent(board, &targets, unit, i, j, max_i, max_j) {
+                        Ok(Some(target)) => {
+                            move_vec.push((Action::Move([i, j]), target));
+                        }
+                        _ => {
+                            move_vec.push((Action::No, [0, 0]));
+                        }
                     }
                 }
             }

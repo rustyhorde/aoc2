@@ -8,8 +8,8 @@ unstable = []
 
 [dependencies]
 anyhow.workspace = true
-chrono = "0.4.39"
-chrono-tz = "0.10.0"
+chrono = "0.4.40"
+chrono-tz = "0.10.3"
 clap.workspace = true
 config = { workspace = true, features = ["toml"] }
 console.workspace = true
@@ -17,10 +17,10 @@ cookie = "0.18.1"
 dirs2.workspace = true
 getset.workspace = true
 rand.workspace = true
-reqwest = { version = "0.12.12", features = ["cookies"] }
+reqwest = { version = "0.12.15", features = ["cookies"] }
 serde.workspace = true
 thiserror.workspace = true
-tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread", "time"] }
+tokio = { version = "1.44.2", features = ["macros", "rt-multi-thread", "time"] }
 tracing = { workspace = true, features = [
     "attributes",
     "max_level_trace",

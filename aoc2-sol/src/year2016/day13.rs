@@ -71,10 +71,10 @@ use crate::{
 };
 use anyhow::{anyhow, Result};
 use bitvec::{order::Msb0, view::BitView};
+use hashbrown::HashMap;
 use ndarray::{Array2, Axis};
 use petgraph::{algo::dijkstra, graph::NodeIndex, Graph, Undirected};
 use std::{
-    collections::HashMap,
     fs::File,
     io::{BufRead, BufReader},
 };
@@ -121,7 +121,8 @@ fn pathing(
     end_ni: Option<NodeIndex>,
 ) -> Result<HashMap<NodeIndex, i32>> {
     let start_ni = find_node(graph, 1, 1)?;
-    Ok(dijkstra(&graph, start_ni, end_ni, |_| 1))
+    let res = dijkstra(&graph, start_ni, end_ni, |_| 1);
+    Ok(res)
 }
 
 fn setup<T>(

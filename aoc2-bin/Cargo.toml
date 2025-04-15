@@ -5,6 +5,7 @@ edition = "2024"
 
 [features]
 intcode_debug = ["aoc2-sol/intcode_debug"]
+unstable = []
 
 [dependencies]
 anyhow.workspace = true
