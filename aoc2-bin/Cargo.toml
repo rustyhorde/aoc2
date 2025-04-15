@@ -5,6 +5,7 @@ edition = "2024"
 
 [features]
 intcode_debug = ["aoc2-sol/intcode_debug"]
+unstable = []
 
 [dependencies]
 anyhow.workspace = true
@@ -14,7 +15,6 @@ config.workspace = true
 console.workspace = true
 dirs2.workspace = true
 getset.workspace = true
-lazy_static.workspace = true
 rand.workspace = true
 serde.workspace = true
 thiserror.workspace = true

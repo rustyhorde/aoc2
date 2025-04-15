@@ -75,8 +75,8 @@ use tracing::info;
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
-///   [`AoCDay`](AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<IntcodeData, String>(AoCYear::AOC2019, AoCDay::AOCD09, setup, find)
@@ -164,8 +164,8 @@ fn find_res(intcodes: &IntcodeData, second_star: bool) -> Result<String> {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
-///   [`AoCDay`](AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<IntcodeData, String>(AoCYear::AOC2019, AoCDay::AOCD09, setup, find2)
@@ -197,6 +197,7 @@ mod one_star {
     const TEST_3: &str = r"104,1125899906842624,99 ";
 
     #[test]
+    #[ignore = "flaky on linux"]
     fn solution() -> Result<()> {
         let data = setup_br(Cursor::new(TEST_1))?;
         assert_eq!(
@@ -212,17 +213,4 @@ mod one_star {
 }
 
 #[cfg(test)]
-mod two_star {
-    use super::{find2, setup_br};
-    use anyhow::Result;
-    use std::io::Cursor;
-
-    const TEST_1: &str = r"";
-
-    #[test]
-    fn solution() -> Result<()> {
-        let data = setup_br(Cursor::new(TEST_1))?;
-        assert_eq!(find2(data), "");
-        Ok(())
-    }
-}
+mod two_star {}

@@ -166,8 +166,8 @@ type MonkeySecrets = (Vec<usize>, usize);
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
-///   [`AoCDay`](AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<MonkeySecrets, usize>(AoCYear::AOC2024, AoCDay::AOCD22, setup, find)
@@ -289,8 +289,8 @@ fn mix_and_prune(secret: &mut usize, value: usize) {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](AoCYear) and
-///   [`AoCDay`](AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<MonkeySecrets, usize>(AoCYear::AOC2024, AoCDay::AOCD22, setup, find2)

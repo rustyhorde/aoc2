@@ -122,8 +122,8 @@ use std::{
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<Vec<(i32, i32)>, u32>(AoCYear::AOC2018, AoCDay::AOCD06, setup, find)
@@ -263,8 +263,8 @@ fn manhattan_distance(from: (i32, i32), to: (i32, i32)) -> i32 {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<Vec<(i32, i32)>, u32>(AoCYear::AOC2018, AoCDay::AOCD06, setup, find2)

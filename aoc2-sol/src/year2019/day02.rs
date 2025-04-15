@@ -94,8 +94,8 @@ use std::{
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2019, AoCDay::AOCD02, find).map(|_| 0)
@@ -113,13 +113,7 @@ where
     for line in valid_lines(reader) {
         let mut csv: Vec<usize> = line
             .split(',')
-            .filter_map(|x| {
-                if let Ok(val) = x.parse::<usize>() {
-                    Some(val)
-                } else {
-                    None
-                }
-            })
+            .filter_map(|x| x.parse::<usize>().ok())
             .collect();
 
         if replace {
@@ -156,8 +150,8 @@ where
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2019, AoCDay::AOCD02, find2).map(|_| 0)
@@ -175,13 +169,7 @@ where
     for line in valid_lines(reader) {
         let initial: Vec<usize> = line
             .split(',')
-            .filter_map(|x| {
-                if let Ok(val) = x.parse::<usize>() {
-                    Some(val)
-                } else {
-                    None
-                }
-            })
+            .filter_map(|x| x.parse::<usize>().ok())
             .collect();
 
         let it = (0..100).permutations(2);

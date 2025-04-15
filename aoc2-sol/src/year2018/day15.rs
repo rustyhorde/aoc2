@@ -527,8 +527,8 @@ type BattleData = (usize, usize, bool, Vec<String>);
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<BattleData, usize>(AoCYear::AOC2018, AoCDay::AOCD15, setup, find)
@@ -711,7 +711,7 @@ fn take_turn(
         let curr_cell = &board[[i, j]];
 
         match curr_cell.kind {
-            ElementKind::Wall | ElementKind::Cavern {} => {}
+            ElementKind::Wall | ElementKind::Cavern => {}
             ElementKind::Unit => {
                 if let Some(ref unit) = curr_cell.unit {
                     let targets = find_enemy_targets(board, unit.kind);
@@ -720,12 +720,13 @@ fn take_turn(
                         return Ok(0);
                     }
 
-                    if let Ok(Some(target)) =
-                        move_if_not_adjacent(board, &targets, unit, i, j, max_i, max_j)
-                    {
-                        move_vec.push((Action::Move([i, j]), target));
-                    } else {
-                        move_vec.push((Action::No, [0, 0]));
+                    match move_if_not_adjacent(board, &targets, unit, i, j, max_i, max_j) {
+                        Ok(Some(target)) => {
+                            move_vec.push((Action::Move([i, j]), target));
+                        }
+                        _ => {
+                            move_vec.push((Action::No, [0, 0]));
+                        }
                     }
                 }
             }
@@ -767,7 +768,7 @@ fn take_turn(
         let j = if moved { next_coord[1] } else { j };
 
         match curr_cell.kind {
-            ElementKind::Wall | ElementKind::Cavern {} => {}
+            ElementKind::Wall | ElementKind::Cavern => {}
             ElementKind::Unit => {
                 if let Some(ref unit) = curr_cell.unit {
                     if !unit.has_attacked {
@@ -1152,8 +1153,8 @@ fn print_board(board: &Array2<Element>, round: usize) {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<BattleData, usize>(AoCYear::AOC2018, AoCDay::AOCD15, setup, find2)

@@ -91,8 +91,8 @@ use std::{
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<Vec<String>, usize>(AoCYear::AOC2017, AoCDay::AOCD09, setup, find)
@@ -153,12 +153,9 @@ fn process_line_as_chars(line: &str) -> Result<(u32, u32)> {
             '>' if in_garbage => {
                 in_garbage = false;
             }
-            ',' if current_nesting > 0 && !in_garbage => {
-                continue;
-            }
+            ',' if current_nesting > 0 && !in_garbage => {}
             _ if in_garbage => {
                 garbage_count += 1;
-                continue;
             }
             _ => return Err(anyhow!("Unknown character encountered!")),
         }
@@ -178,8 +175,8 @@ fn find(data: Vec<String>) -> usize {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<Vec<String>, usize>(AoCYear::AOC2017, AoCDay::AOCD09, setup, find2)

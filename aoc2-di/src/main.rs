@@ -15,7 +15,9 @@
         multiple_supertrait_upcastable,
         must_not_suspend,
         non_exhaustive_omitted_patterns_lint,
+        rustdoc_missing_doc_code_examples,
         strict_provenance_lints,
+        supertrait_item_shadowing,
         unqualified_local_imports,
     )
 )]
@@ -52,6 +54,7 @@
         deprecated_where_clause_location,
         deref_into_dyn_supertrait,
         deref_nullptr,
+        double_negations,
         drop_bounds,
         dropping_copy_types,
         dropping_references,
@@ -64,10 +67,10 @@
         explicit_outlives_requirements,
         exported_private_dependencies,
         ffi_unwind_calls,
-        for_loops_over_fallibles,
         forbidden_lint_groups,
         forgetting_copy_types,
         forgetting_references,
+        for_loops_over_fallibles,
         function_item_references,
         hidden_glob_reexports,
         if_let_rescope,
@@ -115,7 +118,6 @@
         path_statements,
         private_bounds,
         private_interfaces,
-        ptr_cast_add_auto_to_object,
         ptr_to_integer_transmute_in_consts,
         redundant_imports,
         redundant_lifetimes,
@@ -146,7 +148,6 @@
         uncommon_codepoints,
         unconditional_recursion,
         uncovered_param_in_projection,
-        undefined_naked_function_abi,
         unexpected_cfgs,
         unfulfilled_lint_expectations,
         ungated_async_fn_track_caller,
@@ -190,7 +191,9 @@
         unused_unsafe,
         unused_variables,
         useless_ptr_null_checks,
+        uses_power_alignment,
         variant_size_differences,
+        wasm_c_abi,
         while_true,
     )
 )]
@@ -213,6 +216,8 @@
         multiple_supertrait_upcastable,
         must_not_suspend,
         non_exhaustive_omitted_patterns,
+        supertrait_item_shadowing_definition,
+        supertrait_item_shadowing_usage,
         unqualified_local_imports,
     )
 )]

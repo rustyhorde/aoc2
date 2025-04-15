@@ -254,8 +254,8 @@ type MazeData = (Vec<String>, bool);
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<MazeData, usize>(AoCYear::AOC2024, AoCDay::AOCD16, setup, find).map(|_| 0)
@@ -383,8 +383,8 @@ fn print_maze(maze_data: &Array2<bool>, restore: bool, curr_loc: (usize, usize))
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<MazeData, usize>(AoCYear::AOC2024, AoCDay::AOCD16, setup, find2).map(|_| 0)

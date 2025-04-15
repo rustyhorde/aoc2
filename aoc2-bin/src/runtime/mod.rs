@@ -15,16 +15,14 @@ mod header;
 
 use self::{
     cli::{AoC2Subcommand, Args, Command},
-    fnmap::FN_MAP,
+    config::{ConfigAoc2, load},
+    fnmap::{BENCH_MAP, FN_MAP},
     header::header,
 };
 use anyhow::{Context, Result, anyhow};
 use aoc2_sol::constants::{AoCDay, AoCYear};
 use clap::Parser;
-use config::{ConfigAoc2, load};
 use console::style;
-use fnmap::BENCH_MAP;
-use std::convert::TryFrom;
 use tracing::{trace, warn};
 
 use crate::{

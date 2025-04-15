@@ -128,8 +128,8 @@ impl fmt::Display for Output {
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<Vec<String>, Output>(AoCYear::AOC2017, AoCDay::AOCD19, setup, find)
@@ -287,8 +287,6 @@ fn get_next_neighbor(
                 if adj_row < max_row && adj_col < max_col && network_map[[adj_row, adj_col]] != 32 {
                     return Ok((adj_row, adj_col));
                 }
-            } else {
-                continue;
             }
         }
     }
@@ -325,8 +323,8 @@ fn get_next_dir(
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<Vec<String>, Output>(AoCYear::AOC2017, AoCDay::AOCD19, setup, find2)

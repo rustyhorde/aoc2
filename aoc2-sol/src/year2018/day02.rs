@@ -70,8 +70,8 @@ use std::{
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<Vec<String>, usize>(AoCYear::AOC2018, AoCDay::AOCD02, setup, find)
@@ -117,10 +117,10 @@ fn find_res(data: Vec<String>) -> Result<usize> {
         let (has_two, has_three) = has_two_or_three(&line);
         if has_two {
             twos += 1;
-        };
+        }
         if has_three {
             threes += 1;
-        };
+        }
     }
 
     Ok(twos * threes)
@@ -154,8 +154,8 @@ fn has_two_or_three(line: &str) -> (bool, bool) {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<Vec<String>, String>(AoCYear::AOC2018, AoCDay::AOCD02, setup, find2)

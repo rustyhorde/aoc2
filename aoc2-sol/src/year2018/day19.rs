@@ -209,8 +209,8 @@ type AsmData = (Vec<HashMap<OpCode, Instruction>>, usize, bool);
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_setup_solution::<AsmData, usize>(AoCYear::AOC2018, AoCDay::AOCD19, setup, find).map(|_| 0)
@@ -311,8 +311,8 @@ fn update_ip_with_register(registers: &Registers, ip: &mut Ip) {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_setup_solution::<AsmData, usize>(AoCYear::AOC2018, AoCDay::AOCD19, setup, find2).map(|_| 0)

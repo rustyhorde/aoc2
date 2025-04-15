@@ -216,7 +216,7 @@ impl FromArgMatches for Command {
                 ));
             }
             None => (),
-        };
+        }
         Ok(())
     }
 }

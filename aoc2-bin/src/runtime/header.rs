@@ -30,8 +30,8 @@ fn from_u8(val: u8) -> Style {
 /// # Errors
 ///
 pub(crate) fn header(prefix: &'static str) -> Result<()> {
-    let mut rng = rand::thread_rng();
-    let app_style = from_u8(rng.gen_range(0..7));
+    let mut rng = rand::rng();
+    let app_style = from_u8(rng.random_range(0..7));
     trace(app_style, prefix)?;
     Ok(())
 }

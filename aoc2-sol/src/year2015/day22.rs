@@ -158,7 +158,6 @@ use crate::{
     utils::{get_cap_x, run_solution, valid_lines},
 };
 use anyhow::{Context, Result};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     collections::HashMap,
@@ -166,6 +165,7 @@ use std::{
     fs::File,
     hash::Hash,
     io::{BufRead, BufReader},
+    sync::LazyLock,
 };
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
@@ -231,8 +231,8 @@ struct Spell {
     effect_dur: usize,
 }
 
-lazy_static! {
-    static ref SPELLS: Vec<Spell> = vec![
+static SPELLS: LazyLock<Vec<Spell>> = LazyLock::new(|| {
+    vec![
         Spell {
             kind: SpellKind::MagicMissle,
             mana_cost: 53,
@@ -268,14 +268,14 @@ lazy_static! {
             healing: 0,
             effect_dur: 5,
         },
-    ];
-}
+    ]
+});
 
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD22, find).map(|_| 0)
@@ -377,14 +377,11 @@ fn play(state: &GameState, ms: &mut usize, hard_mode: bool) {
         }
 
         match boss_turn(&mut my_gs) {
-            EndTurn::PlayerKilled => {
-                continue;
-            }
+            EndTurn::PlayerKilled => {}
             EndTurn::BossKilled => {
                 if my_gs.mana_spent < *ms {
                     *ms = my_gs.mana_spent;
                 }
-                continue;
             }
             EndTurn::Continue => play(&my_gs, ms, hard_mode),
         }
@@ -535,8 +532,8 @@ fn check_boss_hp(state: &mut GameState, damage: usize) -> EndTurn {
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD22, find2).map(|_| 0)

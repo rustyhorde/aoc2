@@ -65,8 +65,8 @@ use std::{
 /// Solution for Part 1
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_1() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD20, find).map(|_| 0)
@@ -84,7 +84,7 @@ where
     let mut house_count = 0;
     for line in valid_lines(reader) {
         let total = line.parse::<usize>()?;
-        let mut houses: Vec<usize> = iter::repeat(0).take(total).collect();
+        let mut houses: Vec<usize> = iter::repeat_n(0, total).collect();
 
         for i in 1..(total / 10) {
             for j in (i..(total / 10)).step_by(i) {
@@ -105,8 +105,8 @@ where
 /// Solution for Part 2
 ///
 /// # Errors
-/// * This function will error if the `data_file` for the corresponding [`AoCYear`](crate::constants::AoCYear) and
-///   [`AoCDay`](crate::constants::AoCDay) cannot be read.
+/// * This function will error if the `data_file` for the corresponding [`AoCYear`] and
+///   [`AoCDay`] cannot be read.
 /// * This function will error if the elapsed [`std::time::Duration`] is invalid.
 pub fn part_2() -> Result<u32> {
     run_solution::<usize>(AoCYear::AOC2015, AoCDay::AOCD20, find2).map(|_| 0)
@@ -123,7 +123,7 @@ where
     let mut house_count = 0;
     for line in valid_lines(reader) {
         let total = line.parse::<usize>()?;
-        let mut houses: Vec<usize> = iter::repeat(0).take(total).collect();
+        let mut houses: Vec<usize> = iter::repeat_n(0, total).collect();
 
         for i in 1..(total / 10) {
             let mut k = 0;
