@@ -226,7 +226,7 @@ mod one_star {
     const TEST_1: &str = r"abc";
 
     #[test]
-    #[ignore]
+    #[ignore = "slow"]
     fn solution() -> Result<()> {
         assert_eq!(find_br(Cursor::new(TEST_1))?, 22728);
         Ok(())
@@ -242,7 +242,7 @@ mod two_star {
     const TEST_1: &str = r"abc";
 
     #[test]
-    #[ignore]
+    #[ignore = "slow"]
     fn solution() -> Result<()> {
         assert_eq!(find2_br(Cursor::new(TEST_1))?, 22551);
         Ok(())

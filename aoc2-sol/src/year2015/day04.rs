@@ -131,7 +131,7 @@ mod one_star {
     const TEST_2: &str = r"pqrstuv";
 
     #[test]
-    #[ignore]
+    #[ignore = "slow"]
     fn solution() -> Result<()> {
         assert_eq!(find_br(Cursor::new(TEST_1))?, 609_043);
         assert_eq!(find_br(Cursor::new(TEST_2))?, 1_048_970);
@@ -149,7 +149,7 @@ mod two_star {
     const TEST_2: &str = r"pqrstuv";
 
     #[test]
-    #[ignore]
+    #[ignore = "slow"]
     fn solution() -> Result<()> {
         assert_eq!(find2_br(Cursor::new(TEST_1))?, 6_742_839);
         assert_eq!(find2_br(Cursor::new(TEST_2))?, 5_714_438);
