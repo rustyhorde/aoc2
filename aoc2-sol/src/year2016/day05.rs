@@ -186,7 +186,7 @@ mod one_star {
     const TEST_1: &str = r"abc";
 
     #[test]
-    #[ignore]
+    #[ignore = "slow"]
     fn solution() {
         assert_eq!(find_br(Cursor::new(TEST_1)), "18f47a30");
     }
@@ -200,7 +200,7 @@ mod two_star {
     const TEST_1: &str = r"abc";
 
     #[test]
-    #[ignore]
+    #[ignore = "slow"]
     fn solution() {
         assert_eq!(find2_br(Cursor::new(TEST_1)), "05ace8e3");
     }

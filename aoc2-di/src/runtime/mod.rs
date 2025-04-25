@@ -139,7 +139,7 @@ where
     let aoc2_path = Path::new(config.aoc2_path())
         .join("data")
         .join(&year)
-        .join(format!("day{:0>2}", day));
+        .join(format!("day{day:0>2}"));
     create_dir_all(&aoc2_path)?;
     let data_file_path = aoc2_path.join("data_file");
     info!(
